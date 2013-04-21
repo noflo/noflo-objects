@@ -1,0 +1,44 @@
+{ "name": "noflo-objects"
+, "description": "Object Utilities for NoFlo"
+, "keywords":
+  [ "noflo"
+  , "objects"
+  , "utilities"
+  ]
+, "author": "Kenneth Kan <kenhkan@gmail.com>"
+, "version": "0.0.1"
+, "licenses":
+  [ { "type": "MIT"
+    , "url": "https://github.com/kenhkan/noflo-objects/blob/master/LICENSE.md"
+    }
+  ]
+, "engines":
+  { "node": ">=0.6.0"
+  }
+, "repository":
+  { "type": "git"
+  , "url": "git://github.com/kenhkan/noflo-objects"
+  }
+, "dependencies":
+  { "noflo": "0.3.x"
+  , "underscore": "1.4.x"
+  , "underscore.string": "2.3.x"
+  }
+, "devDependencies":
+  { "coffeelint": "*"
+  , "coffee-script": "1.6.x"
+  , "noflo-test": "https://github.com/kenhkan/noflo-test/tarball/develop"
+  }
+, "noflo":
+  { "components":
+    { "Extend": "./components/Extend.coffee"
+    , "Merge": "./components/Merge.coffee"
+    , "Split": "./components/Split.coffee"
+    , "ReplaceKey": "./components/ReplaceKey.coffee"
+    }
+  }
+, "scripts":
+  { "pretest": "./node_modules/.bin/coffeelint -r components"
+  , "test": "./node_modules/.bin/noflo-test --spec test/*.coffee"
+  }
+}
