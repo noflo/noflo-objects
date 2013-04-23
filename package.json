@@ -23,6 +23,7 @@
   { "noflo": "0.3.x"
   , "underscore": "1.4.x"
   , "underscore.string": "2.3.x"
+  , "noflo-lift": "0.0.x"
   }
 , "devDependencies":
   { "coffeelint": "*"
@@ -37,6 +38,9 @@
     , "ReplaceKey": "./components/ReplaceKey.coffee"
     , "Keys": "./components/Keys.coffee"
     , "Values": "./components/Values.coffee"
+    }
+  , "graphs":
+    { "ExtractProperty": "./graphs/ExtractProperty.coffee"
     }
   }
 , "scripts":
