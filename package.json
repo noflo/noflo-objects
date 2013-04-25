@@ -40,7 +40,7 @@
     , "Values": "./components/Values.coffee"
     }
   , "graphs":
-    { "ExtractProperty": "./graphs/ExtractProperty.coffee"
+    { "ExtractProperty": "./graphs/ExtractProperty.fbp"
     }
   }
 , "scripts":
