@@ -38,9 +38,8 @@
     , "ReplaceKey": "./components/ReplaceKey.coffee"
     , "Keys": "./components/Keys.coffee"
     , "Values": "./components/Values.coffee"
-    }
-  , "graphs":
-    { "ExtractProperty": "./graphs/ExtractProperty.fbp"
+    , "Join": "./components/Join.coffee"
+    , "ExtractProperty": "./components/ExtractProperty.coffee"
     }
   }
 , "scripts":
