@@ -23,7 +23,7 @@ class ExtractProperty extends noflo.Component
 
     @inPorts.in.on "data", (data) =>
       if @key? and _.isObject(data)
-        @outPorts.out.send(data[@key])
+        @outPorts.out.send data[@key]
 
     @inPorts.in.on "endgroup", (group) =>
       @outPorts.out.endGroup()
