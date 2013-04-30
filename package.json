@@ -24,7 +24,6 @@
   , "underscore": "1.4.x"
   , "underscore.string": "2.3.x"
   , "noflo-lift": "0.0.x"
-  , "owl-deepcopy": "0.0.x"
   }
 , "devDependencies":
   { "coffeelint": "*"
@@ -41,7 +40,6 @@
     , "Values": "./components/Values.coffee"
     , "Join": "./components/Join.coffee"
     , "ExtractProperty": "./components/ExtractProperty.coffee"
-    , "ObjectToPackets": "./components/ObjectToPackets.coffee"
     }
   }
 , "scripts":
