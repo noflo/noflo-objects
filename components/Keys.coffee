@@ -15,7 +15,7 @@ class Keys extends noflo.Component
       @outPorts.out.beginGroup(group)
 
     @inPorts.in.on "data", (data) =>
-      @outPorts.out.send(_.keys(data))
+      @outPorts.out.send key for key in _.keys data
 
     @inPorts.in.on "endgroup", (group) =>
       @outPorts.out.endGroup()

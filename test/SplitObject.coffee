@@ -4,7 +4,7 @@ object1 =
   x: 1
   y: 2
 
-test.component("objects/Split").
+test.component("objects/SplitObject").
   discuss("pass in an object").
     send.connect("in").
       send.data("in", object1).

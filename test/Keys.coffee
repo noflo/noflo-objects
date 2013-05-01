@@ -11,6 +11,7 @@ test.component("objects/Keys").
     send.data("in", input).
     send.disconnect("in").
   discuss("get the top-level keys as an array").
-    receive.data("out", ["a", "b"]).
+    receive.data("out", "a").
+    receive.data("out", "b").
 
 export module

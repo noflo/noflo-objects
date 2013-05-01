@@ -22,7 +22,7 @@ expected1 =
     q: 6
     r: 11
 
-test.component("objects/Merge").
+test.component("objects/MergeObjects").
   discuss("merges all objects in separate IPs").
     send.data("in", object1).
     send.data("in", object2).

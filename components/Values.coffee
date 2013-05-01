@@ -15,7 +15,7 @@ class Values extends noflo.Component
       @outPorts.out.beginGroup(group)
 
     @inPorts.in.on "data", (data) =>
-      @outPorts.out.send(_.values(data))
+      @outPorts.out.send value for value in _.values data
 
     @inPorts.in.on "endgroup", (group) =>
       @outPorts.out.endGroup()
