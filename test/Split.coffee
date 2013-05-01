@@ -4,11 +4,6 @@ object1 =
   x: 1
   y: 2
 
-expected1 = [
-  "x", 1
-  "y", 2
-]
-
 test.component("objects/Split").
   discuss("pass in an object").
     send.connect("in").

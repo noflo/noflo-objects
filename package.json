@@ -41,6 +41,9 @@
     , "Join": "./components/Join.coffee"
     , "ExtractProperty": "./components/ExtractProperty.coffee"
     }
+  , "graphs":
+    { "GroupValueByAnother": "./graphs/GroupValueByAnother.fbp"
+    }
   }
 , "scripts":
   { "pretest": "./node_modules/.bin/coffeelint -r components"
