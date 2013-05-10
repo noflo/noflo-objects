@@ -39,6 +39,7 @@
     , "Keys": "./components/Keys.coffee"
     , "Values": "./components/Values.coffee"
     , "Join": "./components/Join.coffee"
+    , "FilterProperty": "./components/FilterProperty.coffee"
     , "ExtractProperty": "./components/ExtractProperty.coffee"
     }
   , "graphs":
