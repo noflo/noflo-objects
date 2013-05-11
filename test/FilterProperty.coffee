@@ -16,6 +16,22 @@ test.component("objects/FilterProperty").
     receive.data("out", { b: 4 }).
 
   next().
+  discuss("set it to keep the matching").
+    send.data("keep", "true").
+  discuss("set some properties to filter").
+    send.connect("key").
+    send.data("key", "a.+").
+    send.disconnect("key").
+  discuss("give it some objects").
+    send.connect("in").
+    send.data("in", { a: 1, b: 2 }).
+    send.data("in", { cat: 3, b: 4 }).
+    send.disconnect("in").
+  discuss("filter the said key/value pair").
+    receive.data("out", {}).
+    receive.data("out", { cat: 3 }).
+
+  next().
   discuss("recursively filter the incoming object").
     send.data("recurse", "true").
   discuss("set some properties to filter").
