@@ -27,9 +27,9 @@ class InsertProperty extends noflo.Component
       @outPorts.out.beginGroup(group)
 
     @inPorts.in.on "data", (data) =>
-      if _.isObject data
-        data[key] = value for key, value of @properties
-        @outPorts.out.send data
+      data = {} unless _.isObject data
+      data[key] = value for key, value of @properties
+      @outPorts.out.send data
 
     @inPorts.in.on "endgroup", (group) =>
       @outPorts.out.endGroup()
