@@ -44,7 +44,21 @@
       "Join": "./components/Join.coffee",
       "FilterProperty": "./components/FilterProperty.coffee",
       "ExtractProperty": "./components/ExtractProperty.coffee",
-      "InsertProperty": "./components/InsertProperty.coffee"
+      "InsertProperty": "./components/InsertProperty.coffee",
+      "SliceArray": "./components/SliceArray.coffee",
+      "SplitArray": "./components/SplitArray.coffee",
+      "FilterPropertyValue": "./components/FilterPropertyValue.coffee",
+      "FlattenObject": "./components/FlattenObject.coffee",
+      "MapProperty": "./components/MapProperty.coffee",
+      "RemoveProperty": "./components/RemoveProperty.coffee",
+      "MapPropertyValue": "./components/MapPropertyValue.coffee",
+      "GetObjectKey": "./components/GetObjectKey.coffee",
+      "UniqueArray": "./components/UniqueArray.coffee",
+      "SetProperty": "./components/SetProperty.coffee",
+      "SimplifyObject": "./components/SimplifyObject.coffee",
+      "DuplicateProperty": "./components/DuplicateProperty.coffee",
+      "CreateObject": "./components/CreateObject.coffee",
+      "SetPropertyValue": "./components/SetPropertyValue.coffee"
     },
     "graphs": {
       "GroupValueByAnother": "./graphs/GroupValueByAnother.fbp"
