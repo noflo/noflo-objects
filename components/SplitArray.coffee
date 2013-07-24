@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class SplitArray extends noflo.Component
   constructor: ->
@@ -7,9 +7,9 @@ class SplitArray extends noflo.Component
     @outPorts =
       out: new noflo.ArrayPort()
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       unless toString.call(data) is '[object Array]'
         for key, item of data
           @outPorts.out.beginGroup key
@@ -17,9 +17,9 @@ class SplitArray extends noflo.Component
           @outPorts.out.endGroup()
         return
       @outPorts.out.send item for item in data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", (data) =>
+    @inPorts.in.on 'disconnect', (data) =>
       @outPorts.out.disconnect()
 
 exports.getComponent = -> new SplitArray

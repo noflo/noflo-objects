@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 _ = require 'underscore'
 
 class RemoveProperty extends noflo.Component
@@ -10,16 +10,16 @@ class RemoveProperty extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.property.on "data", (data) =>
+    @inPorts.property.on 'data', (data) =>
       @properties.push data
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       @outPorts.out.send @removeProperties data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   removeProperties: (object) ->

@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class CreateObject extends noflo.Component
   constructor: ->

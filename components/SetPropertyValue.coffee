@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class SetPropertyValue extends noflo.Component
   constructor: ->
@@ -14,16 +14,16 @@ class SetPropertyValue extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.property.on "data", (data) =>
+    @inPorts.property.on 'data', (data) =>
       @property = data
       @addProperties() if @value and @data.length
-    @inPorts.value.on "data", (data) =>
+    @inPorts.value.on 'data', (data) =>
       @value = data
       @addProperties() if @property and @data.length
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @groups.push group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       if @property and @value
         @addProperty
           data: data
@@ -32,9 +32,9 @@ class SetPropertyValue extends noflo.Component
       @data.push
         data: data
         group: @groups.slice 0
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @groups.pop()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect() if @property and @value
       @value = null
 

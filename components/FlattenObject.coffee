@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class FlattenObject extends noflo.Component
   constructor: ->
@@ -9,24 +9,24 @@ class FlattenObject extends noflo.Component
     @outPorts =
        out: new noflo.Port()
 
-    @inPorts.map.on "data", (data) =>
+    @inPorts.map.on 'data', (data) =>
       @prepareMap data
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       for object in @flattenObject data
         @outPorts.out.send @mapKeys object
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   prepareMap: (map) ->
-    if typeof map is "object"
+    if typeof map is 'object'
       @map = map
       return
-    mapParts = map.split "="
+    mapParts = map.split '='
     @map[mapParts[0]] = mapParts[1]
 
   mapKeys: (object) ->
@@ -38,7 +38,7 @@ class FlattenObject extends noflo.Component
   flattenObject: (object) ->
     flattened = []
     for key, value of object
-      if typeof value is "object"
+      if typeof value is 'object'
         flattenedValue = @flattenObject value
         for val in flattenedValue
           val.flattenedKeys.push key

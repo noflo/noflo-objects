@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class SliceArray extends noflo.Component
   constructor: ->
@@ -13,18 +13,18 @@ class SliceArray extends noflo.Component
       out: new noflo.Port()
       error: new noflo.Port()
 
-    @inPorts.begin.on "data", (data) =>
+    @inPorts.begin.on 'data', (data) =>
       @begin = data
-    @inPorts.end.on "data", (data) =>
+    @inPorts.end.on 'data', (data) =>
       @end = data
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       @sliceData data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   sliceData: (data) ->

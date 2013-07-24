@@ -1,4 +1,4 @@
-noflo = require '../../lib/NoFlo'
+noflo = require 'noflo'
 {_} = require 'underscore'
 
 class SimplifyObject extends noflo.Component

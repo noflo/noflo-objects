@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class GetObjectKey extends noflo.Component
   constructor: ->
@@ -15,16 +15,16 @@ class GetObjectKey extends noflo.Component
       object: new noflo.Port()
       missed: new noflo.Port()
 
-    @inPorts.in.on "connect", =>
+    @inPorts.in.on 'connect', =>
       @data = []
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       return @getKey data if @key.length
       @data.push data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       unless @data.length
         # Data already sent
         @outPorts.out.disconnect()
@@ -38,16 +38,16 @@ class GetObjectKey extends noflo.Component
       @outPorts.out.disconnect()
       @outPorts.object.disconnect() if @outPorts.object.isAttached()
 
-    @inPorts.key.on "data", (data) =>
+    @inPorts.key.on 'data', (data) =>
       @key.push data
-    @inPorts.key.on "disconnect", =>
+    @inPorts.key.on 'disconnect', =>
       return unless @data.length
 
       @getKey data for data in @data
       @data = []
       @outPorts.out.disconnect()
 
-    @inPorts.sendgroup.on "data", (data) =>
+    @inPorts.sendgroup.on 'data', (data) =>
       if typeof data is 'string'
         if data.toLowerCase() is 'false'
           @sendGroup = false
@@ -65,13 +65,13 @@ class GetObjectKey extends noflo.Component
 
   getKey: (data) ->
     unless @key.length
-      @error data, new Error "Key not defined"
+      @error data, new Error 'Key not defined'
       return
-    unless typeof data is "object"
-      @error data, new Error "Data is not an object"
+    unless typeof data is 'object'
+      @error data, new Error 'Data is not an object'
       return
     if data is null
-      @error data, new Error "Data is NULL"
+      @error data, new Error 'Data is NULL'
       return
     for key in @key
       if data[key] is undefined
@@ -84,5 +84,4 @@ class GetObjectKey extends noflo.Component
     return unless @outPorts.object.isAttached()
     @outPorts.object.send data
 
-exports.getComponent = ->
-  new GetObjectKey
+exports.getComponent = -> new GetObjectKey

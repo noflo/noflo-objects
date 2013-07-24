@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class UniqueArray extends noflo.Component
   constructor: ->
@@ -7,9 +7,9 @@ class UniqueArray extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       @outPorts.out.send @unique data
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   unique: (array) ->

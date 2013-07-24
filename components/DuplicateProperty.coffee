@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class DuplicateProperty extends noflo.Component
   constructor: ->
@@ -12,26 +12,26 @@ class DuplicateProperty extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.property.on "data", (data) =>
+    @inPorts.property.on 'data', (data) =>
       @setProperty data
-    @inPorts.separator.on "data", (data) =>
+    @inPorts.separator.on 'data', (data) =>
       @separator = data
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       @addProperties data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   setProperty: (prop) ->
-    if typeof prop is "object"
+    if typeof prop is 'object'
       @prop = prop
       return
 
-    propParts = prop.split "="
+    propParts = prop.split '='
     if propParts.length > 2
       @properties[propParts.pop()] = propParts
       return
@@ -40,7 +40,7 @@ class DuplicateProperty extends noflo.Component
 
   addProperties: (object) ->
     for newprop, original of @properties
-      if typeof original is "string"
+      if typeof original is 'string'
         object[newprop] = object[original]
         continue
 

@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class FilterPropertyValue extends noflo.Component
   constructor: ->
@@ -12,19 +12,19 @@ class FilterPropertyValue extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.accept.on "data", (data) =>
+    @inPorts.accept.on 'data', (data) =>
       @prepareAccept data
-    @inPorts.regexp.on "data", (data) =>
+    @inPorts.regexp.on 'data', (data) =>
       @prepareRegExp data
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       return @filterData data if @filtering()
       @outPorts.out.send data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   filtering: ->
@@ -32,11 +32,11 @@ class FilterPropertyValue extends noflo.Component
         (Object.keys @regexps).length > 0)
 
   prepareAccept: (map) ->
-    if typeof map is "object"
+    if typeof map is 'object'
       @accepts = map
       return
 
-    mapParts = map.split "="
+    mapParts = map.split '='
     try
       @accepts[mapParts[0]] = eval mapParts[1]
     catch e
@@ -45,7 +45,7 @@ class FilterPropertyValue extends noflo.Component
       else throw e
 
   prepareRegExp: (map) ->
-    mapParts = map.split "="
+    mapParts = map.split '='
     @regexps[mapParts[0]] = mapParts[1]
 
   filterData: (object) ->

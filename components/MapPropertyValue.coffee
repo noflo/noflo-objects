@@ -1,4 +1,4 @@
-noflo = require "../../lib/NoFlo"
+noflo = require 'noflo'
 
 class MapPropertyValue extends noflo.Component
   constructor: ->
@@ -14,26 +14,26 @@ class MapPropertyValue extends noflo.Component
     @outPorts =
       out: new noflo.Port()
 
-    @inPorts.map.on "data", (data) =>
+    @inPorts.map.on 'data', (data) =>
       @prepareMap data
-    @inPorts.regexp.on "data", (data) =>
+    @inPorts.regexp.on 'data', (data) =>
       @prepareRegExp data
 
-    @inPorts.in.on "begingroup", (group) =>
+    @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
-    @inPorts.in.on "data", (data) =>
+    @inPorts.in.on 'data', (data) =>
       @mapData data
-    @inPorts.in.on "endgroup", =>
+    @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
-    @inPorts.in.on "disconnect", =>
+    @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
   prepareMap: (map) ->
-    if typeof map is "object"
+    if typeof map is 'object'
       @mapAny = map
       return
 
-    mapParts = map.split "="
+    mapParts = map.split '='
     if mapParts.length is 3
       @map[mapParts[0]] =
         from: mapParts[1]
@@ -43,7 +43,7 @@ class MapPropertyValue extends noflo.Component
     @mapAny[mapParts[0]] = mapParts[1]
 
   prepareRegExp: (map) ->
-    mapParts = map.split "="
+    mapParts = map.split '='
     if mapParts.length is 3
       @regexp[mapParts[0]] =
         from: mapParts[1]
