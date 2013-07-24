@@ -7,11 +7,21 @@
     "utilities"
   ],
   "author": "Kenneth Kan <kenhkan@gmail.com>",
-  "version": "0.0.8",
+  "contributors": [
+    {
+      "name": "Henri Bergius",
+      "email": "henri.bergius@iki.fi"
+    },
+    {
+      "name": "Ryan Shaw",
+      "email": "ryanshaw@unc.edu"
+    }
+  ],
+  "version": "0.1.0",
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/kenhkan/noflo-objects/blob/master/LICENSE.md"
+      "url": "https://github.com/noflo/noflo-objects/blob/master/LICENSE.md"
     }
   ],
   "engines": {
@@ -19,10 +29,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kenhkan/noflo-objects"
+    "url": "git://github.com/noflo/noflo-objects"
   },
   "dependencies": {
-    "noflo": "https://github.com/kenhkan/noflo/tarball/master",
+    "noflo": "https://github.com/kenhkan/noflo/tarball/release",
     "underscore": "1.4.x",
     "underscore.string": "2.3.x",
     "owl-deepcopy": "0.0.x",
@@ -31,7 +41,7 @@
   "devDependencies": {
     "coffeelint": "*",
     "coffee-script": "1.6.x",
-    "noflo-test": "https://github.com/kenhkan/noflo-test/tarball/master"
+    "noflo-test": "https://github.com/kenhkan/noflo-test/tarball/release"
   },
   "noflo": {
     "components": {
