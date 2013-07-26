@@ -1,4 +1,4 @@
-Object Utilities for NoFlo [![Build Status](https://secure.travis-ci.org/kenhkan/noflo-objects.png?branch=master)](https://travis-ci.org/kenhkan/noflo-objects)
+Object Utilities for NoFlo [![Build Status](https://secure.travis-ci.org/noflo/noflo-objects.png?branch=master)](https://travis-ci.org/noflo/noflo-objects)
 ===============================
 
 This package provides utility components to manipulate objects in
