@@ -68,6 +68,7 @@
       "SimplifyObject": "./components/SimplifyObject.coffee",
       "DuplicateProperty": "./components/DuplicateProperty.coffee",
       "CreateObject": "./components/CreateObject.coffee",
+      "CreateDate": "./components/CreateDate.coffee",
       "SetPropertyValue": "./components/SetPropertyValue.coffee"
     },
     "graphs": {
