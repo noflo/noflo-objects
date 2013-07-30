@@ -3,9 +3,9 @@ noflo = require 'noflo'
 class CreateObject extends noflo.Component
   constructor: ->
     @inPorts =
-      start: new noflo.Port()
+      start: new noflo.Port 'bang'
     @outPorts =
-      out: new noflo.Port()
+      out: new noflo.Port 'object'
 
     @inPorts.start.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
