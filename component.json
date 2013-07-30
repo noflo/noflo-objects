@@ -1,16 +1,43 @@
 {
   "name": "noflo-objects",
   "description": "Object Utilities for NoFlo",
-  "author": "Henri Bergius <henri.bergius@iki.fi>",
-  "repo": "noflo/noflo-objects",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "keywords": [
+    "noflo",
+    "objects",
+    "utilities"
   ],
+  "author": "Kenneth Kan <kenhkan@gmail.com>",
+  "repo": "noflo/objects",
   "dependencies": {
     "noflo/noflo": "*"
   },
   "scripts": [
+    "components/Extend.coffee",
+    "components/MergeObjects.coffee",
+    "components/SplitObject.coffee",
+    "components/ReplaceKey.coffee",
+    "components/Keys.coffee",
+    "components/Values.coffee",
+    "components/Join.coffee",
+    "components/FilterProperty.coffee",
+    "components/ExtractProperty.coffee",
+    "components/InsertProperty.coffee",
+    "components/SliceArray.coffee",
+    "components/SplitArray.coffee",
+    "components/FilterPropertyValue.coffee",
+    "components/FlattenObject.coffee",
+    "components/MapProperty.coffee",
+    "components/RemoveProperty.coffee",
+    "components/MapPropertyValue.coffee",
     "components/GetObjectKey.coffee",
+    "components/UniqueArray.coffee",
+    "components/SetProperty.coffee",
+    "components/SimplifyObject.coffee",
+    "components/DuplicateProperty.coffee",
+    "components/CreateObject.coffee",
+    "components/CreateDate.coffee",
+    "components/SetPropertyValue.coffee",
     "index.js"
   ],
   "json": [
@@ -18,7 +45,31 @@
   ],
   "noflo": {
     "components": {
-      "GetObjectKey": "components/GetObjectKey.coffee"
+      "Extend": "components/Extend.coffee",
+      "MergeObjects": "components/MergeObjects.coffee",
+      "SplitObject": "components/SplitObject.coffee",
+      "ReplaceKey": "components/ReplaceKey.coffee",
+      "Keys": "components/Keys.coffee",
+      "Values": "components/Values.coffee",
+      "Join": "components/Join.coffee",
+      "FilterProperty": "components/FilterProperty.coffee",
+      "ExtractProperty": "components/ExtractProperty.coffee",
+      "InsertProperty": "components/InsertProperty.coffee",
+      "SliceArray": "components/SliceArray.coffee",
+      "SplitArray": "components/SplitArray.coffee",
+      "FilterPropertyValue": "components/FilterPropertyValue.coffee",
+      "FlattenObject": "components/FlattenObject.coffee",
+      "MapProperty": "components/MapProperty.coffee",
+      "RemoveProperty": "components/RemoveProperty.coffee",
+      "MapPropertyValue": "components/MapPropertyValue.coffee",
+      "GetObjectKey": "components/GetObjectKey.coffee",
+      "UniqueArray": "components/UniqueArray.coffee",
+      "SetProperty": "components/SetProperty.coffee",
+      "SimplifyObject": "components/SimplifyObject.coffee",
+      "DuplicateProperty": "components/DuplicateProperty.coffee",
+      "CreateObject": "components/CreateObject.coffee",
+      "CreateDate": "components/CreateDate.coffee",
+      "SetPropertyValue": "components/SetPropertyValue.coffee"
     }
   }
 }
