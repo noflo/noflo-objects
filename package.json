@@ -35,8 +35,7 @@
     "noflo": "https://github.com/kenhkan/noflo/tarball/release",
     "underscore": "1.4.x",
     "underscore.string": "2.3.x",
-    "owl-deepcopy": "0.0.x",
-    "noflo-lift": "0.0.x"
+    "owl-deepcopy": "0.0.x"
   },
   "devDependencies": {
     "coffeelint": "*",
