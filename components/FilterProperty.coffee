@@ -1,11 +1,10 @@
 noflo = require "noflo"
 _ = require "underscore"
-_s = require "underscore.string"
 { deepCopy } = require "owl-deepcopy"
 
 class FilterProperty extends noflo.Component
 
-  description: _s.clean "Filter out some properties by matching RegExps
+  description: "Filter out some properties by matching RegExps
   against the keys of incoming objects"
 
   constructor: ->

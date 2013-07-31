@@ -10,7 +10,8 @@
   "author": "Kenneth Kan <kenhkan@gmail.com>",
   "repo": "noflo/objects",
   "dependencies": {
-    "noflo/noflo": "*"
+    "noflo/noflo": "*",
+    "component/underscore": "*"
   },
   "scripts": [
     "components/Extend.coffee",

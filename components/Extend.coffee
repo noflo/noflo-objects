@@ -1,10 +1,9 @@
 _ = require("underscore")
-_s = require("underscore.string")
 noflo = require("noflo")
 
 class Extend extends noflo.Component
 
-  description: _s.clean "Extend an incoming object to some predefined
+  description: "Extend an incoming object to some predefined
   objects, optionally by a certain property"
 
   constructor: ->
