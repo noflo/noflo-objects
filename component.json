@@ -38,6 +38,7 @@
     "components/CreateObject.coffee",
     "components/CreateDate.coffee",
     "components/SetPropertyValue.coffee",
+    "components/CallMethod.coffee",
     "index.js"
   ],
   "json": [
@@ -68,7 +69,8 @@
       "DuplicateProperty": "components/DuplicateProperty.coffee",
       "CreateObject": "components/CreateObject.coffee",
       "CreateDate": "components/CreateDate.coffee",
-      "SetPropertyValue": "components/SetPropertyValue.coffee"
+      "SetPropertyValue": "components/SetPropertyValue.coffee",
+      "CallMethod": "components/CallMethod.coffee"
     }
   }
 }

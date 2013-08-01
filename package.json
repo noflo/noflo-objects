@@ -72,7 +72,8 @@
       "DuplicateProperty": "./components/DuplicateProperty.coffee",
       "CreateObject": "./components/CreateObject.coffee",
       "CreateDate": "./components/CreateDate.coffee",
-      "SetPropertyValue": "./components/SetPropertyValue.coffee"
+      "SetPropertyValue": "./components/SetPropertyValue.coffee",
+      "CallMethod": "components/CallMethod.coffee"
     },
     "graphs": {
       "GroupValueByAnother": "./graphs/GroupValueByAnother.fbp"
