@@ -1,7 +1,7 @@
 {
   "name": "noflo-objects",
   "description": "Object Utilities for NoFlo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "keywords": [
     "noflo",
     "objects",
@@ -74,9 +74,6 @@
       "CreateDate": "./components/CreateDate.coffee",
       "SetPropertyValue": "./components/SetPropertyValue.coffee",
       "CallMethod": "components/CallMethod.coffee"
-    },
-    "graphs": {
-      "GroupValueByAnother": "./graphs/GroupValueByAnother.fbp"
     }
   },
   "scripts": {
