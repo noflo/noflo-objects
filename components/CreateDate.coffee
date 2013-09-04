@@ -8,7 +8,7 @@ class CreateDate extends noflo.Component
       out: new noflo.Port 'object'
 
     @inPorts.in.on "data", (data) =>
-      if data is "now" or data is null
+      if data is "now" or data is null or data is true
         date = new Date
       else
         date = new Date data
