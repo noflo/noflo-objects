@@ -25,9 +25,6 @@ class Extend extends noflo.Component
 
     @inPorts.key.on "data", (@key) =>
 
-    @inPorts.in.on "connect", =>
-      @objects = []
-
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)
 
@@ -35,9 +32,9 @@ class Extend extends noflo.Component
       out = {}
 
       for base in @bases
-        # If there is not key defined, simply extend all; or if the key
-        # property matches, merge them as well
+        # Only extend when there's no key specified...
         if not @key? or
+           # or when the specified attribute matches
            incoming[@key]? and
            incoming[@key] is base[@key]
           _.extend(out, base)
@@ -52,9 +49,5 @@ class Extend extends noflo.Component
 
     @inPorts.in.on "disconnect", =>
       @outPorts.out.disconnect()
-
-# Clean a string of symbols
-cleanSymbols = (str) ->
-  str.replace(/[^a-zA-Z0-9]/g, "")
 
 exports.getComponent = -> new Extend
