@@ -8,25 +8,34 @@ class Extend extends noflo.Component
 
   constructor: ->
     @bases = []
+    @mergedBase = {}
     @key = null
+    @reverse = false
 
     @inPorts =
       in: new noflo.Port
       base: new noflo.Port
       key: new noflo.Port
+      reverse: new noflo.Port
     @outPorts =
       out: new noflo.Port
 
+    @inPorts.base.on "connect", =>
+      @bases = []
+
     @inPorts.base.on "data", (base) =>
-      if base?
-        @bases.push(base)
-      else
-        @bases = []
+      @bases.push base if base?
 
     @inPorts.key.on "data", (@key) =>
 
-    @inPorts.in.on "connect", =>
-      @objects = []
+    @inPorts.reverse.on "data", (reverse) =>
+      # Normally, the passed IP object is extended into base objects (i.e.
+      # attributes in IP object takes precendence). Pass `true` to reverse
+      # would make the passed IP object the base (i.e. attributes in base
+      # objects take precedence.
+      @reverse = reverse is 'true'
+
+    @inPorts.in.on "connect", (group) =>
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)
@@ -35,26 +44,23 @@ class Extend extends noflo.Component
       out = {}
 
       for base in @bases
-        # If there is not key defined, simply extend all; or if the key
-        # property matches, merge them as well
+        # Only extend when there's no key specified...
         if not @key? or
+           # or when the specified attribute matches
            incoming[@key]? and
            incoming[@key] is base[@key]
           _.extend(out, base)
 
       # Put on incoming
-      _.extend(out, incoming)
-
-      @outPorts.out.send(out)
+      if @reverse
+        @outPorts.out.send _.extend {}, incoming, out
+      else
+        @outPorts.out.send _.extend out, incoming
 
     @inPorts.in.on "endgroup", (group) =>
       @outPorts.out.endGroup()
 
     @inPorts.in.on "disconnect", =>
       @outPorts.out.disconnect()
-
-# Clean a string of symbols
-cleanSymbols = (str) ->
-  str.replace(/[^a-zA-Z0-9]/g, "")
 
 exports.getComponent = -> new Extend
