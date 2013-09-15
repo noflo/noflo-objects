@@ -27,6 +27,7 @@ class CallMethod extends noflo.Component
         throw new Error msg
 
       @outPorts.out.send data[@method].apply(data, @args)
+      @args = null
 
     @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
