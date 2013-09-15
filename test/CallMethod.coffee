@@ -51,7 +51,6 @@ test.component("objects/CallMethod").
     send.data("in", input2).
     send.disconnect("in").
   discuss("get the modified object").
-    receive.data("out", { a: 2, b: 15, inc: inc }).
-
+    receive.data("out", expected2).
 
 export module
