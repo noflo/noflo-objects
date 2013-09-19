@@ -13,8 +13,6 @@ inc = (forA, forB) ->
   @b += forB
   return @
 
-args = [1, 5]
-
 input2 =
   a: 1
   b: 10
@@ -44,7 +42,8 @@ test.component("objects/CallMethod").
     send.disconnect("method").
   discuss("then set arguments for method").
     send.connect("arguments").
-    send.data("arguments", args).
+    send.data("arguments", 1).
+    send.data("arguments", 5).
     send.disconnect("arguments").
   discuss("then give it object").
     send.connect("in").

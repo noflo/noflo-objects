@@ -6,12 +6,12 @@ class CallMethod extends noflo.Component
 
   constructor: ->
     @method = null
-    @args   = null
+    @args   = []
 
     @inPorts =
       in: new noflo.Port 'object'
       method: new noflo.Port 'string'
-      arguments: new noflo.Port 'array'
+      arguments: new noflo.Port 'all'
     @outPorts =
       out: new noflo.Port 'all'
       error: new noflo.Port 'string'
@@ -27,7 +27,7 @@ class CallMethod extends noflo.Component
         throw new Error msg
 
       @outPorts.out.send data[@method].apply(data, @args)
-      @args = null
+      @args = []
 
     @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
@@ -36,6 +36,6 @@ class CallMethod extends noflo.Component
       @method = data
 
     @inPorts.arguments.on 'data', (data) =>
-      @args = data
+      @args.push data
 
 exports.getComponent = -> new CallMethod
