@@ -35,6 +35,9 @@ class CallMethod extends noflo.Component
     @inPorts.method.on "data", (data) =>
       @method = data
 
+    @inPorts.arguments.on 'connect', =>
+      @args = []
+    
     @inPorts.arguments.on 'data', (data) =>
       @args.push data
 
