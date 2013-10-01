@@ -14,5 +14,7 @@ class CreateObject extends noflo.Component
       @outPorts.out.disconnect()
     @inPorts.start.on 'endgroup', =>
       @outPorts.out.endGroup()
+    @inPorts.start.on 'disconnect', =>
+      @outPorts.out.disconnect()
 
 exports.getComponent = -> new CreateObject
