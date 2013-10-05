@@ -6,11 +6,12 @@ class FilterPropertyValue extends noflo.Component
     @regexps = {}
 
     @inPorts =
-      accept: new noflo.ArrayPort()
-      regexp: new noflo.ArrayPort()
-      in: new noflo.Port()
+      accept: new noflo.ArrayPort 'all'
+      regexp: new noflo.ArrayPort 'string'
+      in: new noflo.Port 'object'
     @outPorts =
-      out: new noflo.Port()
+      out: new noflo.Port 'object'
+      missed: new noflo.Port 'object'
 
     @inPorts.accept.on 'data', (data) =>
       @prepareAccept data
@@ -64,7 +65,11 @@ class FilterPropertyValue extends noflo.Component
       newData[property] = value
       continue
 
-    return unless match
+    unless match
+      return unless @outPorts.missed.isAttached()
+      @outPorts.missed.send object
+      @outPorts.missed.disconnect()
+
     @outPorts.out.send newData
 
 exports.getComponent = -> new FilterPropertyValue
