@@ -4,7 +4,7 @@ unless noflo.isBrowser()
   chai = require 'chai' unless chai
   FlattenObject = require '../components/FlattenObject.coffee'
 else
-  FlattenObject = require 'noflo-core/components/FlattenObject.js'
+  FlattenObject = require 'noflo-objects/components/FlattenObject.js'
 
 describe 'FlattenObject component', ->
   c = null

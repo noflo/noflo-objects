@@ -4,7 +4,7 @@ unless noflo.isBrowser()
   chai = require 'chai' unless chai
   FilterPropertyValue = require '../components/FilterPropertyValue.coffee'
 else
-  FilterPropertyValue = require 'noflo-core/components/FilterPropertyValue.js'
+  FilterPropertyValue = require 'noflo-objects/components/FilterPropertyValue.js'
 
 describe 'FilterPropertyValue component', ->
   c = null

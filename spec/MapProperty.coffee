@@ -4,7 +4,7 @@ unless noflo.isBrowser()
   chai = require 'chai' unless chai
   MapProperty = require '../components/MapProperty.coffee'
 else
-  MapProperty = require 'noflo-core/components/MapProperty.js'
+  MapProperty = require 'noflo-objects/components/MapProperty.js'
 
 describe 'MapProperty component', ->
   c = null
