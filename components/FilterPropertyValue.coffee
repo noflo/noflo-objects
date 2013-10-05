@@ -69,6 +69,7 @@ class FilterPropertyValue extends noflo.Component
       return unless @outPorts.missed.isAttached()
       @outPorts.missed.send object
       @outPorts.missed.disconnect()
+      return
 
     @outPorts.out.send newData
 
