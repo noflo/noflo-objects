@@ -6,13 +6,19 @@ class SetPropertyValue extends noflo.Component
     @value = null
     @data = []
     @groups = []
+    @keep = false
 
     @inPorts =
       property: new noflo.Port()
       value: new noflo.Port()
       in: new noflo.Port()
+      # Persist value
+      keep: new noflo.Port()
     @outPorts =
       out: new noflo.Port()
+
+    @inPorts.keep.on 'data', (keep) =>
+      @keep = keep is 'true'
 
     @inPorts.property.on 'data', (data) =>
       @property = data
@@ -36,7 +42,7 @@ class SetPropertyValue extends noflo.Component
       @groups.pop()
     @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect() if @property and @value
-      @value = null
+      @value = null unless @keep
 
   addProperty: (object) ->
     object.data[@property] = @value
