@@ -45,6 +45,7 @@
     "component.json"
   ],
   "noflo": {
+    "icon": "list",
     "components": {
       "Extend": "components/Extend.coffee",
       "MergeObjects": "components/MergeObjects.coffee",

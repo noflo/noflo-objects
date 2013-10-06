@@ -4,6 +4,8 @@ _ = require "underscore"
 
 class FilterProperty extends noflo.Component
 
+  icon: 'filter'
+
   description: "Filter out some properties by matching RegExps
   against the keys of incoming objects"
 

@@ -47,6 +47,7 @@
     "grunt-component": "~0.1.2"
   },
   "noflo": {
+    "icon": "list",
     "components": {
       "Extend": "./components/Extend.coffee",
       "MergeObjects": "./components/MergeObjects.coffee",

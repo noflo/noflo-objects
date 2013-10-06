@@ -3,6 +3,7 @@ noflo = require("noflo")
 class CallMethod extends noflo.Component
 
   description: "call a method on an object"
+  icon: 'gear'
 
   constructor: ->
     @method = null

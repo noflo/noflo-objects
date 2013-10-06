@@ -1,6 +1,7 @@
 noflo = require 'noflo'
 
 class FilterPropertyValue extends noflo.Component
+  icon: 'filter'
   constructor: ->
     @accepts = {}
     @regexps = {}
