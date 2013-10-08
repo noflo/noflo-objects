@@ -11,7 +11,6 @@ class CreateObject extends noflo.Component
       @outPorts.out.beginGroup group
     @inPorts.start.on "data", =>
       @outPorts.out.send {}
-      @outPorts.out.disconnect()
     @inPorts.start.on 'endgroup', =>
       @outPorts.out.endGroup()
     @inPorts.start.on 'disconnect', =>

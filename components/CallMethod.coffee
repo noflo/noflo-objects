@@ -17,6 +17,8 @@ class CallMethod extends noflo.Component
       out: new noflo.Port 'all'
       error: new noflo.Port 'string'
 
+    @inPorts.in.on 'begingroup', (group) =>
+      @outPorts.out.beginGroup group
     @inPorts.in.on "data", (data) =>
       return unless @method
       unless data[@method]
@@ -30,6 +32,8 @@ class CallMethod extends noflo.Component
       @outPorts.out.send data[@method].apply(data, @args)
       @args = []
 
+    @inPorts.in.on 'endgroup', =>
+      @outPorts.out.endGroup()
     @inPorts.in.on 'disconnect', =>
       @outPorts.out.disconnect()
 
