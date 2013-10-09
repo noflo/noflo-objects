@@ -54,6 +54,7 @@
       "SplitObject": "./components/SplitObject.coffee",
       "ReplaceKey": "./components/ReplaceKey.coffee",
       "Keys": "./components/Keys.coffee",
+      "Size": "./components/Size.coffee",
       "Values": "./components/Values.coffee",
       "Join": "./components/Join.coffee",
       "FilterProperty": "./components/FilterProperty.coffee",

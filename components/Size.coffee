@@ -1,21 +1,21 @@
 noflo = require("noflo")
 _ = require("underscore")
 
-class Keys extends noflo.Component
+class Size extends noflo.Component
 
-  description: "gets only the keys of an object and forward them as an array"
+  description: "gets the size of an object and sends that out as a number"
 
   constructor: ->
     @inPorts =
       in: new noflo.Port 'object'
     @outPorts =
-      out: new noflo.Port 'all'
+      out: new noflo.Port 'integer'
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)
 
     @inPorts.in.on "data", (data) =>
-      @outPorts.out.send key for key in _.keys data
+      @outPorts.out.send _.size data
 
     @inPorts.in.on "endgroup", (group) =>
       @outPorts.out.endGroup()
@@ -23,4 +23,4 @@ class Keys extends noflo.Component
     @inPorts.in.on "disconnect", =>
       @outPorts.out.disconnect()
 
-exports.getComponent = -> new Keys
+exports.getComponent = -> new Size
