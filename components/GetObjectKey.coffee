@@ -1,7 +1,7 @@
 noflo = require 'noflo'
 
 class GetObjectKey extends noflo.Component
-  icon: 'indent-right'
+  icon: 'indent'
   constructor: ->
     @sendGroup = true
     @data = []

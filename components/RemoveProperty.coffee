@@ -2,7 +2,7 @@ noflo = require 'noflo'
 _ = require 'underscore'
 
 class RemoveProperty extends noflo.Component
-  icon: 'remove'
+  icon: 'ban'
   constructor: ->
     @properties = []
     @inPorts =

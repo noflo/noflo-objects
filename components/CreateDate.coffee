@@ -2,7 +2,7 @@ noflo = require "noflo"
 
 class CreateDate extends noflo.Component
   description: 'Create a new Date object from string'
-  icon: 'time'
+  icon: 'clock-o'
   constructor: ->
     @inPorts =
       in: new noflo.Port 'string'
