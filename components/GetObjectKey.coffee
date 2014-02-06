@@ -8,13 +8,13 @@ class GetObjectKey extends noflo.Component
     @key = []
 
     @inPorts =
-      in: new noflo.Port()
-      key: new noflo.ArrayPort()
-      sendgroup: new noflo.Port()
+      in: new noflo.Port 'object'
+      key: new noflo.ArrayPort 'string'
+      sendgroup: new noflo.Port 'boolean'
     @outPorts =
-      out: new noflo.Port()
-      object: new noflo.Port()
-      missed: new noflo.Port()
+      out: new noflo.Port 'all'
+      object: new noflo.Port 'object'
+      missed: new noflo.Port 'object'
 
     @inPorts.in.on 'connect', =>
       @data = []
