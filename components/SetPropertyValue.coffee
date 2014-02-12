@@ -9,16 +9,16 @@ class SetPropertyValue extends noflo.Component
     @keep = false
 
     @inPorts =
-      property: new noflo.Port()
-      value: new noflo.Port()
-      in: new noflo.Port()
+      property: new noflo.Port 'string'
+      value: new noflo.Port 'all'
+      in: new noflo.Port 'object'
       # Persist value
-      keep: new noflo.Port()
+      keep: new noflo.Port 'boolean'
     @outPorts =
-      out: new noflo.Port()
+      out: new noflo.Port 'object'
 
     @inPorts.keep.on 'data', (keep) =>
-      @keep = keep is 'true'
+      @keep = String(keep) is 'true'
 
     @inPorts.property.on 'data', (data) =>
       @property = data
