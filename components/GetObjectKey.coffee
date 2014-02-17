@@ -49,7 +49,7 @@ class GetObjectKey extends noflo.Component
       @outPorts.out.disconnect()
 
     @inPorts.sendgroup.on 'data', (data) =>
-      @sendGroup = String(keep) is 'true'
+      @sendGroup = String(data) is 'true'
 
   error: (data, error) ->
     if @outPorts.missed.isAttached()
