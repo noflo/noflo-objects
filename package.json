@@ -1,7 +1,7 @@
 {
   "name": "noflo-objects",
   "description": "Object Utilities for NoFlo",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "keywords": [
     "noflo",
     "objects",
@@ -25,7 +25,7 @@
     }
   ],
   "dependencies": {
-    "noflo": "~0.4.0",
+    "noflo": "~0.5.0",
     "underscore": "1.4.x",
     "owl-deepcopy": "0.0.x"
   },
