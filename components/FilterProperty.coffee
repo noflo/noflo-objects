@@ -2,6 +2,8 @@ noflo = require "noflo"
 _ = require "underscore"
 { deepCopy } = require "owl-deepcopy"
 
+# @runtime noflo-nodejs
+
 class FilterProperty extends noflo.Component
 
   icon: 'filter'
