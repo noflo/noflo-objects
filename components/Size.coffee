@@ -9,7 +9,7 @@ class Size extends noflo.Component
     @inPorts =
       in: new noflo.Port 'object'
     @outPorts =
-      out: new noflo.Port 'integer'
+      out: new noflo.Port 'int'
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)
