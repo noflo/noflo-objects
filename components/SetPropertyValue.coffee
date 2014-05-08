@@ -22,7 +22,7 @@ class SetPropertyValue extends noflo.Component
 
     @inPorts.property.on 'data', (data) =>
       @property = data
-      @addProperties() if @value and @data.length
+      @addProperties() if @value != undefined and @data.length
     @inPorts.value.on 'data', (data) =>
       @value = data
       @addProperties() if @property and @data.length
@@ -30,7 +30,7 @@ class SetPropertyValue extends noflo.Component
     @inPorts.in.on 'begingroup', (group) =>
       @groups.push group
     @inPorts.in.on 'data', (data) =>
-      if @property and @value
+      if @property and @value != undefined
         @addProperty
           data: data
           group: @groups.slice 0
@@ -41,8 +41,8 @@ class SetPropertyValue extends noflo.Component
     @inPorts.in.on 'endgroup', =>
       @groups.pop()
     @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect() if @property and @value
-      @value = null unless @keep
+      @outPorts.out.disconnect() if @property and @value != undefined
+      delete @value unless @keep
 
   addProperty: (object) ->
     object.data[@property] = @value
