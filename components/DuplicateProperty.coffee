@@ -5,12 +5,16 @@ class DuplicateProperty extends noflo.Component
     @properties = {}
     @separator = '/'
 
-    @inPorts =
-      property: new noflo.ArrayPort()
-      separator: new noflo.Port()
-      in: new noflo.Port()
-    @outPorts =
-      out: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      property:
+        datatype: 'all'
+      separator:
+        datatype: 'string'
+      in:
+        datatype: 'object'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
 
     @inPorts.property.on 'data', (data) =>
       @setProperty data
@@ -35,7 +39,7 @@ class DuplicateProperty extends noflo.Component
     if propParts.length > 2
       @properties[propParts.pop()] = propParts
       return
-    
+
     @properties[propParts[1]] = propParts[0]
 
   addProperties: (object) ->

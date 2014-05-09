@@ -5,11 +5,17 @@ class RemoveProperty extends noflo.Component
   icon: 'ban'
   constructor: ->
     @properties = []
-    @inPorts =
-      in: new noflo.Port()
-      property: new noflo.ArrayPort()
-    @outPorts =
-      out: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to remove properties from'
+      property:
+        datatype: 'string'
+        description: 'Properties to remove (one per IP)'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'Object forwarded from input'
 
     @inPorts.property.on 'data', (data) =>
       @properties.push data

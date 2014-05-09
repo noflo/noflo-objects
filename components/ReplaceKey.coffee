@@ -8,11 +8,16 @@ class ReplaceKey extends noflo.Component
   constructor: ->
     @patterns = {}
 
-    @inPorts =
-      in: new noflo.Port
-      pattern: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to replace a key from'
+      pattern:
+        datatype: 'all'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'Object forwared from input'
 
     @inPorts.pattern.on "data", (@patterns) =>
 

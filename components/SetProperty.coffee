@@ -4,11 +4,16 @@ class SetProperty extends noflo.Component
   constructor: ->
     @properties = {}
 
-    @inPorts =
-      property: new noflo.ArrayPort()
-      in: new noflo.Port()
-    @outPorts =
-      out: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      property:
+        datatype: 'all'
+      in:
+        datatype: 'object'
+        description: 'Object to set property on'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'Object forwared from input'
 
     @inPorts.property.on 'data', (data) =>
       @setProperty data

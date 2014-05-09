@@ -3,11 +3,15 @@ noflo = require 'noflo'
 class FlattenObject extends noflo.Component
   constructor: ->
     @map = {}
-    @inPorts =
-      map: new noflo.ArrayPort()
-      in: new noflo.Port()
-    @outPorts =
-       out: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      map:
+        datatype: 'all'
+      in:
+        datatype: 'object'
+        description: 'Object to flatten'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'array'
 
     @inPorts.map.on 'data', (data) =>
       @prepareMap data

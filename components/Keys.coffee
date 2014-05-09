@@ -6,10 +6,14 @@ class Keys extends noflo.Component
   description: "gets only the keys of an object and forward them as an array"
 
   constructor: ->
-    @inPorts =
-      in: new noflo.Port 'object'
-    @outPorts =
-      out: new noflo.Port 'all'
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to get keys from'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'string'
+        description: 'Keys from the incoming object (one per IP)'
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)

@@ -2,10 +2,12 @@ noflo = require 'noflo'
 
 class SplitArray extends noflo.Component
   constructor: ->
-    @inPorts =
-      in: new noflo.Port()
-    @outPorts =
-      out: new noflo.ArrayPort()
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'all'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
 
     @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group

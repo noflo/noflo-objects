@@ -13,10 +13,10 @@ describe 'FilterPropertyValue component', ->
 
   beforeEach ->
     c = FilterPropertyValue.getComponent()
-    c.inPorts.in.attach noflo.internalSocket.createSocket()
-    c.outPorts.out.attach noflo.internalSocket.createSocket()
-    ins = c.inPorts.in
-    out = c.outPorts.out
+    ins = noflo.internalSocket.createSocket()
+    out = noflo.internalSocket.createSocket()
+    c.inPorts.in.attach ins
+    c.outPorts.out.attach out
 
   describe 'when instantiated', ->
     it 'should have input ports', ->

@@ -3,10 +3,14 @@ noflo = require 'noflo'
 
 class SimplifyObject extends noflo.Component
   constructor: ->
-    @inPorts =
-      in: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'all'
+        description: 'Object to simplify'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Simplified object'
 
     @inPorts.in.on 'beginGroup', (group) =>
       @outPorts.out.beginGroup group

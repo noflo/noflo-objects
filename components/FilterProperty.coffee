@@ -21,16 +21,27 @@ class FilterProperty extends noflo.Component
     @accepts = []
     @regexps = []
 
-    @inPorts =
-      in: new noflo.Port
-      key: new noflo.Port
-      recurse: new noflo.Port
-      keep: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to filter properties from'
+      key:
+        datatype: 'string'
+        description: 'Keys to filter (one key per IP)'
+      recurse:
+        datatype: 'string'
+        description: '"true" to recurse on the object\'s values'
+      keep:
+        datatype: 'string'
+        description: '"true" if matching properties must be kept, otherwise removed'
       # Legacy mode
-      accept: new noflo.ArrayPort
-      regexp: new noflo.ArrayPort
-    @outPorts =
-      out: new noflo.Port
+      accept:
+        datatype: 'all'
+      regexp:
+        datatype: 'all'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
 
     @inPorts.keep.on "data", (keep) =>
       @keep = true if keep is "true"

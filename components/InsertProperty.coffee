@@ -8,11 +8,17 @@ class InsertProperty extends noflo.Component
   constructor: ->
     @properties = {}
 
-    @inPorts =
-      in: new noflo.Port
-      property: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to insert property into'
+      property:
+        datatype: 'all'
+        description: 'Property to insert (property sent as group, value sent as IP)'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'Object received as input with added properties'
 
     @inPorts.property.on "connect", =>
       @properties = {}

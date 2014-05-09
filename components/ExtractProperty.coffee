@@ -7,11 +7,17 @@ class ExtractProperty extends noflo.Component
   in the incoming object"
 
   constructor: ->
-    @inPorts =
-      in: new noflo.Port
-      key: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'An object to extract property from'
+      key:
+        datatype: 'string'
+        description: 'Property names to extract (one property per IP)'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Values of the property extracted (each value sent as a separate IP)'
 
     @inPorts.key.on "connect", =>
       @keys = []

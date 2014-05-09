@@ -2,10 +2,14 @@ noflo = require 'noflo'
 
 class UniqueArray extends noflo.Component
   constructor: ->
-    @inPorts =
-      in: new noflo.Port()
-    @outPorts =
-      out: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'array'
+        description: 'Array to get unique values from'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'array'
+        description: 'Array containing only unique values from the input array'
 
     @inPorts.in.on 'data', (data) =>
       @outPorts.out.send @unique data

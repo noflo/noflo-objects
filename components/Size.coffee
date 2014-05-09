@@ -6,10 +6,14 @@ class Size extends noflo.Component
   description: "gets the size of an object and sends that out as a number"
 
   constructor: ->
-    @inPorts =
-      in: new noflo.Port 'object'
-    @outPorts =
-      out: new noflo.Port 'int'
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to measure the size of'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'int'
+        description: 'Size of the input object'
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)
