@@ -14,12 +14,12 @@ describe 'FlattenObject component', ->
 
   beforeEach ->
     c = FlattenObject.getComponent()
-    c.inPorts.in.attach noflo.internalSocket.createSocket()
-    c.inPorts.map.attach noflo.internalSocket.createSocket()
-    c.outPorts.out.attach noflo.internalSocket.createSocket()
-    ins = c.inPorts.in
-    map = c.inPorts.map
-    out = c.outPorts.out
+    ins = noflo.internalSocket.createSocket()
+    map = noflo.internalSocket.createSocket()
+    out = noflo.internalSocket.createSocket()
+    c.inPorts.in.attach ins
+    c.inPorts.map.attach map
+    c.outPorts.out.attach out
 
   describe 'when instantiated', ->
     it 'should have input ports', ->
