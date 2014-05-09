@@ -12,13 +12,23 @@ class Extend extends noflo.Component
     @key = null
     @reverse = false
 
-    @inPorts =
-      in: new noflo.Port
-      base: new noflo.Port
-      key: new noflo.Port
-      reverse: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to extend'
+      base:
+        datatype: 'object'
+        description: 'Objects to extend with (one object per IP)'
+      key:
+        datatype: 'string'
+        description: 'Property name to extend with'
+      reverse:
+        datatype: 'string'
+        description: 'A string equal "true" if you want to reverse the order of extension algorithm'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'The object received on port "in" extended'
 
     @inPorts.base.on "connect", =>
       @bases = []

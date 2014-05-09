@@ -2,10 +2,14 @@ noflo = require 'noflo'
 
 class CreateObject extends noflo.Component
   constructor: ->
-    @inPorts =
-      start: new noflo.Port 'bang'
-    @outPorts =
-      out: new noflo.Port 'object'
+    @inPorts = new noflo.InPorts
+      start:
+        datatype: 'bang'
+        description: 'Signal to create a new object'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'A new empty object'
 
     @inPorts.start.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group

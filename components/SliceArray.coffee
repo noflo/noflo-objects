@@ -5,13 +5,22 @@ class SliceArray extends noflo.Component
     @begin = 0
     @end = null
 
-    @inPorts =
-      in: new noflo.Port()
-      begin: new noflo.Port()
-      end: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'array'
+        description: 'Array to slice'
+      begin:
+        datatype: 'number'
+        description: 'Beginning of the slicing'
+      end:
+        datatype: 'number'
+        description: 'End of the slicing'
     @outPorts =
-      out: new noflo.Port()
-      error: new noflo.Port()
+      out:
+        datatype: 'array'
+        description: 'Result of the slice operation'
+      error:
+        datatype: 'string'
 
     @inPorts.begin.on 'data', (data) =>
       @begin = data

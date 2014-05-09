@@ -5,12 +5,16 @@ class MapProperty extends noflo.Component
     @map = {}
     @regexps = {}
 
-    @inPorts =
-      map: new noflo.ArrayPort()
-      regexp: new noflo.ArrayPort()
-      in: new noflo.Port()
-    @outPorts =
-      out: new noflo.Port()
+    @inPorts = new noflo.InPorts
+      map:
+        datatype: 'all'
+      regexp:
+        datatype: 'string'
+      in:
+        datatype: 'object'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
 
     @inPorts.map.on 'data', (data) =>
       @prepareMap data

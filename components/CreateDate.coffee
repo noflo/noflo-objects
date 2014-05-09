@@ -4,10 +4,14 @@ class CreateDate extends noflo.Component
   description: 'Create a new Date object from string'
   icon: 'clock-o'
   constructor: ->
-    @inPorts =
-      in: new noflo.Port 'string'
-    @outPorts =
-      out: new noflo.Port 'object'
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'string'
+        description: 'A string representation of a date in RFC2822/IETF/ISO8601 format'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'A new Date object'
 
     @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group

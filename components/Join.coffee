@@ -9,11 +9,17 @@ class Join extends noflo.Component
   constructor: ->
     @delimiter = ","
 
-    @inPorts =
-      in: new noflo.Port
-      delimiter: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to join values from'
+      delimiter:
+        datatype: 'string'
+        description: 'Delimiter to join values'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'string'
+        description: 'String conversion of all values joined with delimiter into one string'
 
     @inPorts.delimiter.on "data", (@delimiter) =>
 

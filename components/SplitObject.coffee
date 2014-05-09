@@ -6,10 +6,14 @@ class SplitObject extends noflo.Component
     wrapped with the key as the group"
 
   constructor: ->
-    @inPorts =
-      in: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to split key/values from'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Values from the input object (one value per IP and its key sent as group)'
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)

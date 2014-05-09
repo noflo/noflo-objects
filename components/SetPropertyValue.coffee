@@ -8,14 +8,24 @@ class SetPropertyValue extends noflo.Component
     @groups = []
     @keep = false
 
-    @inPorts =
-      property: new noflo.Port 'string'
-      value: new noflo.Port 'all'
-      in: new noflo.Port 'object'
+    @inPorts = new noflo.InPorts
+      property:
+        datatype: 'string'
+        description: 'Property name to set value on'
+      value:
+        datatype: 'all'
+        description: 'Property value to set'
+      in:
+        datatype: 'object'
+        description: 'Object to set property value on'
       # Persist value
-      keep: new noflo.Port 'boolean'
-    @outPorts =
-      out: new noflo.Port 'object'
+      keep:
+        datatype: 'boolean'
+        description: 'true if input value must be kept around, false to drop it after the value is set'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'Object forwarded from the input'
 
     @inPorts.keep.on 'data', (keep) =>
       @keep = String(keep) is 'true'

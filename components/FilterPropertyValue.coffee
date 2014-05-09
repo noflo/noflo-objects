@@ -6,13 +6,23 @@ class FilterPropertyValue extends noflo.Component
     @accepts = {}
     @regexps = {}
 
-    @inPorts =
-      accept: new noflo.ArrayPort 'all'
-      regexp: new noflo.ArrayPort 'string'
-      in: new noflo.Port 'object'
-    @outPorts =
-      out: new noflo.Port 'object'
-      missed: new noflo.Port 'object'
+    @inPorts = new noflo.InPorts
+      accept:
+        datatype: 'all'
+        description: ''
+      regexp:
+        datatype: 'string'
+        description: ''
+      in:
+        datatype: 'object'
+        description: 'Object to filter properties from'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'Object including the filtered properties'
+      missed:
+        datatype: 'object'
+        description: 'Object received as input if no key have been matched'
 
     @inPorts.accept.on 'data', (data) =>
       @prepareAccept data

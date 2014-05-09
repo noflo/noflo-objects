@@ -7,14 +7,26 @@ class GetObjectKey extends noflo.Component
     @data = []
     @key = []
 
-    @inPorts =
-      in: new noflo.Port 'object'
-      key: new noflo.ArrayPort 'string'
-      sendgroup: new noflo.Port 'boolean'
-    @outPorts =
-      out: new noflo.Port 'all'
-      object: new noflo.Port 'object'
-      missed: new noflo.Port 'object'
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to get keys from'
+      key:
+        datatype: 'string'
+        description: 'Keys to extract from the object (one key per IP)'
+      sendgroup:
+        datatype: 'boolean'
+        description: 'true to send keys as groups around value IPs, false otherwise'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Values extracts from the input object given the input keys (one value per IP, potentially grouped using the key names)'
+      object:
+        datatype: 'object'
+        description: 'Object forwarded from input if at least one property matches the input keys'
+      missed:
+        datatype: 'object'
+        description: 'Object forwarded from input if no property matches the input keys'
 
     @inPorts.in.on 'connect', =>
       @data = []
@@ -30,7 +42,7 @@ class GetObjectKey extends noflo.Component
         # Data already sent
         @outPorts.out.disconnect()
         return
-      
+
       # No key, data will be sent when we get it
       return unless @key.length
 

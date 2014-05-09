@@ -6,10 +6,14 @@ class Values extends noflo.Component
   description: "gets only the values of an object and forward them as an array"
 
   constructor: ->
-    @inPorts =
-      in: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'all'
+        description: 'Object to extract values from'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Values extracted from the input object (one value per IP)'
 
     @inPorts.in.on "begingroup", (group) =>
       @outPorts.out.beginGroup(group)

@@ -9,13 +9,22 @@ class CallMethod extends noflo.Component
     @method = null
     @args   = []
 
-    @inPorts =
-      in: new noflo.Port 'object'
-      method: new noflo.Port 'string'
-      arguments: new noflo.Port 'all'
-    @outPorts =
-      out: new noflo.Port 'all'
-      error: new noflo.Port 'string'
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object on which a method will be called'
+      method:
+        datatype: 'string'
+        description: 'Name of the method to call'
+      arguments:
+        datatype: 'all'
+        description: 'Arguments given to the method (one argument per IP)'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Value returned by the method call'
+      error:
+        datatype: 'object'
 
     @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
@@ -42,7 +51,7 @@ class CallMethod extends noflo.Component
 
     @inPorts.arguments.on 'connect', =>
       @args = []
-    
+
     @inPorts.arguments.on 'data', (data) =>
       @args.push data
 

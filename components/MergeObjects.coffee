@@ -8,10 +8,14 @@ class MergeObjects extends noflo.Component
   constructor: ->
     @merge = _.bind @merge, this
 
-    @inPorts =
-      in: new noflo.Port
-    @outPorts =
-      out: new noflo.Port
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Objects to merge (one per IP)'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'object'
+        description: 'A new object containing the merge of input objects'
 
     @inPorts.in.on "connect", () =>
       @groups = []
