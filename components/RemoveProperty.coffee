@@ -12,6 +12,9 @@ class RemoveProperty extends noflo.Component
       property:
         datatype: 'string'
         description: 'Properties to remove (one per IP)'
+      reset:
+        datatype: 'bang'
+        description: 'Clear the list of properties to remove'
     @outPorts = new noflo.OutPorts
       out:
         datatype: 'object'
@@ -19,6 +22,8 @@ class RemoveProperty extends noflo.Component
 
     @inPorts.property.on 'data', (data) =>
       @properties.push data
+    @inPorts.reset.on 'data', =>
+      @properties = []
 
     @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
