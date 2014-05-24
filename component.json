@@ -40,7 +40,8 @@
     "components/CreateDate.coffee",
     "components/SetPropertyValue.coffee",
     "components/CallMethod.coffee",
-    "index.js"
+    "index.js",
+    "components/GetCurrentTimestamp.coffee"
   ],
   "json": [
     "component.json"
@@ -56,6 +57,7 @@
       "ExtractProperty": "components/ExtractProperty.coffee",
       "FilterPropertyValue": "components/FilterPropertyValue.coffee",
       "FlattenObject": "components/FlattenObject.coffee",
+      "GetCurrentTimestamp": "components/GetCurrentTimestamp.coffee",
       "GetObjectKey": "components/GetObjectKey.coffee",
       "InsertProperty": "components/InsertProperty.coffee",
       "Join": "components/Join.coffee",

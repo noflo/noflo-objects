@@ -56,6 +56,7 @@
       "FilterProperty": "components/FilterProperty.coffee",
       "FilterPropertyValue": "components/FilterPropertyValue.coffee",
       "FlattenObject": "components/FlattenObject.coffee",
+      "GetCurrentTimestamp": "components/GetCurrentTimestamp.coffee",
       "GetObjectKey": "components/GetObjectKey.coffee",
       "InsertProperty": "components/InsertProperty.coffee",
       "Join": "components/Join.coffee",
