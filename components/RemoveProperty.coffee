@@ -28,6 +28,7 @@ class RemoveProperty extends noflo.Component
     @inPorts.in.on 'begingroup', (group) =>
       @outPorts.out.beginGroup group
     @inPorts.in.on 'data', (data) =>
+      return unless @properties.length
       @outPorts.out.send @removeProperties data
     @inPorts.in.on 'endgroup', =>
       @outPorts.out.endGroup()
