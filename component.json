@@ -11,7 +11,7 @@
   "repo": "noflo/objects",
   "dependencies": {
     "noflo/noflo": "*",
-    "component/underscore": "*"
+    "jashkenas/underscore": "*"
   },
   "scripts": [
     "components/Extend.coffee",
