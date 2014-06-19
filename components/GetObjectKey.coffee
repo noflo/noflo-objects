@@ -4,6 +4,7 @@ class GetObjectKey extends noflo.Component
   icon: 'indent'
   constructor: ->
     @sendGroup = true
+    @groups = []
     @data = []
     @key = []
 
@@ -24,23 +25,32 @@ class GetObjectKey extends noflo.Component
       object:
         datatype: 'object'
         description: 'Object forwarded from input if at least one property matches the input keys'
+        required: false
       missed:
         datatype: 'object'
         description: 'Object forwarded from input if no property matches the input keys'
+        required: false
 
     @inPorts.in.on 'connect', =>
       @data = []
     @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
+      @groups.push group
     @inPorts.in.on 'data', (data) =>
-      return @getKey data if @key.length
-      @data.push data
+      if @key.length
+        @getKey
+          data: data
+          groups: @groups
+        return
+      @data.push
+        data: data
+        groups: @groups.slice 0
     @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
+      @groups.pop()
     @inPorts.in.on 'disconnect', =>
       unless @data.length
         # Data already sent
         @outPorts.out.disconnect()
+        @outPorts.object.disconnect()
         return
 
       # No key, data will be sent when we get it
@@ -49,7 +59,7 @@ class GetObjectKey extends noflo.Component
       # Otherwise send data we have an disconnect
       @getKey data for data in @data
       @outPorts.out.disconnect()
-      @outPorts.object.disconnect() if @outPorts.object.isAttached()
+      @outPorts.object.disconnect()
 
     @inPorts.key.on 'data', (data) =>
       @key.push data
@@ -59,18 +69,16 @@ class GetObjectKey extends noflo.Component
       @getKey data for data in @data
       @data = []
       @outPorts.out.disconnect()
+      @outPorts.object.disconnect()
 
     @inPorts.sendgroup.on 'data', (data) =>
       @sendGroup = String(data) is 'true'
 
   error: (data, error) ->
-    if @outPorts.missed.isAttached()
-      @outPorts.missed.send data
-      @outPorts.missed.disconnect()
-      return
-    throw error
+    @outPorts.missed.send data
+    @outPorts.missed.disconnect()
 
-  getKey: (data) ->
+  getKey: ({data, groups}) ->
     unless @key.length
       @error data, new Error 'Key not defined'
       return
@@ -84,11 +92,14 @@ class GetObjectKey extends noflo.Component
       if data[key] is undefined
         @error data, new Error "Object has no key #{key}"
         continue
+      @outPorts.out.beginGroup group for group in groups
       @outPorts.out.beginGroup key if @sendGroup
       @outPorts.out.send data[key]
       @outPorts.out.endGroup() if @sendGroup
+      @outPorts.out.endGroup() for group in groups
 
-    return unless @outPorts.object.isAttached()
+    @outPorts.object.beginGroup group for group in groups
     @outPorts.object.send data
+    @outPorts.object.endGroup() for group in groups
 
 exports.getComponent = -> new GetObjectKey
