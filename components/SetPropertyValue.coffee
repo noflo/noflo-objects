@@ -3,7 +3,6 @@ noflo = require 'noflo'
 class SetPropertyValue extends noflo.Component
   constructor: ->
     @property = null
-    @value = null
     @data = []
     @groups = []
     @keep = false
