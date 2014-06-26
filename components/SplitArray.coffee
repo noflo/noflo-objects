@@ -4,7 +4,7 @@ class SplitArray extends noflo.Component
   constructor: ->
     @inPorts = new noflo.InPorts
       in:
-        datatype: 'all'
+        datatype: 'array'
     @outPorts = new noflo.OutPorts
       out:
         datatype: 'all'
