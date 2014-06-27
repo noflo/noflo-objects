@@ -1,28 +1,27 @@
 noflo = require 'noflo'
 
-class UniqueArray extends noflo.Component
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'array'
-        description: 'Array to get unique values from'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'array'
-        description: 'Array containing only unique values from the input array'
+exports.getComponent = ->
+  c = new noflo.Component
+  c.icon = 'empire'
 
-    @inPorts.in.on 'data', (data) =>
-      @outPorts.out.send @unique data
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.inPorts.add 'in',
+    datatype: 'array'
+    description: 'Array to get unique values from'
+  c.outPorts.add 'out',
+    datatype: 'array'
+    description: 'Array containing only unique values from the input array'
 
-  unique: (array) ->
+  noflo.helpers.WirePattern c,
+    in: 'in'
+    out: 'out'
+    forwardGroups: true
+  , (array, groups, out) ->
     seen = {}
     newArray = []
     for member in array
       seen[member] = member
     for member of seen
       newArray.push member
-    return newArray
+    out.send newArray
 
-exports.getComponent = -> new UniqueArray
+  c
