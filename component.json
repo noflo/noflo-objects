@@ -11,7 +11,8 @@
   "repo": "noflo/objects",
   "dependencies": {
     "noflo/noflo": "*",
-    "jashkenas/underscore": "*"
+    "jashkenas/underscore": "*",
+    "mrluc/owl-deepcopy": "*"
   },
   "scripts": [
     "components/Extend.coffee",
@@ -41,7 +42,8 @@
     "components/SetPropertyValue.coffee",
     "components/CallMethod.coffee",
     "index.js",
-    "components/GetCurrentTimestamp.coffee"
+    "components/GetCurrentTimestamp.coffee",
+    "components/FilterProperty.coffee"
   ],
   "json": [
     "component.json"
@@ -55,6 +57,7 @@
       "DuplicateProperty": "components/DuplicateProperty.coffee",
       "Extend": "components/Extend.coffee",
       "ExtractProperty": "components/ExtractProperty.coffee",
+      "FilterProperty": "components/FilterProperty.coffee",
       "FilterPropertyValue": "components/FilterPropertyValue.coffee",
       "FlattenObject": "components/FlattenObject.coffee",
       "GetCurrentTimestamp": "components/GetCurrentTimestamp.coffee",
