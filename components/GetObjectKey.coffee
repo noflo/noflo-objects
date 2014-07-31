@@ -1,52 +1,105 @@
 noflo = require 'noflo'
 
-exports.getComponent = ->
-  c = new noflo.Component
-  c.icon = 'indent'
-  c.description = 'Get a property from an object'
-  c.inPorts.add 'in',
-    datatype: 'object'
-    description: 'Object to get keys from'
-    required: true
-  c.inPorts.add 'key',
-    datatype: 'string'
-    description: 'Keys to extract from the object (one key per IP)'
-    required: true
-  c.inPorts.add 'sendgroup',
-    datatype: 'boolean'
-    description: 'true to send keys as groups around value IPs, false otherwise'
-    required: false
-  c.outPorts.add 'out',
-    datatype: 'all'
-    description: 'Values extracts from the input object given the input keys (one value per IP, potentially grouped using the key names)'
-    required: true
-  c.outPorts.add 'object',
-    datatype: 'object'
-    description: 'Object forwarded from input if at least one property matches the input keys'
-    required: false
-  c.outPorts.add 'missed',
-    datatype: 'object'
-    description: 'Object forwarded from input if no property matches the input keys'
-    required: false
+class GetObjectKey extends noflo.Component
+  icon: 'indent'
+  constructor: ->
+    @sendGroup = true
+    @groups = []
+    @data = []
+    @key = []
 
-  noflo.helpers.WirePattern c,
-    in: 'in'
-    params: ['key', 'sendgroup']
-    out: ['out', 'object']
-    error: 'missed'
-    forwardGroups: true
-  , (data, groups, outs) ->
-    if data is null
-      return c.error new Error 'Data is NULL'
+    @inPorts = new noflo.InPorts
+      in:
+        datatype: 'object'
+        description: 'Object to get keys from'
+      key:
+        datatype: 'string'
+        description: 'Keys to extract from the object (one key per IP)'
+      sendgroup:
+        datatype: 'boolean'
+        description: 'true to send keys as groups around value IPs, false otherwise'
+    @outPorts = new noflo.OutPorts
+      out:
+        datatype: 'all'
+        description: 'Values extracts from the input object given the input keys (one value per IP, potentially grouped using the key names)'
+      object:
+        datatype: 'object'
+        description: 'Object forwarded from input if at least one property matches the input keys'
+        required: false
+      missed:
+        datatype: 'object'
+        description: 'Object forwarded from input if no property matches the input keys'
+        required: false
+
+    @inPorts.in.on 'connect', =>
+      @data = []
+    @inPorts.in.on 'begingroup', (group) =>
+      @groups.push group
+    @inPorts.in.on 'data', (data) =>
+      if @key.length
+        @getKey
+          data: data
+          groups: @groups
+        return
+      @data.push
+        data: data
+        groups: @groups.slice 0
+    @inPorts.in.on 'endgroup', =>
+      @groups.pop()
+    @inPorts.in.on 'disconnect', =>
+      unless @data.length
+        # Data already sent
+        @outPorts.out.disconnect()
+        @outPorts.object.disconnect()
+        return
+
+      # No key, data will be sent when we get it
+      return unless @key.length
+
+      # Otherwise send data we have an disconnect
+      @getKey data for data in @data
+      @outPorts.out.disconnect()
+      @outPorts.object.disconnect()
+
+    @inPorts.key.on 'data', (data) =>
+      @key.push data
+    @inPorts.key.on 'disconnect', =>
+      return unless @data.length
+
+      @getKey data for data in @data
+      @data = []
+      @outPorts.out.disconnect()
+      @outPorts.object.disconnect()
+
+    @inPorts.sendgroup.on 'data', (data) =>
+      @sendGroup = String(data) is 'true'
+
+  error: (data, error) ->
+    @outPorts.missed.send data
+    @outPorts.missed.disconnect()
+
+  getKey: ({data, groups}) ->
+    unless @key.length
+      @error data, new Error 'Key not defined'
+      return
     unless typeof data is 'object'
-      return c.error new Error 'Data is not an object'
-    if data[c.params.key] is undefined
-      return c.error new Error "Object has no key #{c.params.key}"
+      @error data, new Error 'Data is not an object'
+      return
+    if data is null
+      @error data, new Error 'Data is NULL'
+      return
+    for key in @key
+      if data[key] is undefined
+        @error data, new Error "Object has no key #{key}"
+        continue
+      @outPorts.out.beginGroup group for group in groups
+      @outPorts.out.beginGroup key if @sendGroup
+      @outPorts.out.send data[key]
+      @outPorts.out.endGroup() if @sendGroup
+      @outPorts.out.endGroup() for group in groups
 
-    outs.out.beginGroup c.params.key if String(c.params.sendgroup) is 'true'
-    outs.out.send data[c.params.key]
-    outs.out.endGroup() if String(c.params.sendgroup) is 'true'
+    @outPorts.object.beginGroup group for group in groups
+    @outPorts.object.send data
+    @outPorts.object.endGroup() for group in groups
 
-    outs.object.send data
-
-  c
+exports.getComponent = -> new GetObjectKey
