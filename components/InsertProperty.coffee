@@ -1,45 +1,38 @@
-noflo = require("noflo")
-_ = require("underscore")
+noflo = require('noflo')
+_ = require('underscore')
 
-class InsertProperty extends noflo.Component
+exports.getComponent = ->
+  key = null
 
-  description: "Insert a property into incoming objects."
+  c = new noflo.Component
+  c.description = 'Insert a property into incoming objects.'
 
-  constructor: ->
-    @properties = {}
+  c.inPorts.add 'in',
+    datatype: 'object'
+    description: 'Object to insert property into'
+  c.inPorts.add 'property',
+    datatype: 'all'
+    description: 'Property to insert (property sent as group, value sent as IP)'
+    required: true
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to insert property into'
-      property:
-        datatype: 'all'
-        description: 'Property to insert (property sent as group, value sent as IP)'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'Object received as input with added properties'
+  c.outPorts.add 'out',
+    datatype: 'object'
+    description: 'Object received as input with added properties'
 
-    @inPorts.property.on "connect", =>
-      @properties = {}
-    @inPorts.property.on "begingroup", (@key) =>
-    @inPorts.property.on "data", (value) =>
-      @properties[@key] = value if @key?
-    @inPorts.property.on "endgroup", =>
-      @key = null
+  # properties callbacks.
+  c.inPorts.property.on 'begingroup', (group) ->
+    key = group
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
+  # Use the WirePattern.
+  noflo.helpers.WirePattern c,
+    in: ['in']
+    params: ['property']
+    out: ['out']
+    forwardGroups: false
+  ,
+  (data, groups, out) ->
+    data = {} unless data instanceof Object
+    data[key] = c.params.property
+    out.send data
 
-    @inPorts.in.on "data", (data) =>
-      data = {} unless _.isObject data
-      data[key] = value for key, value of @properties
-      @outPorts.out.send data
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new InsertProperty
+  return c
