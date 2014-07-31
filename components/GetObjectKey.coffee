@@ -36,7 +36,6 @@ exports.getComponent = ->
     error: 'missed'
     forwardGroups: true
   , (data, groups, outs) ->
-    console.log c.params
     if data is null
       return c.error new Error 'Data is NULL'
     unless typeof data is 'object'
