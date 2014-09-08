@@ -15,7 +15,7 @@ class SliceArray extends noflo.Component
       end:
         datatype: 'number'
         description: 'End of the slicing'
-    @outPorts =
+    @outPorts = new noflo.OutPorts
       out:
         datatype: 'array'
         description: 'Result of the slice operation'
