@@ -49,6 +49,7 @@
     "components": {
       "CallMethod": "components/CallMethod.coffee",
       "CreateDate": "components/CreateDate.coffee",
+      "CreateError": "components/CreateError.coffee",
       "CreateObject": "components/CreateObject.coffee",
       "DuplicateProperty": "components/DuplicateProperty.coffee",
       "Extend": "components/Extend.coffee",
