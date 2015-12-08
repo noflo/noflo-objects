@@ -43,7 +43,7 @@ exports.getComponent = ->
     in: ['property', 'value', 'in']
     params: ['keep']
     out: 'out'
-    forwardGroups: true
+    forwardGroups: 'in'
     async: true
   , (payload, groups, out, callback) ->
     if c.params.keep
