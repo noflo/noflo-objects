@@ -1,69 +1,72 @@
 noflo = require 'noflo'
 
-class SetPropertyValue extends noflo.Component
-  constructor: ->
-    @property = null
-    @data = []
-    @groups = []
-    @keep = false
+addProperty = (c, out, object) ->
+  object.data[c.property] = c.value
+  for group in object.group
+    out.beginGroup group
+  out.send object.data
+  for group in object.group
+    out.endGroup()
 
-    @inPorts = new noflo.InPorts
-      property:
-        datatype: 'string'
-        description: 'Property name to set value on'
-      value:
-        datatype: 'all'
-        description: 'Property value to set'
-      in:
-        datatype: 'object'
-        description: 'Object to set property value on'
-      # Persist value
-      keep:
-        datatype: 'boolean'
-        description: 'true if input value must be kept around, false to drop it after the value is set'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'Object forwarded from the input'
+addProperties = (c) ->
+  addProperty object for object in c.data
+  c.data = []
 
-    @inPorts.keep.on 'data', (keep) =>
-      @keep = String(keep) is 'true'
+exports.getComponent = ->
+  c = new noflo.Component
+  c.icon = 'edit'
+  c.description = 'Set a value to an object\'s property'
 
-    @inPorts.property.on 'data', (data) =>
-      @property = data
-      @addProperties() if @value != undefined and @data.length
-    @inPorts.value.on 'data', (data) =>
-      @value = data
-      @addProperties() if @property and @data.length
+  c.property = null
+  c.data = []
+  c.groups = []
+  c.keep = false
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @groups.push group
-    @inPorts.in.on 'data', (data) =>
-      if @property and @value != undefined
-        @addProperty
-          data: data
-          group: @groups.slice 0
+  c.inPorts.add 'property',
+    datatype: 'string'
+    description: 'Property name to set value on'
+  c.inPorts.add 'value',
+    datatype: 'all'
+    description: 'Property value to set'
+  c.inPorts.add 'in',
+    datatype: 'object'
+    description: 'Object to set property value on'
+  c.inPorts.add 'keep',
+    datatype: 'boolean'
+    description: 'true if input value must be kept around, false to drop it after the value is set'
+
+  c.outPorts.add 'out',
+    datatype: 'object'
+    description: 'Object forwarded from the input'
+
+  noflo.helpers.WirePattern c,
+    in: ['property', 'value', 'in']
+    params: ['keep']
+    out: 'out'
+    forwardGroups: true
+    async: true
+  , (payload, groups, out, callback) ->
+    if params.keep
+      c.keep = String(params.keep) is 'true'
+    if payload.property
+      c.property = payload.property
+      addProperties(c) if c.value != undefined and c.data.length
+      do callback
+    if payload.value
+      c.value = payload.value
+      addProperties(c) if c.property and c.data.length
+      do callback
+    if payload.in
+      if c.property and c.value != undefined
+        addProperty c, out,
+          data: payload.in
+          group: groups.slice 0
+        do callback
         return
-      @data.push
-        data: data
-        group: @groups.slice 0
-    @inPorts.in.on 'endgroup', =>
-      @groups.pop()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect() if @property and @value != undefined
-      delete @value unless @keep
+      c.data.push
+        data: payload.in
+        group: groups.slice 0
+      delete c.value unless c.keep
+      do callback
 
-  addProperty: (object) ->
-    object.data[@property] = @value
-    for group in object.group
-      @outPorts.out.beginGroup group
-    @outPorts.out.send object.data
-    for group in object.group
-      @outPorts.out.endGroup()
-
-  addProperties: ->
-    @addProperty object for object in @data
-    @data = []
-    @outPorts.out.disconnect()
-
-exports.getComponent = -> new SetPropertyValue
+  c
