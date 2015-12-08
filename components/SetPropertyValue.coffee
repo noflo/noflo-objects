@@ -46,8 +46,8 @@ exports.getComponent = ->
     forwardGroups: true
     async: true
   , (payload, groups, out, callback) ->
-    if params.keep
-      c.keep = String(params.keep) is 'true'
+    if c.params.keep
+      c.keep = String(c.params.keep) is 'true'
     if payload.property
       c.property = payload.property
       addProperties(c) if c.value != undefined and c.data.length
