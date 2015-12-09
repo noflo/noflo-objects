@@ -54,9 +54,86 @@ describe 'SetPropertyValue', ->
           expect(data).to.deep.equal
             foo: false
             bar: 42
+          expect(c.obj).to.equal undefined
+          done()
+        propertyIn.send 'foo'
+        valueIn.send false
+        keepIn.send false
+        inIn.send
+          foo: true
+          bar: 42
+      it 'should foward the right groups from in inport', (done) ->
+        groups = []
+        outOut.on 'begingroup', (group) ->
+          groups.push group
+        outOut.on 'endgroup', ->
+          groups.pop()
+        outOut.on 'data', (data) ->
+          expect(data).to.deep.equal
+            foo: false
+            bar: 42
+          expect(c.obj).to.equal undefined
+          expect(groups.length).to.equal 1
+          expect(groups[0]).to.equal 'foo'
+          done()
+        propertyIn.beginGroup 'bar'
+        propertyIn.send 'foo'
+        propertyIn.endGroup()
+        valueIn.send false
+        keepIn.send false
+        inIn.beginGroup 'foo'
+        inIn.send
+          foo: true
+          bar: 42
+        inIn.endGroup()
+
+    describe 'with params only', ->
+      it 'should timeout', (done) ->
+        @timeout 500
+        setTimeout done, 200
+        propertyIn.send 'foo'
+        valueIn.send false
+        keepIn.send false
+
+    describe 'with input only', ->
+      it 'should timeout', (done) ->
+        outOut.on 'data', (data) ->
+          chai.expect(data).to.deep.equal
+            foo: true
+            bar: 42
           done()
         inIn.send
           foo: true
           bar: 42
+
+    describe 'with keep true', ->
+      it 'should insert the property and keep the object', (done) ->
+        outOut.on 'data', (data) ->
+          expect(data).to.deep.equal
+            foo: false
+            bar: 42
+          expect(c.obj).to.deep.equal
+            foo: false
+            bar: 42
+          done()
         propertyIn.send 'foo'
         valueIn.send false
+        keepIn.send true
+        inIn.send
+          foo: true
+          bar: 42
+
+    describe 'with keep false', ->
+      it 'should insert the property and do not keep the object', (done) ->
+        outOut.on 'data', (data) ->
+          expect(data).to.deep.equal
+            foo: false
+            bar: 42
+          expect(c.obj).to.equal undefined
+          done()
+        propertyIn.send 'foo'
+        valueIn.send false
+        keepIn.send false
+        inIn.send
+          foo: true
+          bar: 42
