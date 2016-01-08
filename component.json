@@ -11,7 +11,7 @@
   "repo": "noflo/objects",
   "dependencies": {
     "noflo/noflo": "*",
-    "jashkenas/underscore": "*",
+    "jashkenas/underscore": "1.8.3",
     "mrluc/owl-deepcopy": "*"
   },
   "scripts": [
