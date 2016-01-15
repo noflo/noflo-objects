@@ -1,23 +1,24 @@
 noflo = require 'noflo'
 
-class CreateObject extends noflo.Component
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      start:
-        datatype: 'bang'
-        description: 'Signal to create a new object'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'A new empty object'
+exports.getComponent = ->
+  c = new noflo.Component
+  c.description = 'Create a new empty object'
 
-    @inPorts.start.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.start.on "data", =>
-      @outPorts.out.send {}
-    @inPorts.start.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.start.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.inPorts.add 'start',
+    datatype: 'bang'
+    description: 'Signal to create a new object'
 
-exports.getComponent = -> new CreateObject
+  c.outPorts.add 'out',
+    datatype: 'object'
+    description: 'A new empty object'
+
+  noflo.helpers.WirePattern c,
+    in: 'start'
+    out: 'out'
+    forwardGroups: true
+    async: true
+  , (payload, groups, out, callback) ->
+    out.send {}
+    do callback
+
+  c
