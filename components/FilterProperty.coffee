@@ -42,10 +42,10 @@ class FilterProperty extends noflo.Component
         datatype: 'object'
 
     @inPorts.keep.on "data", (keep) =>
-      @keep = true if String(keep) is "true"
+      @keep = String(keep) is "true"
 
     @inPorts.recurse.on "data", (data) =>
-      @recurse = true if String(data) is "true"
+      @recurse = String(data) is "true"
 
     @inPorts.key.on "connect", =>
       @keys = []
