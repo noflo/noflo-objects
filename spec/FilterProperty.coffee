@@ -48,6 +48,7 @@ describe 'FilterProperty component', ->
 
       key.send 'a'
       key.send 'c.+'
+      key.disconnect()
 
       ins.send
         a: 1
@@ -70,6 +71,7 @@ describe 'FilterProperty component', ->
 
       keep.send true
       key.send 'a.+'
+      key.disconnect()
 
       ins.send
         a: 1
@@ -91,6 +93,7 @@ describe 'FilterProperty component', ->
       recurse.send true
       key.send 'a'
       key.send 'b'
+      key.disconnect()
 
       ins.send
         x:
