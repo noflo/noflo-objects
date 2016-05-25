@@ -27,10 +27,10 @@ class FilterProperty extends noflo.Component
         datatype: 'string'
         description: 'Keys to filter (one key per IP)'
       recurse:
-        datatype: 'string'
+        datatype: 'boolean'
         description: '"true" to recurse on the object\'s values'
       keep:
-        datatype: 'string'
+        datatype: 'boolean'
         description: '"true" if matching properties must be kept, otherwise removed'
       # Legacy mode
       accept:
@@ -42,10 +42,10 @@ class FilterProperty extends noflo.Component
         datatype: 'object'
 
     @inPorts.keep.on "data", (keep) =>
-      @keep = true if keep is "true"
+      @keep = true if String(keep) is "true"
 
     @inPorts.recurse.on "data", (data) =>
-      @recurse = true if data is "true"
+      @recurse = true if String(data) is "true"
 
     @inPorts.key.on "connect", =>
       @keys = []
