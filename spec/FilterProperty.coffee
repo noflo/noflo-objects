@@ -66,8 +66,9 @@ describe 'FilterProperty component', ->
       ]
       out.on 'data', (data) ->
         chai.expect(data).to.eql expected.shift()
+        return unless expected.length
         keep.send false
-        done() unless expected.length
+        done()
 
       keep.send true
       key.send 'a.+'
@@ -92,7 +93,7 @@ describe 'FilterProperty component', ->
 
       recurse.send true
       key.send 'a'
-      key.send 'b'
+      key.send 'c'
       key.disconnect()
 
       ins.send
