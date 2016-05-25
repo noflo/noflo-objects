@@ -30,7 +30,7 @@
     "owl-deepcopy": "0.0.x"
   },
   "devDependencies": {
-    "grunt-exec": "~0.4.2",
+    "grunt-exec": "~0.4.6",
     "noflo-test": "~0.0.4",
     "grunt": "~0.4.1",
     "grunt-contrib-coffee": "~0.11.1",
