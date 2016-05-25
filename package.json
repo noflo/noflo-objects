@@ -18,12 +18,7 @@
       "email": "ryanshaw@unc.edu"
     }
   ],
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/noflo/noflo-objects/blob/master/LICENSE.md"
-    }
-  ],
+  "license": "MIT",
   "dependencies": {
     "noflo": "~0.5.22",
     "underscore": "1.8.3",
