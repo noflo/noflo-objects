@@ -19,6 +19,10 @@
     }
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noflo/noflo-objects.git"
+  },
   "dependencies": {
     "noflo": "~0.5.22",
     "underscore": "~1.8.3",
