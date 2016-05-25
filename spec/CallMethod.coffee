@@ -23,7 +23,7 @@ describe 'CallMethod component', ->
       args = noflo.internalSocket.createSocket()
       ins = noflo.internalSocket.createSocket()
       c.inPorts.method.attach method
-      c.inPorts.args.attach args
+      c.inPorts.arguments.attach args
       c.inPorts.in.attach ins
       done()
   beforeEach ->
