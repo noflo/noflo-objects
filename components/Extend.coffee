@@ -23,7 +23,7 @@ class Extend extends noflo.Component
         datatype: 'string'
         description: 'Property name to extend with'
       reverse:
-        datatype: 'string'
+        datatype: 'boolean'
         description: 'A string equal "true" if you want to reverse the order of extension algorithm'
     @outPorts = new noflo.OutPorts
       out:
@@ -36,14 +36,18 @@ class Extend extends noflo.Component
     @inPorts.base.on "data", (base) =>
       @bases.push base if base?
 
+    @inPorts.key.on "connect", =>
+      @key = null
     @inPorts.key.on "data", (@key) =>
 
+    @inPorts.reverse.on "connect", =>
+      @reverse = false
     @inPorts.reverse.on "data", (reverse) =>
       # Normally, the passed IP object is extended into base objects (i.e.
       # attributes in IP object takes precendence). Pass `true` to reverse
       # would make the passed IP object the base (i.e. attributes in base
       # objects take precedence.
-      @reverse = reverse is 'true'
+      @reverse = String(reverse) is 'true'
 
     @inPorts.in.on "connect", (group) =>
 
