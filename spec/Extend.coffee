@@ -116,7 +116,7 @@ describe 'Extend component', ->
           c: 5
           d: 6
         done()
-
+      base.connect()
       ins.send object3
 
   describe 'with the reverse flag set', ->
