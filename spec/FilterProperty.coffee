@@ -66,7 +66,7 @@ describe 'FilterProperty component', ->
       ]
       out.on 'data', (data) ->
         chai.expect(data).to.eql expected.shift()
-        return unless expected.length
+        return if expected.length
         keep.send false
         done()
 
