@@ -1,5 +1,13 @@
 language: node_js
 node_js:
-  - "4.2"
+- '4.2'
 before_script:
-  - npm install -g grunt-cli
+- npm install -g grunt-cli
+deploy:
+  provider: npm
+  email: henri.bergius@iki.fi
+  api_key:
+    secure: ICukL/EEWmmvhOt2M/IdllM2s6+qvUSfvzOVlHCIDFh2j+lyLgJFUb7vBKFfD0Uf9y2ZuCyooKADiOhMYMtv1M4BEWuv6w9nlxaTlbly2IQ0ARkW5vKvPXHFIjxKge8Qh6GW7mcWt8a8P11d+afKdC3SCXbbU3y0PFRdNg36bkU=
+  on:
+    tags: true
+    repo: noflo/noflo-objects
