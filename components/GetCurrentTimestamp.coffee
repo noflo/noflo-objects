@@ -5,16 +5,17 @@ exports.getComponent = ->
   c.icon = 'clock-o'
   c.description = 'Send out the current timestamp'
 
-  c.inPorts.add 'in',
-    datatype: 'bang'
-    description: 'Causes the current timestamp to be sent out'
-    process: (event) ->
-      switch event
-        when 'data'
-          c.outPorts.out.send Date.now()
-        when 'disconnect'
-          c.outPorts.out.disconnect()
-  c.outPorts.add 'out',
-    datatype: 'int'
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'bang'
+      description: 'Causes the current timestamp to be sent out'
 
-  c
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'int'
+
+  c.process (input, output) ->
+    return unless input.ip.type is 'data'
+    c.outPorts.out.send Date.now()
+    c.outPorts.out.disconnect()
+    output.done()
