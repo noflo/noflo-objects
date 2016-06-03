@@ -1,49 +1,39 @@
 noflo = require 'noflo'
 
-class FlattenObject extends noflo.Component
-  constructor: ->
-    @map = {}
-    @inPorts = new noflo.InPorts
-      map:
-        datatype: 'all'
-      in:
-        datatype: 'object'
-        description: 'Object to flatten'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'array'
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts.map.on 'data', (data) =>
-      @prepareMap data
+  c.inPorts = new noflo.InPorts
+    map:
+      datatype: 'all'
+    in:
+      datatype: 'object'
+      description: 'Object to flatten'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      for object in @flattenObject data
-        @outPorts.out.send @mapKeys object
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'array'
 
-  prepareMap: (map) ->
+  c.map = {}
+
+  c.prepareMap = (map) ->
     if typeof map is 'object'
-      @map = map
+      c.map = map
       return
     mapParts = map.split '='
-    @map[mapParts[0]] = mapParts[1]
+    c.map[mapParts[0]] = mapParts[1]
 
-  mapKeys: (object) ->
-    for key, map of @map
+  c.mapKeys = (object) ->
+    for key, map of c.map
       object[map] = object.flattenedKeys[key]
     delete object.flattenedKeys
     return object
 
-  flattenObject: (object) ->
+  c.flattenObject = (object) ->
     flattened = []
     for key, value of object
       if typeof value is 'object'
-        flattenedValue = @flattenObject value
+        flattenedValue = c.flattenObject value
         for val in flattenedValue
           val.flattenedKeys.push key
           flattened.push val
@@ -55,4 +45,19 @@ class FlattenObject extends noflo.Component
 
     return flattened
 
-exports.getComponent = -> new FlattenObject
+  c.process (input, output) ->
+    return unless input.ip.type is 'data'
+
+    if input.has 'map'
+      map = input.getData 'map'
+      c.prepareMap map if map?
+
+    if input.has 'in'
+      data = input.getData 'in'
+      for object in c.flattenObject data
+        c.outPorts.out.send c.mapKeys object
+
+      c.outPorts.out.disconnect()
+      output.done()
+      c.map = {}
+
