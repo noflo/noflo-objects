@@ -1,58 +1,49 @@
 noflo = require 'noflo'
 
-class DuplicateProperty extends noflo.Component
-  constructor: ->
-    @properties = {}
-    @separator = '/'
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts = new noflo.InPorts
-      property:
-        datatype: 'all'
-      separator:
-        datatype: 'string'
-      in:
-        datatype: 'object'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
+  c.properties = {}
+  c.separator = '/'
 
-    @inPorts.property.on 'data', (data) =>
-      @setProperty data
-    @inPorts.separator.on 'data', (data) =>
-      @separator = data
+  c.inPorts = new noflo.InPorts
+    property:
+      datatype: 'all'
+    separator:
+      datatype: 'string'
+    in:
+      datatype: 'object'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      @addProperties data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
 
-  setProperty: (prop) ->
-    if typeof prop is 'object'
-      @prop = prop
-      return
+  c.process (input, output) ->
+    return unless input.has 'property', 'separator', 'in'
+    [prop, separator, data] = input.getData 'property', 'separator', 'in'
+    return unless input.ip.type is 'data'
 
-    propParts = prop.split '='
-    if propParts.length > 2
-      @properties[propParts.pop()] = propParts
-      return
+    if prop
+      if typeof prop is 'object'
+        c.prop = prop
+        return
 
-    @properties[propParts[1]] = propParts[0]
+      propParts = prop.split '='
+      if propParts.length > 2
+        c.properties[propParts.pop()] = propParts
+        return
 
-  addProperties: (object) ->
-    for newprop, original of @properties
-      if typeof original is 'string'
-        object[newprop] = object[original]
-        continue
+      c.properties[propParts[1]] = propParts[0]
 
-      newValues = []
-      for originalProp in original
-        newValues.push object[originalProp]
-      object[newprop] = newValues.join @separator
+    if data
+      for newprop, original of c.properties
+        if typeof original is 'string'
+          object[newprop] = object[original]
+          continue
 
-    @outPorts.out.send object
+        newValues = []
+        for originalProp in original
+          newValues.push object[originalProp]
+        object[newprop] = newValues.join c.separator
 
-exports.getComponent = -> new DuplicateProperty
+      c.outPorts.out.send object
