@@ -1,75 +1,62 @@
 noflo = require 'noflo'
 
-class FilterPropertyValue extends noflo.Component
-  icon: 'filter'
-  constructor: ->
-    @accepts = {}
-    @regexps = {}
+exports.getComponent = ->
+  c = new noflo.Component
+    icon: 'filter'
+    description: 'Filter out some values'
+  c.accepts = {}
+  c.regexps = {}
 
-    @inPorts = new noflo.InPorts
-      accept:
-        datatype: 'all'
-        description: ''
-      regexp:
-        datatype: 'string'
-        description: ''
-      in:
-        datatype: 'object'
-        description: 'Object to filter properties from'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'Object including the filtered properties'
-      missed:
-        datatype: 'object'
-        description: 'Object received as input if no key have been matched'
+  c.inPorts = new noflo.InPorts
+    accept:
+      datatype: 'all'
+      description: ''
+    regexp:
+      datatype: 'string'
+      description: ''
+    in:
+      datatype: 'object'
+      description: 'Object to filter properties from'
 
-    @inPorts.accept.on 'data', (data) =>
-      @prepareAccept data
-    @inPorts.regexp.on 'data', (data) =>
-      @prepareRegExp data
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object including the filtered properties'
+    missed:
+      datatype: 'object'
+      description: 'Object received as input if no key have been matched'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      return @filterData data if @filtering()
-      @outPorts.out.send data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.filtering = ->
+    return ((Object.keys c.accepts).length > 0 or
+        (Object.keys c.regexps).length > 0)
 
-  filtering: ->
-    return ((Object.keys @accepts).length > 0 or
-        (Object.keys @regexps).length > 0)
-
-  prepareAccept: (map) ->
+  c.prepareAccept = (map) ->
     if typeof map is 'object'
-      @accepts = map
+      c.accepts = map
       return
 
     mapParts = map.split '='
     try
-      @accepts[mapParts[0]] = eval mapParts[1]
+      c.accepts[mapParts[0]] = eval mapParts[1]
     catch e
       if e instanceof ReferenceError
-        @accepts[mapParts[0]] = mapParts[1]
+        c.accepts[mapParts[0]] = mapParts[1]
       else throw e
 
-  prepareRegExp: (map) ->
+  c.prepareRegExp = (map) ->
     mapParts = map.split '='
-    @regexps[mapParts[0]] = mapParts[1]
+    c.regexps[mapParts[0]] = mapParts[1]
 
-  filterData: (object) ->
+  c.filterData = (object) ->
     newData = {}
     match = false
     for property, value of object
-      if @accepts[property]
-        continue unless @accepts[property] is value
+      if c.accepts[property]
+        continue unless c.accepts[property] is value
         match = true
 
-      if @regexps[property]
-        regexp = new RegExp @regexps[property]
+      if c.regexps[property]
+        regexp = new RegExp c.regexps[property]
         continue unless regexp.exec value
         match = true
 
@@ -77,11 +64,26 @@ class FilterPropertyValue extends noflo.Component
       continue
 
     unless match
-      return unless @outPorts.missed.isAttached()
-      @outPorts.missed.send object
-      @outPorts.missed.disconnect()
+      return unless c.outPorts.missed.isAttached()
+      c.outPorts.missed.send object
+      c.outPorts.missed.disconnect()
       return
 
-    @outPorts.out.send newData
+    c.outPorts.out.send newData
 
-exports.getComponent = -> new FilterPropertyValue
+  c.process (input, output) ->
+    return unless input.ip.type is 'data'
+
+    if input.has 'accept'
+      accept = input.getData 'accept'
+      c.prepareAccept accept if accept?
+
+    if input.has 'regexp'
+      regexp = input.getData 'regexp'
+      c.prepareRegExp regexp if regexp?
+
+    if input.has 'in'
+      data = input.getData 'in'
+      return c.filterData data if c.filtering()
+      c.outPorts.out.send data
+
