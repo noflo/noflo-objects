@@ -1,47 +1,41 @@
-noflo = require("noflo")
-_ = require("underscore")
+noflo = require 'noflo'
+_ = require 'underscore'
 
-class ExtractProperty extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
+    description: 'Given a key, return only the value matching that key
+    in the incoming object'
 
-  description: "Given a key, return only the value matching that key
-  in the incoming object"
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'An object to extract property from'
+    key:
+      datatype: 'string'
+      description: 'Property names to extract (one property per IP)'
 
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'An object to extract property from'
-      key:
-        datatype: 'string'
-        description: 'Property names to extract (one property per IP)'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
-        description: 'Values of the property extracted (each value sent as a separate IP)'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'all'
+      description: 'Values of the property extracted (each value sent as a separate IP)'
 
-    @inPorts.key.on "connect", =>
-      @keys = []
-    @inPorts.key.on "data", (key) =>
-      @keys.push key
+  c.keys = []
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
+  c.process (input, output) ->
+    if input.has 'key'
+      keys = input.getData 'key'
+      if keys?
+        c.keys.push keys
 
-    @inPorts.in.on "data", (data) =>
-      if @keys? and _.isObject(data)
+    if input.has 'in'
+      data = input.getData 'in'
+      if c.keys? and _.isObject(data)
         value = data
 
         # Loop through the keys we have
-        for key in @keys
+        for key in c.keys
           value = value[key]
 
+        c.keys = []
         # Send the extracted value
-        @outPorts.out.send value
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new ExtractProperty
+        c.outPorts.out.send value
