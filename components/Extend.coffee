@@ -1,80 +1,68 @@
-_ = require("underscore")
-noflo = require("noflo")
+# @TODO: remove need for underscorejs
+_ = require 'underscore'
+noflo = require 'noflo'
 
-class Extend extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
+    description: 'Extend an incoming object to some predefined
+    objects, optionally by a certain property'
 
-  description: "Extend an incoming object to some predefined
-  objects, optionally by a certain property"
+  c.bases = []
+  c.mergedBase = {}
+  c.key = null
+  c.reverse = false
 
-  constructor: ->
-    @bases = []
-    @mergedBase = {}
-    @key = null
-    @reverse = false
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to extend'
+    base:
+      datatype: 'object'
+      description: 'Objects to extend with (one object per IP)'
+    key:
+      datatype: 'string'
+      description: 'Property name to extend with'
+    reverse:
+      datatype: 'boolean'
+      description: 'A string equal "true" if you want to reverse the order of extension algorithm'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'The object received on port "in" extended'
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to extend'
-      base:
-        datatype: 'object'
-        description: 'Objects to extend with (one object per IP)'
-      key:
-        datatype: 'string'
-        description: 'Property name to extend with'
-      reverse:
-        datatype: 'boolean'
-        description: 'A string equal "true" if you want to reverse the order of extension algorithm'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'The object received on port "in" extended'
+  c.process (input, output) ->
+    if input.has 'base'
+      base = input.getData 'base'
+      c.bases.push base if base?
 
-    @inPorts.base.on "connect", =>
-      @bases = []
+    if input.has 'key'
+      c.key = input.getData 'key'
 
-    @inPorts.base.on "data", (base) =>
-      @bases.push base if base?
-
-    @inPorts.key.on "connect", =>
-      @key = null
-    @inPorts.key.on "data", (@key) =>
-
-    @inPorts.reverse.on "connect", =>
-      @reverse = false
-    @inPorts.reverse.on "data", (reverse) =>
+    if input.has 'reverse'
+      reverse = input.getData 'reverse'
       # Normally, the passed IP object is extended into base objects (i.e.
       # attributes in IP object takes precendence). Pass `true` to reverse
       # would make the passed IP object the base (i.e. attributes in base
       # objects take precedence.
-      @reverse = String(reverse) is 'true'
+      c.reverse = String(reverse) is 'true'
 
-    @inPorts.in.on "connect", (group) =>
+    if input.has 'in'
+      data = input.getData 'in'
+      if data?
+        out = {}
+        for base in c.bases
+          # Only extend when there's no key specified...
+          if not c.key? or
+             # or when the specified attribute matches
+             data[c.key]? and
+             data[c.key] is base[c.key]
+            _.extend(out, base)
+        # Put on data
+        if c.reverse
+          c.outPorts.out.send _.extend {}, data, out
+        else
+          c.outPorts.out.send _.extend out, data
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
-
-    @inPorts.in.on "data", (incoming) =>
-      out = {}
-
-      for base in @bases
-        # Only extend when there's no key specified...
-        if not @key? or
-           # or when the specified attribute matches
-           incoming[@key]? and
-           incoming[@key] is base[@key]
-          _.extend(out, base)
-
-      # Put on incoming
-      if @reverse
-        @outPorts.out.send _.extend {}, incoming, out
-      else
-        @outPorts.out.send _.extend out, incoming
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new Extend
+      c.bases = []
+      c.key = null
+      c.reverse = false
