@@ -16,8 +16,6 @@ exports.getComponent = ->
       description: 'A new Date object'
 
   c.process (input, output) ->
-    console.log input.has 'in'
-
     return unless input.has 'in'
     data = input.getData 'in'
 
@@ -25,4 +23,4 @@ exports.getComponent = ->
       date = new Date
     else
       date = new Date data
-    @outPorts.out.send date
+    c.outPorts.out.send date

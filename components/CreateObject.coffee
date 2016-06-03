@@ -2,6 +2,7 @@ noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
+    description: 'Create an empty object'
 
   c.inPorts = new noflo.InPorts
     start:
