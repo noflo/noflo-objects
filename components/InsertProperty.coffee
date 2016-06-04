@@ -19,28 +19,20 @@ exports.getComponent = ->
       datatype: 'object'
       description: 'Object received as input with added properties'
 
-  propertyData = {}
-  outputData = {}
-  key = {}
-
-  c.shutdown = ->
-    propertyData = {}
-    outputData = {}
-    key = {}
-
   c.process (input, output) ->
-    property = input.get 'property'
-    data = input.get 'in'
+    propBuffer = input.ports.property.buffer
+    openBracket = (propBuffer.filter (ip) -> ip.type is 'openBracket' and ip.data?)[0]
+    propData = (propBuffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
+    closeBracket = (propBuffer.filter (ip) -> ip.type is 'closeBracket' and ip.data?)[0]
+    hasData = input.has 'in'
 
-    if input.ip.type is 'openBracket' and property?.data
-      key[property.scope] = property.data
+    return unless openBracket? and propData? and closeBracket? and hasData
+    data = input.getData 'in'
+    key = openBracket.data
 
-    if input.ip.type is 'data'
-      if property?.data
-        propertyData[property.scope] = property.data
-      if input.ip.type is 'data' and data?.data and data instanceof Object
-        outputData[data.scope] = data.data
+    outputData = {}
+    if data instanceof Object
+      outputData = data
 
-    if input.ip.type is 'closeBracket' and property?.data
-      outputData[property.scope][key[property.scope]] = propertyData[property.scope]
-      output.ports.out.send outputData[property.scope]
+    outputData[key] = propData.data
+    output.ports.out.send outputData
