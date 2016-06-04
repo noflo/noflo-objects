@@ -1,38 +1,42 @@
-noflo = require('noflo')
-_ = require('underscore')
+noflo = require 'noflo'
+_ = require 'underscore'
 
+# @TODO: SCOPE THESE https://github.com/noflo/noflo-strings/pull/71/files
 exports.getComponent = ->
-  key = null
-
   c = new noflo.Component
   c.description = 'Insert a property into incoming objects.'
 
-  c.inPorts.add 'in',
-    datatype: 'object'
-    description: 'Object to insert property into'
-  c.inPorts.add 'property',
-    datatype: 'all'
-    description: 'Property to insert (property sent as group, value sent as IP)'
-    required: true
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'all'
+      description: 'Object to insert property into'
+    property:
+      datatype: 'all'
+      description: 'Property to insert (property sent as group, value sent as IP)'
+      required: true
 
-  c.outPorts.add 'out',
-    datatype: 'object'
-    description: 'Object received as input with added properties'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object received as input with added properties'
 
-  # properties callbacks.
-  c.inPorts.property.on 'begingroup', (group) ->
-    key = group
+  propertyData = {}
+  key = {}
+  outputData = {}
 
-  # Use the WirePattern.
-  noflo.helpers.WirePattern c,
-    in: ['in']
-    params: ['property']
-    out: ['out']
-    forwardGroups: false
-  ,
-  (data, groups, out) ->
-    data = {} unless data instanceof Object
-    data[key] = c.params.property
-    out.send data
+  c.process (input, output) ->
+    property = input.get 'property'
+    data = input.get 'in'
 
-  return c
+    if input.ip.type is 'openBracket' and property?.data
+      key = property.data
+
+    if input.ip.type is 'data'
+      if property?.data
+        propertyData = property.data
+      if input.ip.type is 'data' and data?.data and data instanceof Object
+        outputData = data.data
+
+    if input.ip.type is 'closeBracket' and property?.data
+      outputData[key] = propertyData
+      output.ports.out.send outputData
