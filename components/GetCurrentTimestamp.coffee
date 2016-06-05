@@ -16,6 +16,6 @@ exports.getComponent = ->
 
   c.process (input, output) ->
     return unless input.ip.type is 'data'
-    c.outPorts.out.send Date.now()
-    c.outPorts.out.disconnect()
+    output.ports.out.send Date.now()
+    output.ports.out.disconnect()
     output.done()
