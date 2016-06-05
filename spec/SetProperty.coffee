@@ -29,12 +29,12 @@ describe 'SetProperty component', ->
   afterEach ->
     c.outPorts.out.detach out
 
-  describe 'given an empty object, property p should be set with the value 1', ->
+  describe 'given an empty object, property p should be set', ->
     it 'should set it to the object', (done) ->
       out.on 'data', (data) ->
         chai.expect(data).to.eql
           p: undefined
         done()
 
-      property.send 'p'
       inIn.send {}
+      property.send 'p'
