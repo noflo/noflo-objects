@@ -23,4 +23,5 @@ exports.getComponent = ->
       date = new Date
     else
       date = new Date data
-    c.outPorts.out.send date
+
+    output.ports.out.send date
