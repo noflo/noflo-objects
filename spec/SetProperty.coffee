@@ -7,7 +7,7 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe 'SetPropertyValue component', ->
+describe 'SetProperty component', ->
   c = null
   property = null
   inIn = null
