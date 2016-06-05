@@ -1,44 +1,41 @@
 noflo = require 'noflo'
 
-class SetProperty extends noflo.Component
-  constructor: ->
-    @properties = {}
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts = new noflo.InPorts
-      property:
-        datatype: 'all'
-      in:
-        datatype: 'object'
-        description: 'Object to set property on'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'Object forwared from input'
+  c.properties = {}
 
-    @inPorts.property.on 'data', (data) =>
-      @setProperty data
+  c.inPorts = new noflo.InPorts
+    property:
+      datatype: 'all'
+    in:
+      datatype: 'object'
+      description: 'Object to set property on'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object forwared from input'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      @addProperties data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.process (input, output) ->
+    propBuffer = input.ports.property.buffer
+    inBuffer = input.ports.in.buffer
+    prop = (propBuffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
+    data = (inBuffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
 
-  setProperty: (prop) ->
+    return unless prop? and data?
+    prop = prop.data
+    data = data.data
+    properties = {}
+
+    # why does it need this?
     if typeof prop is 'object'
-      @prop = prop
+      c.prop = prop
       return
 
     propParts = prop.split '='
-    @properties[propParts[0]] = propParts[1]
+    properties[propParts[0]] = propParts[1]
 
-  addProperties: (object) ->
-    for property, value of @properties
-      object[property] = value
+    for property, value of properties
+      data[property] = value
 
-    @outPorts.out.send object
-
-exports.getComponent = -> new SetProperty
+    output.ports.out.send data
