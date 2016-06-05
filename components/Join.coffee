@@ -7,8 +7,6 @@ exports.getComponent = ->
   c.description = 'Join all values of a passed packet together as a
   string with a predefined delimiter'
 
-  c.delimiter = ','
-
   c.inPorts = new noflo.InPorts
     in:
       datatype: 'object'
@@ -25,12 +23,12 @@ exports.getComponent = ->
   c.process (input, output) ->
     return unless input.ip.type is 'data'
 
-    delimiter = undefined
+    delimiter = ','
     if input.has 'delimiter'
       delimiter = input.getData 'delimiter'
 
     if input.has 'in'
       data = input.getData 'in'
       if _.isObject data
-        c.outPorts.out.send _.values(data).join(c.delimiter)
+        c.outPorts.out.send _.values(data).join(delimiter)
 
