@@ -1,30 +1,19 @@
 noflo = require 'noflo'
-{_} = require 'underscore'
+_ = require 'underscore'
 
-class SimplifyObject extends noflo.Component
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'all'
-        description: 'Object to simplify'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
-        description: 'Simplified object'
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts.in.on 'beginGroup', (group) =>
-      @outPorts.out.beginGroup group
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'all'
+      description: 'Object to simplify'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'all'
+      description: 'Simplified object'
 
-    @inPorts.in.on 'data', (data) =>
-      @outPorts.out.send @simplify data
-
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
-
-  simplify: (data) ->
+  c.simplify = (data) ->
     if _.isArray data
       if data.length is 1
         return data[0]
@@ -32,15 +21,18 @@ class SimplifyObject extends noflo.Component
     unless _.isObject data
       return data
 
-    @simplifyObject data
+    c.simplifyObject data
 
-  simplifyObject: (data) ->
+  c.simplifyObject = (data) ->
     keys = _.keys data
     if keys.length is 1 and keys[0] is '$data'
-      return @simplify data['$data']
+      return c.simplify data['$data']
     simplified = {}
     _.each data, (value, key) =>
-      simplified[key] = @simplify value
+      simplified[key] = c.simplify value
     simplified
 
-exports.getComponent = -> new SimplifyObject
+  c.process (input, output) ->
+    return unless input.has 'in'
+    data = input.getData 'in'
+    output.ports.out.send c.simplify data
