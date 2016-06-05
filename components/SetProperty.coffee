@@ -17,10 +17,8 @@ exports.getComponent = ->
       description: 'Object forwared from input'
 
   c.process (input, output) ->
-    propBuffer = input.ports.property.buffer
-    inBuffer = input.ports.in.buffer
-    prop = (propBuffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
-    data = (inBuffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
+    prop = (input.ports.property.buffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
+    data = (input.ports.in.buffer.filter (ip) -> ip.type is 'data' and ip.data?)[0]
 
     return unless prop? and data?
     prop = prop.data
