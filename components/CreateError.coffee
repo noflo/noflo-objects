@@ -9,16 +9,13 @@ exports.getComponent = ->
   c.outPorts.add 'out',
     datatype: 'object'
 
-  noflo.helpers.WirePattern c,
-    in: 'start'
-    out: 'out'
-    forwardGroups: true
-  , (data, groups, out) ->
+  c.process (input, output) ->
+    return unless input.has 'start'
+    start = input.getData 'start'
+
     if typeof data is 'string'
       err = new Error data
     else
       err = new Error 'Error'
       err.context = data
     out.send err
-
-  c
