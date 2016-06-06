@@ -1,30 +1,22 @@
-noflo = require("noflo")
-_ = require("underscore")
+noflo = require 'noflo'
+_ = require 'underscore'
 
-class Size extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
 
-  description: "gets the size of an object and sends that out as a number"
+  c.description = 'gets the size of an object and sends that out as a number'
 
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to measure the size of'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'int'
-        description: 'Size of the input object'
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to measure the size of'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'int'
+      description: 'Size of the input object'
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
-
-    @inPorts.in.on "data", (data) =>
-      @outPorts.out.send _.size data
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new Size
+  c.process (input, output) ->
+    console.log 'went into process'
+    return unless input.has 'in'
+    data = input.getData 'in'
+    output.ports.out.send _.size data
