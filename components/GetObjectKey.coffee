@@ -1,105 +1,83 @@
 noflo = require 'noflo'
 
-class GetObjectKey extends noflo.Component
-  icon: 'indent'
-  constructor: ->
-    @sendGroup = true
-    @groups = []
-    @data = []
-    @key = []
+exports.getComponent = ->
+  c = new noflo.Component
+  c.icon = 'indent'
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to get keys from'
-      key:
-        datatype: 'string'
-        description: 'Keys to extract from the object (one key per IP)'
-      sendgroup:
-        datatype: 'boolean'
-        description: 'true to send keys as groups around value IPs, false otherwise'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
-        description: 'Values extracts from the input object given the input keys (one value per IP, potentially grouped using the key names)'
-      object:
-        datatype: 'object'
-        description: 'Object forwarded from input if at least one property matches the input keys'
-        required: false
-      missed:
-        datatype: 'object'
-        description: 'Object forwarded from input if no property matches the input keys'
-        required: false
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to get keys from'
+      required: true
+    key:
+      datatype: 'string'
+      description: 'Keys to extract from the object (one key per IP)'
+      required: true
+    sendgroup:
+      datatype: 'boolean'
+      description: 'true to send keys as groups around value IPs, false otherwise'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'all'
+      description: 'Values extracts from the input object given the input keys (one value per IP, potentially grouped using the key names)'
+    object:
+      datatype: 'object'
+      description: 'Object forwarded from input if at least one property matches the input keys'
+    missed:
+      datatype: 'object'
+      description: 'Object forwarded from input if no property matches the input keys'
 
-    @inPorts.in.on 'connect', =>
-      @data = []
-    @inPorts.in.on 'begingroup', (group) =>
-      @groups.push group
-    @inPorts.in.on 'data', (data) =>
-      if @key.length
-        @getKey
-          data: data
-          groups: @groups
-        return
-      @data.push
-        data: data
-        groups: @groups.slice 0
-    @inPorts.in.on 'endgroup', =>
-      @groups.pop()
-    @inPorts.in.on 'disconnect', =>
-      unless @data.length
-        # Data already sent
-        @outPorts.out.disconnect()
-        @outPorts.object.disconnect()
-        return
+  c.process (input, output) ->
+    return unless input.has 'key', 'in', (ip) -> ip.type is 'data'
 
-      # No key, data will be sent when we get it
-      return unless @key.length
+    keys = (input.buffer.find 'key', (ip) -> ip.type is 'data').map (ip) -> ip.data
+    openBrackets = input.buffer.find 'in', (ip) -> ip.type is 'openbracket'
+    dataBuf = (input.buffer.find 'in', (ip) -> ip.type is 'data')
+    data = dataBuf[0].data
 
-      # Otherwise send data we have an disconnect
-      @getKey data for data in @data
-      @outPorts.out.disconnect()
-      @outPorts.object.disconnect()
+    sendGroup = false
+    if input.has 'sendgroup'
+      sendgroupData = input.buffer.find 'sendgroup', (ip) -> ip.type is 'data'
+      sendGroup = String(sendgroupData[0].data) is 'true'
 
-    @inPorts.key.on 'data', (data) =>
-      @key.push data
-    @inPorts.key.on 'disconnect', =>
-      return unless @data.length
+    return unless keys? and data?
 
-      @getKey data for data in @data
-      @data = []
-      @outPorts.out.disconnect()
-      @outPorts.object.disconnect()
-
-    @inPorts.sendgroup.on 'data', (data) =>
-      @sendGroup = String(data) is 'true'
-
-  error: (data, error) ->
-    @outPorts.missed.send data
-    @outPorts.missed.disconnect()
-
-  getKey: ({data, groups}) ->
-    unless @key.length
-      @error data, new Error 'Key not defined'
-      return
     unless typeof data is 'object'
-      @error data, new Error 'Data is not an object'
+      c.error data, new Error 'Data is not an object'
       return
     if data is null
-      @error data, new Error 'Data is NULL'
+      c.error data, new Error 'Data is NULL'
       return
-    for key in @key
+    for key in keys
       if data[key] is undefined
-        @error data, new Error "Object has no key #{key}"
-        continue
-      @outPorts.out.beginGroup group for group in groups
-      @outPorts.out.beginGroup key if @sendGroup
-      @outPorts.out.send data[key]
-      @outPorts.out.endGroup() if @sendGroup
-      @outPorts.out.endGroup() for group in groups
+        # we have to manually connect because mixing the old protocol
+        # and the new one. In the translation, it should consider the
+        # the openBracket a connect if it does not have data, but it
+        # actually counts the first openBracket as connect
+        output.ports.missed.connect()
+        output.ports.missed.openBracket key if sendGroup
+        output.ports.missed.data data
+        output.ports.missed.closeBracket() if sendGroup
+        output.ports.missed.disconnect()
+        errored = true
 
-    @outPorts.object.beginGroup group for group in groups
-    @outPorts.object.send data
-    @outPorts.object.endGroup() for group in groups
+      output.ports.out.connect()
+      output.ports.out.openBracket group for group in openBrackets
+      output.ports.out.openBracket key if sendGroup
+      output.ports.out.data data[key]
+      output.ports.out.closeBracket() if sendGroup
+      output.ports.out.closeBracket() for group in openBrackets
+      output.ports.out.disconnect()
 
-exports.getComponent = -> new GetObjectKey
+    # if it errored, don't send stuff out object just clear the buffer
+    if errored
+      input.buffer.set []
+      return
+
+    output.ports.object.connect()
+    output.ports.object.openBracket group for group in openBrackets
+    output.ports.object.data data
+    output.ports.object.closeBracket() for group in openBrackets
+    output.ports.object.disconnect()
+
+    input.buffer.set []
