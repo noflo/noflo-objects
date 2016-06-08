@@ -146,7 +146,6 @@ describe 'GetObjectKey', ->
         sendgroupIn.send true
         inIn.send {test: true, eh: 'canada'}
 
-
       it 'should send groups to missed', (done) ->
         hasMissed = false
         hasMissedBeginGroup = false
@@ -154,6 +153,11 @@ describe 'GetObjectKey', ->
         hasBeginGroup = false
         hasEndGroup = false
         hasData = false
+
+        missedOut.on 'connect', (data) ->
+        missedOut.on 'disconnect', (data) ->
+        outOut.on 'connect', (data) ->
+        outOut.on 'disconnect', (data) ->
 
         missedOut.on 'begingroup', (data) ->
           hasMissedBeginGroup = true
@@ -184,3 +188,5 @@ describe 'GetObjectKey', ->
         inIn.send {test: true, eh: 'canada'}
 
       it.skip 'should be able to handle more than one key', (done) ->
+      it.skip 'should forward brackets', (done) ->
+      it.skip 'should forward nested brackets', (done) ->
