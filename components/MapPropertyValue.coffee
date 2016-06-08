@@ -20,9 +20,7 @@ exports.getComponent = ->
   # we check the `mapAny` for `value`
   c.process (input, output) ->
     # because we only want to use non-brackets
-    if input.ip.type isnt 'data'
-      buf = if input.scope isnt null then input.port.scopedBuffer[input.scope] else input.port.buffer
-      return buf.pop()
+    return input.buffer.get().pop() if input.ip.type isnt 'data'
 
     return unless input.has 'in'
     data = input.getData 'in'
@@ -34,18 +32,15 @@ exports.getComponent = ->
     mapIn = if input.has 'map' then input.getData 'map' else {}
     # if it is not an object, process it...
     if typeof mapIn isnt 'object'
-      console.log 'is not an object'
       mapParts = mapIn.split '='
       if mapParts.length is 3
         map[mapParts[0]] =
           from: mapParts[1]
           to: mapParts[2]
       else
-        console.log 'we are mapping here...'
         mapAny[mapParts[0]] = mapParts[1]
     # ...otherwise we keep it as an object
     else
-      console.log 'it is an object'
       mapAny = mapIn
 
     regexIn = if input.has 'regexp' then input.getData 'regexp' else {}
@@ -78,6 +73,6 @@ exports.getComponent = ->
         continue unless matched
         data[property] = value.replace regexp, replacement
 
-    c.outPorts.out.send data
+    c.outPorts.out.data data
     c.outPorts.out.disconnect()
     output.done()
