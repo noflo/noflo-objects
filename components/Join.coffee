@@ -1,5 +1,4 @@
 _ = require 'underscore'
-noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -29,6 +28,11 @@ exports.getComponent = ->
 
     if input.has 'in'
       data = input.getData 'in'
-      if _.isObject data
-        c.outPorts.out.send _.values(data).join(delimiter)
+      if typeof data is 'object'
+        keys = Object.keys data
+        length = keys.length
+        values = Array(length)
+        for i in length
+          values[i] = data[keys[i]]
 
+        c.outPorts.out.send values.join(delimiter)
