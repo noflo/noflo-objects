@@ -16,30 +16,27 @@ exports.getComponent = ->
       datatype: 'object'
       required: true
 
-  c.prepareMap = (map) ->
-    return map if typeof map is 'object'
-    mapParts = map.split '='
-    map[mapParts[0]] = mapParts[1]
-    map
-
-  c.prepareRegExp = (map) ->
-    mapParts = map.split '='
-    regexps[mapParts[0]] = mapParts[1]
-
   c.process (input, output) ->
     # because we only want to use non-brackets
-    if input.ip.type isnt 'data'
-      buf = if input.scope isnt null then input.port.scopedBuffer[input.scope] else input.port.buffer
-      return buf.pop()
+    return input.buffer.get().pop() if input.ip.type isnt 'data'
+    return unless input.has 'in'
+    data = input.getData 'in'
 
-    data = input.get 'in'
-    return unless data?.type is 'data'
+    regexp = {}
+    if input.has 'regexp'
+      regexp = input.getData 'regexp'
+      regexPart = regexp.split '='
+      regexps[regexPart[0]] = regexPart[1]
 
-    map = if input.has 'map' then c.prepareMap input.getData 'map' else {}
-    regexp = if input.has 'regexp' then c.prepareRegExp input.getData 'regexp' if regexp?
+    map = {}
+    if input.has 'map'
+      map = input.getData 'map'
+      if typeof map isnt 'object'
+        mapParts = map.split '='
+        map[mapParts[0]] = mapParts[1]
 
     newData = {}
-    for property, value of data.data
+    for property, value of data
       if property of map
         property = map[property]
 
@@ -47,7 +44,6 @@ exports.getComponent = ->
         regexp = new RegExp expression
         matched = regexp.exec property
         continue unless matched
-
         property = property.replace regexp, replacement
 
       if property of newData
@@ -58,4 +54,5 @@ exports.getComponent = ->
       else
         newData[property] = value
 
-    output.ports.sendDone out: newData
+    output.ports.out.data newData
+    output.ports.out.disconnect()
