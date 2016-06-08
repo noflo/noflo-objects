@@ -77,9 +77,13 @@ class GetObjectKey extends noflo.Component
     @inPorts.sendgroup.on 'data', (data) =>
       @sendGroup = String(data) is 'true'
 
-  error: (data, error) ->
+  error: (data, error, key) ->
+    @outPorts.missed.beginGroup key if @sendGroup
+
     @outPorts.missed.send data
     @outPorts.missed.disconnect()
+
+    @outPorts.missed.endGroup() if @sendGroup
     @errored = true
 
   getKey: ({data, groups}) ->
@@ -94,7 +98,7 @@ class GetObjectKey extends noflo.Component
       return
     for key in @key
       if data[key] is undefined
-        @error data, new Error "Object has no key #{key}"
+        @error data, new Error("Object has no key #{key}"), key
 
       @outPorts.out.beginGroup group for group in groups
       @outPorts.out.beginGroup key if @sendGroup

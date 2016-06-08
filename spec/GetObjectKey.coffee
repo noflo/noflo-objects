@@ -145,3 +145,42 @@ describe 'GetObjectKey', ->
         keyIn.send 'nonexistant'
         sendgroupIn.send true
         inIn.send {test: true, eh: 'canada'}
+
+
+      it 'should send groups to missed', (done) ->
+        hasMissed = false
+        hasMissedBeginGroup = false
+        hasMissedEndGroup = false
+        hasBeginGroup = false
+        hasEndGroup = false
+        hasData = false
+
+        missedOut.on 'begingroup', (data) ->
+          hasMissedBeginGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+        missedOut.on 'endgroup', (data) ->
+          hasMissedEndGroup = true
+        missedOut.on 'data', (data) ->
+          hasMissed = true
+          chai.expect(data).to.eql {test: true, eh: 'canada'}
+
+        objectOut.on 'data', (data) ->
+          throw new Error('sent out object when it missed!')
+
+        outOut.on 'begingroup', (data) ->
+          hasBeginGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+        outOut.on 'data', (data) ->
+          hasData = true
+          chai.expect(data).to.eql null
+        outOut.on 'endgroup', (data) ->
+          hasEndGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+          if hasMissed and hasBeginGroup and hasData and hasEndGroup and hasMissedBeginGroup and hasMissedEndGroup
+            done()
+
+        keyIn.send 'nonexistant'
+        sendgroupIn.send true
+        inIn.send {test: true, eh: 'canada'}
+
+      it.skip 'should be able to handle more than one key', (done) ->
