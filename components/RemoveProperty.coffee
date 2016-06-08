@@ -29,4 +29,4 @@ exports.getComponent = ->
     for property in propData
       delete object[property.data]
 
-    output.ports.out.send object
+    output.ports.out.data object
