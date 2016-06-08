@@ -16,7 +16,6 @@ exports.getComponent = ->
       description: 'Size of the input object'
 
   c.process (input, output) ->
-    console.log 'went into process'
     return unless input.has 'in'
     data = input.getData 'in'
-    output.ports.out.send _.size data
+    output.ports.out.data _.size data
