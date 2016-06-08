@@ -1,5 +1,4 @@
 noflo = require 'noflo'
-_ = require 'underscore'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -18,4 +17,4 @@ exports.getComponent = ->
   c.process (input, output) ->
     return unless input.has 'in'
     data = input.getData 'in'
-    c.outPorts.out.send key for key in _.keys data
+    output.ports.out.data key for key in Object.keys data
