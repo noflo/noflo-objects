@@ -1,5 +1,4 @@
 noflo = require 'noflo'
-_ = require 'underscore'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -18,4 +17,10 @@ exports.getComponent = ->
   c.process (input, output) ->
     return unless input.has 'in'
     data = input.getData 'in'
-    output.ports.out.data _.size data
+
+    if typeof data is 'object'
+      size = Object.keys(data).length
+    else
+      size = data.length
+
+    output.ports.out.data size
