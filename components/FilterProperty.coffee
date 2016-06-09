@@ -103,8 +103,8 @@ exports.getComponent = ->
             match = true
 
       return unless match
-      output.out.send newData
+      output.ports.out.data newData
 
       # clearing the buffer
       input.buffer.set 'keep', []
-      input.buffer.set 'keys', []
+      input.buffer.set 'key', []
