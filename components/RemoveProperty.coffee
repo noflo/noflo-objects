@@ -1,5 +1,11 @@
 noflo = require 'noflo'
-_ = require 'underscore'
+
+clone = (obj) ->
+  return obj if obj is null or typeof obj isnt 'object'
+  temp = new obj.constructor()
+  for key of obj
+    temp[key] = clone obj[key]
+  temp
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -19,14 +25,15 @@ exports.getComponent = ->
       description: 'Object forwarded from input'
 
   c.process (input, output) ->
-    propData = input.ports.property.buffer.filter (ip) -> ip.type is 'data' and ip.data?
-    return unless propData? and input.has 'in'
+    propData = input.buffer.find 'property', (ip) -> ip.type is 'data' and ip.data?
+    return unless propData? and (input.has 'in', (ip) -> ip.type is 'data')
     data = input.getData 'in'
 
     # Clone the object so that the original isn't changed
-    object = _.clone data
+    object = clone data
 
     for property in propData
       delete object[property.data]
 
-    output.ports.out.data object
+    output.sendDone out: object
+    input.buffer.set 'property', []
