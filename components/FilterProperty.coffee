@@ -1,6 +1,5 @@
 noflo = require 'noflo'
 { deepCopy } = require 'owl-deepcopy'
-_ = require 'underscore'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -104,7 +103,7 @@ exports.getComponent = ->
             match = true
 
       return unless match
-      output.sendDone out: newData
+      output.out.send newData
 
       # clearing the buffer
       input.buffer.set 'keep', []
