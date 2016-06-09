@@ -1,5 +1,4 @@
 noflo = require 'noflo'
-_ = require 'underscore'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -14,25 +13,26 @@ exports.getComponent = ->
       description: 'Simplified object'
 
   c.simplify = (data) ->
-    if _.isArray data
+    if Array.isArray data
       if data.length is 1
         return data[0]
       return data
-    unless _.isObject data
+    unless typeof data is 'object'
       return data
 
     c.simplifyObject data
 
   c.simplifyObject = (data) ->
-    keys = _.keys data
+    keys = Object.keys data
     if keys.length is 1 and keys[0] is '$data'
       return c.simplify data['$data']
+
     simplified = {}
-    _.each data, (value, key) =>
+    for key, value of data
       simplified[key] = c.simplify value
     simplified
 
   c.process (input, output) ->
     return unless input.has 'in'
     data = input.getData 'in'
-    output.ports.out.send c.simplify data
+    output.ports.out.data c.simplify data
