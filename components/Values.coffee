@@ -1,5 +1,4 @@
 noflo = require 'noflo'
-_ = require 'underscore'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -17,6 +16,12 @@ exports.getComponent = ->
       description: 'Values extracted from the input object (one value per IP)'
 
   c.process (input, output) ->
-    return unless input.has 'in'
     data = input.getData 'in'
-    output.ports.out.send value for value in _.values data
+    return unless data?
+
+    keys = Object.keys data
+    values = Array(keys.length)
+    for key, index in keys
+      values[index] = data[key]
+
+    output.ports.out.data value for value in values
