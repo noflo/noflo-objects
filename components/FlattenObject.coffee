@@ -6,25 +6,18 @@ exports.getComponent = ->
   c.inPorts = new noflo.InPorts
     map:
       datatype: 'all'
+      description: 'map to use to flatten the object'
     in:
       datatype: 'object'
       description: 'Object to flatten'
+      required: true
 
   c.outPorts = new noflo.OutPorts
     out:
       datatype: 'array'
 
-  c.map = {}
-
-  c.prepareMap = (map) ->
-    if typeof map is 'object'
-      c.map = map
-      return
-    mapParts = map.split '='
-    c.map[mapParts[0]] = mapParts[1]
-
-  c.mapKeys = (object) ->
-    for key, map of c.map
+  c.mapKeys = (object, maps) ->
+    for key, map of maps
       object[map] = object.flattenedKeys[key]
     delete object.flattenedKeys
     return object
@@ -42,22 +35,29 @@ exports.getComponent = ->
       flattened.push
         flattenedKeys: [key]
         value: value
-
-    return flattened
+    flattened
 
   c.process (input, output) ->
-    return unless input.ip.type is 'data'
+    maps = {}
+    if (input.has 'map', (ip) -> ip.type is 'data')
+      map = (input.buffer
+        .find 'map', (ip) -> ip.type is 'data'
+        .map (ip) -> ip.data)[0]
 
-    if input.has 'map'
-      map = input.getData 'map'
-      c.prepareMap map if map?
+      if map?
+        if typeof map is 'object'
+          maps = map
+        else
+          mapParts = map.split '='
+          map[mapParts[0]] = mapParts[1]
 
-    if input.has 'in'
+    if (input.has 'in', (ip) -> ip.type is 'data')
       data = input.getData 'in'
       for object in c.flattenObject data
-        c.outPorts.out.send c.mapKeys object
-
+        c.outPorts.out.send c.mapKeys object, maps
       c.outPorts.out.disconnect()
       output.done()
-      c.map = {}
+
+    if (input.has 'in', (ip) -> ip.type is 'openBracket')
+      input.buffer.set 'map', []
 
