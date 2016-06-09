@@ -18,4 +18,4 @@ exports.getComponent = ->
     else
       err = new Error 'Error'
       err.context = data
-    out.send err
+    output.send out: err
