@@ -1,15 +1,19 @@
 noflo = require 'noflo'
 
+# currently only accepts one map and one regex per object
 exports.getComponent = ->
   c = new noflo.Component
 
   c.inPorts = new noflo.InPorts
     map:
       datatype: 'all'
+      description: 'Map to use to map property on object'
     regexp:
       datatype: 'string'
+      description: 'Regex to use to map property on object'
     in:
       datatype: 'object'
+      description: 'Object to map property on'
       required: true
   c.outPorts = new noflo.OutPorts
     out:
@@ -54,5 +58,4 @@ exports.getComponent = ->
       else
         newData[property] = value
 
-    output.ports.out.data newData
-    output.ports.out.disconnect()
+    output.sendDone out: newData
