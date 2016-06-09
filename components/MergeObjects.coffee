@@ -1,4 +1,3 @@
-_ = require 'underscore'
 noflo = require 'noflo'
 
 exports.getComponent = ->
@@ -41,6 +40,6 @@ exports.getComponent = ->
     origin
 
   c.process (input, output) ->
-    inData = (input.ports.in.buffer.filter (ip) -> ip.type is 'data' and ip.data?)
+    inData = input.buffer.find 'in', (ip) -> ip.type is 'data' and ip.data?
     return unless inData.length is 2
-    output.ports.out.send _.reduce inData, c.merge, {}
+    output.ports.out.send inData.reduce c.merge, {}
