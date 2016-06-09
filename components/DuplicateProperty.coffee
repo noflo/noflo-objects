@@ -3,9 +3,6 @@ noflo = require 'noflo'
 exports.getComponent = ->
   c = new noflo.Component
 
-  c.properties = {}
-  c.separator = '/'
-
   c.inPorts = new noflo.InPorts
     property:
       datatype: 'all'
@@ -20,23 +17,25 @@ exports.getComponent = ->
 
   c.process (input, output) ->
     return unless input.has 'property', 'separator', 'in'
-    [prop, separator, data] = input.getData 'property', 'separator', 'in'
+    [prop, sep, data] = input.getData 'property', 'separator', 'in'
     return unless input.ip.type is 'data'
+
+    properties = {}
+    separator = if sep? then sep else '/'
 
     if prop
       if typeof prop is 'object'
-        c.prop = prop
         return
 
       propParts = prop.split '='
       if propParts.length > 2
-        c.properties[propParts.pop()] = propParts
+        properties[propParts.pop()] = propParts
         return
 
-      c.properties[propParts[1]] = propParts[0]
+      properties[propParts[1]] = propParts[0]
 
     if data
-      for newprop, original of c.properties
+      for newprop, original of properties
         if typeof original is 'string'
           object[newprop] = object[original]
           continue
@@ -44,6 +43,6 @@ exports.getComponent = ->
         newValues = []
         for originalProp in original
           newValues.push object[originalProp]
-        object[newprop] = newValues.join c.separator
+        object[newprop] = newValues.join separator
 
-      c.outPorts.out.send object
+      c.outPorts.out.data object
