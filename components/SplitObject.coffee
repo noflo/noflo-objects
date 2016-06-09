@@ -1,33 +1,24 @@
-noflo = require("noflo")
+noflo = require 'noflo'
 
-class SplitObject extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
 
-  description: "splits a single object into multiple IPs,
-    wrapped with the key as the group"
+  c.description = 'splits a single object into multiple IPs,
+    wrapped with the key as the group'
 
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to split key/values from'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
-        description: 'Values from the input object (one value per IP and its key sent as group)'
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to split key/values from'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'all'
+      description: 'Values from the input object (one value per IP and its key sent as group)'
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
+  c.process (input, output) ->
+    return unless input.has 'in'
+    data = input.getData 'in'
 
-    @inPorts.in.on "data", (data) =>
-      for key, value of data
-        @outPorts.out.beginGroup(key)
-        @outPorts.out.send(value)
-        @outPorts.out.endGroup()
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new SplitObject
+    for key, value of data
+      output.send out: value
+    output.done()
