@@ -6,11 +6,16 @@ exports.getComponent = ->
   c.inPorts = new noflo.InPorts
     property:
       datatype: 'all'
+      required: true
+      description: 'property to duplicate'
     separator:
       datatype: 'string'
+      description: 'default is `/`'
+      required: true
     in:
       datatype: 'object'
-
+      description: 'object to duplicate property on'
+      required: true
   c.outPorts = new noflo.OutPorts
     out:
       datatype: 'object'
@@ -45,4 +50,4 @@ exports.getComponent = ->
           newValues.push object[originalProp]
         object[newprop] = newValues.join separator
 
-      c.outPorts.out.data object
+      output.port.out.data object
