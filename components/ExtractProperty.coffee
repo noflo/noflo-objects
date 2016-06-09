@@ -1,5 +1,4 @@
 noflo = require 'noflo'
-_ = require 'underscore'
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -10,32 +9,28 @@ exports.getComponent = ->
     in:
       datatype: 'object'
       description: 'An object to extract property from'
+      required: true
     key:
       datatype: 'string'
       description: 'Property names to extract (one property per IP)'
+      required: true
 
   c.outPorts = new noflo.OutPorts
     out:
       datatype: 'all'
       description: 'Values of the property extracted (each value sent as a separate IP)'
 
-  c.keys = []
-
   c.process (input, output) ->
-    if input.has 'key'
-      keys = input.getData 'key'
-      if keys?
-        c.keys.push keys
+    # because we only want to use non-brackets
+    return input.buffer.get().pop() if input.ip.type isnt 'data'
+    return unless input.has 'key', 'in'
+    keys = input.getData 'key'
+    data = input.getData 'in'
+    value = data
 
-    if input.has 'in'
-      data = input.getData 'in'
-      if c.keys? and _.isObject(data)
-        value = data
+    # Loop through the keys we have
+    for key in keys
+      value = value[key]
 
-        # Loop through the keys we have
-        for key in c.keys
-          value = value[key]
-
-        c.keys = []
-        # Send the extracted value
-        c.outPorts.out.send value
+    # Send the extracted value
+    output.sendDone out: value
