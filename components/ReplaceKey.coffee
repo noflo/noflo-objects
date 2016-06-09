@@ -11,6 +11,7 @@ exports.getComponent = ->
       description: 'Object to replace a key from'
     pattern:
       datatype: 'all'
+      description: 'pattern to use to replace key'
       control: true
   c.outPorts = new noflo.OutPorts
     out:
@@ -18,7 +19,7 @@ exports.getComponent = ->
       description: 'Object forwared from input'
 
   c.process (input, output) ->
-    return unless input.has 'in', 'pattern'
+    return unless input.has 'in', 'pattern', (ip) -> ip.type is 'data'
     data = input.getData 'in'
     patterns = input.getData 'pattern'
     newKey = null
@@ -32,4 +33,4 @@ exports.getComponent = ->
           data[newKey] = value
           delete data[key]
 
-    output.ports.out.data data
+    output.sendDone out: data
