@@ -50,7 +50,6 @@ exports.getComponent = ->
     c.outPorts.out.data newData
 
   c.process (input, output) ->
-    return unless input.ip.type is 'data'
     regexps = {}
     accepts = {}
     if input.has 'accept'
@@ -78,9 +77,13 @@ exports.getComponent = ->
         mapParts = regexpData[0].split '='
         regexps[mapParts[0]] = mapParts[1]
 
-    if input.has 'in'
+    if (input.has 'in', (ip) -> ip.type is 'data')
       data = input.get('in').data
 
       if ((Object.keys accepts).length > 0 or (Object.keys regexps).length > 0)
         return c.filterData data, accepts, regexps
       c.outPorts.out.data data
+
+    if (input.has 'in', (ip) -> ip.type is 'openBracket')
+      input.buffer.set 'accept', []
+      input.buffer.set 'regexp', []
