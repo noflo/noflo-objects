@@ -14,7 +14,6 @@ exports.getComponent = ->
       description: 'Array containing only unique values from the input array'
 
   c.process (input, output) ->
-    return unless input.has 'in'
     data = input.getData 'in'
 
     seen = {}
@@ -23,4 +22,4 @@ exports.getComponent = ->
       seen[member] = member
     for member of seen
       newArray.push member
-    output.ports.out.send newArray
+    output.sendDone newArray
