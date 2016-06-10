@@ -2,6 +2,7 @@ noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
+  c.description = 'Simplify an object'
 
   c.inPorts = new noflo.InPorts
     in:
@@ -33,6 +34,5 @@ exports.getComponent = ->
     simplified
 
   c.process (input, output) ->
-    return unless input.has 'in'
     data = input.getData 'in'
-    output.ports.out.data c.simplify data
+    output.sendDone out: c.simplify data
