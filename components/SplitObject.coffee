@@ -15,12 +15,10 @@ exports.getComponent = ->
       description: 'Values from the input object (one value per IP and its key sent as group)'
 
   c.process (input, output) ->
-    return unless input.has 'in'
     data = input.getData 'in'
 
     for key, value of data
       output.ports.out.openBracket key
       output.ports.out.data value
       output.ports.out.closeBracket()
-    output.ports.out.disconnect()
     output.done()
