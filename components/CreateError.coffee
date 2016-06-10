@@ -9,9 +9,10 @@ exports.getComponent = ->
   c.outPorts.add 'out',
     datatype: 'object'
 
+  c.forwardBrackets =
+    start: ['out']
   c.process (input, output) ->
-    return unless input.has 'start'
-    start = input.getData 'start'
+    data = input.getData 'start'
 
     if typeof data is 'string'
       err = new Error data
