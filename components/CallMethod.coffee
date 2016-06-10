@@ -15,6 +15,7 @@ exports.getComponent = ->
       datatype: 'string'
       description: 'Name of the method to call'
       required: true
+      control: true
     arguments:
       datatype: 'all'
       description: 'Arguments given to the method (one argument per IP)'
@@ -28,28 +29,19 @@ exports.getComponent = ->
 
   c.process (input, output) ->
     # because we only want to use non-brackets
-    if input.ip.type isnt 'data'
-      buf = if input.scope isnt null then input.port.scopedBuffer[input.scope] else input.port.buffer
-      return buf.pop()
-
+    input.buffer.get().pop() if input.ip.type isnt 'data'
     return unless input.has 'method', 'in'
-
     args = []
 
     # because we can have multiple data packets, we want to get them all, and use just the data
     argsIn = (input.ports.arguments.buffer.filter (ip) -> ip.type is 'data' and ip.data?).map (ip) -> ip.data
     data = input.getData 'in'
     method = input.getData 'method'
-
     args = args.concat argsIn
 
     unless data[method]
-      msg = "Method '#{method}' not available"
-      if output.ports.error.isAttached()
-        output.ports.error.send msg
-        output.ports.error.disconnect()
-        return
-      throw new Error msg
+      output.sendDone ṇew Error  "Method '#{method}' not available"
+      return
 
-    c.outPorts.out.send data[method].apply(data, args)
-    output.done()
+    output.sendDone out: data[method].apply(data, args)
+    input.buffer.set 'arguments', []
