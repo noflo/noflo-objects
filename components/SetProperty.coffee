@@ -24,7 +24,6 @@ exports.getComponent = ->
 
     prop = input.getData 'property'
     data = input.getData 'in'
-
     return unless prop? and data?
 
     properties = {}
@@ -34,4 +33,4 @@ exports.getComponent = ->
     for property, value of properties
       data[property] = value
 
-    output.ports.out.data data
+    output.sendDone data
