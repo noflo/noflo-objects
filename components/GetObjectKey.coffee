@@ -71,7 +71,9 @@ exports.getComponent = ->
 
     # if it errored, don't send stuff out object just clear the buffer
     if errored
-      input.buffer.set []
+      input.buffer.set 'in', []
+      input.buffer.set 'key', []
+      input.buffer.set 'sendgroup', []
       return
 
     output.ports.object.connect()
@@ -80,4 +82,6 @@ exports.getComponent = ->
     output.ports.object.closeBracket() for group in openBrackets
     output.ports.object.disconnect()
 
-    input.buffer.set []
+    input.buffer.set 'in', []
+    input.buffer.set 'key', []
+    input.buffer.set 'sendgroup', []

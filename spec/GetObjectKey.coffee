@@ -12,7 +12,7 @@ expect = chai.expect unless expect
 describe 'GetObjectKey', ->
   c = null
 
-  beforeEach (done) ->
+  before (done) ->
     loader = new noflo.ComponentLoader baseDir
     loader.load 'objects/GetObjectKey', (err, instance) ->
       return done err if err
@@ -22,20 +22,16 @@ describe 'GetObjectKey', ->
   describe 'inPorts', ->
     it 'should include "in"', ->
       expect(c.inPorts.in).to.be.an 'object'
-
     it 'should include "key"', ->
       expect(c.inPorts.key).to.be.an 'object'
-
     it 'should include "sendgroup"', ->
       expect(c.inPorts.sendgroup).to.be.an 'object'
 
   describe 'outPorts', ->
     it 'should include "out"', ->
       expect(c.outPorts.out).to.be.an 'object'
-
     it 'should include "object"', ->
       expect(c.outPorts.object).to.be.an 'object'
-
     it 'should include "missed"', ->
       expect(c.outPorts.missed).to.be.an 'object'
 
@@ -47,7 +43,7 @@ describe 'GetObjectKey', ->
     objectOut = null
     missedOut = null
 
-    beforeEach ->
+    beforeEach (done) ->
       inIn = noflo.internalSocket.createSocket()
       keyIn = noflo.internalSocket.createSocket()
       sendgroupIn = noflo.internalSocket.createSocket()
@@ -61,6 +57,13 @@ describe 'GetObjectKey', ->
       c.outPorts.out.attach outOut
       c.outPorts.object.attach objectOut
       c.outPorts.missed.attach missedOut
+      done()
+
+    afterEach (done) ->
+      c.outPorts.out.detach outOut
+      c.outPorts.object.detach objectOut
+      c.outPorts.missed.detach missedOut
+      done()
 
     describe 'with input on all ports', ->
       it 'should get the key', (done) ->
