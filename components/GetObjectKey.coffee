@@ -7,14 +7,17 @@ class GetObjectKey extends noflo.Component
     @groups = []
     @data = []
     @key = []
+    @errored = false
 
     @inPorts = new noflo.InPorts
       in:
         datatype: 'object'
         description: 'Object to get keys from'
+        required: true
       key:
         datatype: 'string'
         description: 'Keys to extract from the object (one key per IP)'
+        required: true
       sendgroup:
         datatype: 'boolean'
         description: 'true to send keys as groups around value IPs, false otherwise'
@@ -25,11 +28,9 @@ class GetObjectKey extends noflo.Component
       object:
         datatype: 'object'
         description: 'Object forwarded from input if at least one property matches the input keys'
-        required: false
       missed:
         datatype: 'object'
         description: 'Object forwarded from input if no property matches the input keys'
-        required: false
 
     @inPorts.in.on 'connect', =>
       @data = []
@@ -46,6 +47,7 @@ class GetObjectKey extends noflo.Component
         groups: @groups.slice 0
     @inPorts.in.on 'endgroup', =>
       @groups.pop()
+
     @inPorts.in.on 'disconnect', =>
       unless @data.length
         # Data already sent
@@ -74,9 +76,17 @@ class GetObjectKey extends noflo.Component
     @inPorts.sendgroup.on 'data', (data) =>
       @sendGroup = String(data) is 'true'
 
-  error: (data, error) ->
+  error: (data, error, key, groups) ->
+    @outPorts.missed.beginGroup group for group in groups
+    @outPorts.missed.beginGroup key if @sendGroup
+
     @outPorts.missed.send data
     @outPorts.missed.disconnect()
+
+    @outPorts.missed.endGroup() if @sendGroup
+    @outPorts.missed.endGroup() for group in groups
+
+    @errored = true
 
   getKey: ({data, groups}) ->
     unless @key.length
@@ -90,13 +100,17 @@ class GetObjectKey extends noflo.Component
       return
     for key in @key
       if data[key] is undefined
-        @error data, new Error "Object has no key #{key}"
-        continue
+        @error data, new Error("Object has no key #{key}"), key, groups
+
       @outPorts.out.beginGroup group for group in groups
       @outPorts.out.beginGroup key if @sendGroup
       @outPorts.out.send data[key]
       @outPorts.out.endGroup() if @sendGroup
       @outPorts.out.endGroup() for group in groups
+
+    if @errored
+      @errored = false
+      return
 
     @outPorts.object.beginGroup group for group in groups
     @outPorts.object.send data
