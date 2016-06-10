@@ -146,6 +146,10 @@ describe 'GetObjectKey', ->
         sendgroupIn.send true
         inIn.send {test: true, eh: 'canada'}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c62504b21eabe3311a5cec55859b890a72ec19fb
       it 'should send groups to missed', (done) ->
         hasMissed = false
         hasMissedBeginGroup = false
@@ -154,11 +158,14 @@ describe 'GetObjectKey', ->
         hasEndGroup = false
         hasData = false
 
+<<<<<<< HEAD
         missedOut.on 'connect', (data) ->
         missedOut.on 'disconnect', (data) ->
         outOut.on 'connect', (data) ->
         outOut.on 'disconnect', (data) ->
 
+=======
+>>>>>>> c62504b21eabe3311a5cec55859b890a72ec19fb
         missedOut.on 'begingroup', (data) ->
           hasMissedBeginGroup = true
           chai.expect(data).to.eql 'nonexistant'
@@ -187,6 +194,10 @@ describe 'GetObjectKey', ->
         sendgroupIn.send true
         inIn.send {test: true, eh: 'canada'}
 
+<<<<<<< HEAD
       it.skip 'should be able to handle more than one key', (done) ->
       it.skip 'should forward brackets', (done) ->
       it.skip 'should forward nested brackets', (done) ->
+=======
+      it.skip 'should be able to handle more than one key', (done) ->
+>>>>>>> c62504b21eabe3311a5cec55859b890a72ec19fb
