@@ -45,8 +45,6 @@ describe 'Extend component', ->
     c.outPorts.out.attach out
   afterEach ->
     c.outPorts.out.detach out
-    key.send null
-    reverse.send false
     base.disconnect()
 
   describe 'with two bases and an object to extend', ->

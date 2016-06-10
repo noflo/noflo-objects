@@ -1,38 +1,37 @@
-noflo = require('noflo')
-_ = require('underscore')
+noflo = require 'noflo'
 
 exports.getComponent = ->
-  key = null
-
   c = new noflo.Component
   c.description = 'Insert a property into incoming objects.'
 
-  c.inPorts.add 'in',
-    datatype: 'object'
-    description: 'Object to insert property into'
-  c.inPorts.add 'property',
-    datatype: 'all'
-    description: 'Property to insert (property sent as group, value sent as IP)'
-    required: true
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'all'
+      description: 'Object to insert property into'
+      required: true
+    property:
+      datatype: 'all'
+      description: 'Property to insert (property sent as group, value sent as IP)'
+      required: true
 
-  c.outPorts.add 'out',
-    datatype: 'object'
-    description: 'Object received as input with added properties'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object received as input with added properties'
 
-  # properties callbacks.
-  c.inPorts.property.on 'begingroup', (group) ->
-    key = group
+  c.process (input, output) ->
+    openBracket = (input.buffer.find 'property', (ip) -> ip.type is 'openBracket' and ip.data?)[0]
+    propData = (input.buffer.find 'property', (ip) -> ip.type is 'data' and ip.data?)[0]
+    closeBracket = (input.buffer.find 'property', (ip) -> ip.type is 'closeBracket' and ip.data?)[0]
+    hasData = input.has 'in', (ip) -> ip.type is 'data'
 
-  # Use the WirePattern.
-  noflo.helpers.WirePattern c,
-    in: ['in']
-    params: ['property']
-    out: ['out']
-    forwardGroups: false
-  ,
-  (data, groups, out) ->
-    data = {} unless data instanceof Object
-    data[key] = c.params.property
-    out.send data
+    return unless openBracket? and propData? and closeBracket? and hasData
+    data = input.getData 'in'
+    key = openBracket.data
+    outputData = {}
+    if data instanceof Object
+      outputData = data
 
-  return c
+    outputData[key] = propData.data
+    input.buffer.set 'property', []
+    output.sendDone out: outputData
