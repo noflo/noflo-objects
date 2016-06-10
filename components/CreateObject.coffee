@@ -8,13 +8,12 @@ exports.getComponent = ->
     start:
       datatype: 'bang'
       description: 'Signal to create a new object'
-
   c.outPorts = new noflo.OutPorts
     out:
       datatype: 'object'
       description: 'A new empty object'
 
+  c.forwardBrackets =
+    start: ['out']
   c.process (input, output) ->
-    return unless input.has 'in'
-    return unless input.ip.type is 'data'
     output.sendDone out: {}
