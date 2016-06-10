@@ -1,5 +1,24 @@
 noflo = require 'noflo'
 
+hasStream = (input, port) ->
+  buffer = input.buffer.get port
+  return false if buffer.length is 0
+  # check if we have everything until "disconnect"
+  received = []
+  for packet in buffer
+    if packet.type is 'openBracket'
+      received.push packet.data
+    else if packet.type is 'closeBracket'
+      received.pop()
+
+  return received.length is 0
+
+getStream = (input, port) ->
+  buf = input.buffer.get port
+  input.buffer.filter (ip) -> false
+  input.buffer.set input.buffer.find port, (ip) -> false
+  buf
+
 exports.getComponent = ->
   c = new noflo.Component
     icon: 'filter'
@@ -25,31 +44,13 @@ exports.getComponent = ->
       datatype: 'object'
       description: 'Object received as input if no key have been matched'
 
-  c.filterData = (object, accepts, regexps) ->
-    newData = {}
-    match = false
-    for property, value of object
-      if accepts[property]
-        continue unless accepts[property] is value
-        match = true
-
-      if regexps[property]
-        regexp = new RegExp regexps[property]
-        continue unless regexp.exec value
-        match = true
-
-      newData[property] = value
-      continue
-
-    unless match
-      return unless c.outPorts.missed.isAttached()
-      c.outPorts.missed.data object
-      c.outPorts.missed.disconnect()
-      return
-
-    c.outPorts.out.data newData
-
+  c.forwardBrackets = {}
   c.process (input, output) ->
+    return unless hasStream input, 'in'
+    dataBuf = getStream input, 'in'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
+
     regexps = {}
     accepts = {}
     if input.has 'accept'
@@ -77,13 +78,28 @@ exports.getComponent = ->
         mapParts = regexpData[0].split '='
         regexps[mapParts[0]] = mapParts[1]
 
-    if (input.has 'in', (ip) -> ip.type is 'data')
-      data = input.get('in').data
-
+    for data in dataBuf
       if ((Object.keys accepts).length > 0 or (Object.keys regexps).length > 0)
-        return c.filterData data, accepts, regexps
-      c.outPorts.out.data data
+        newData = {}
+        match = false
+        for property, value of data
+          if accepts[property]
+            continue unless accepts[property] is value
+            match = true
+          if regexps[property]
+            regexp = new RegExp regexps[property]
+            continue unless regexp.exec value
+            match = true
+          newData[property] = value
+          continue
 
-    if (input.has 'in', (ip) -> ip.type is 'openBracket')
-      input.buffer.set 'accept', []
-      input.buffer.set 'regexp', []
+        unless match
+          output.send missed: data
+        else
+          output.send out: newData
+      else
+        output.send out: data
+
+    output.done()
+    input.buffer.set 'accept', []
+    input.buffer.set 'regexp', []
