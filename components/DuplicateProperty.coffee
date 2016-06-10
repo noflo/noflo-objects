@@ -7,11 +7,14 @@ exports.getComponent = ->
     property:
       datatype: 'all'
       required: true
+      control: true
       description: 'property to duplicate'
     separator:
       datatype: 'string'
-      description: 'default is `/`'
+      default: '/'
       required: true
+      control: true
+      description: 'separator to use to join property'
     in:
       datatype: 'object'
       description: 'object to duplicate property on'
@@ -21,9 +24,8 @@ exports.getComponent = ->
       datatype: 'object'
 
   c.process (input, output) ->
-    return unless input.has 'property', 'separator', 'in'
+    return unless input.has 'property', 'separator', 'in', (ip) -> ip.type is 'data'
     [prop, sep, data] = input.getData 'property', 'separator', 'in'
-    return unless input.ip.type is 'data'
 
     properties = {}
     separator = if sep? then sep else '/'
@@ -50,4 +52,4 @@ exports.getComponent = ->
           newValues.push object[originalProp]
         object[newprop] = newValues.join separator
 
-      output.port.out.data object
+      output.data out: object

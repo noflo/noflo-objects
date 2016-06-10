@@ -14,6 +14,7 @@ exports.getComponent = ->
       datatype: 'string'
       description: 'Property names to extract (one property per IP)'
       required: true
+      control: true
 
   c.outPorts = new noflo.OutPorts
     out:
@@ -31,6 +32,6 @@ exports.getComponent = ->
     # Loop through the keys we have
     for key in keys
       value = value[key]
-
-    # Send the extracted value
-    output.sendDone out: value
+      # Send the extracted value
+      output.send out: value
+    output.done()
