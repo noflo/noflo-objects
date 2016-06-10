@@ -1,6 +1,12 @@
-# @TODO: remove need for underscorejs
-_ = require 'underscore'
 noflo = require 'noflo'
+
+extend = (object, properties, other) ->
+  for key, val of properties
+    object[key] = val
+  if other?
+    for key, val of other
+      object[key] = val
+  object
 
 exports.getComponent = ->
   c = new noflo.Component
@@ -20,6 +26,7 @@ exports.getComponent = ->
       datatype: 'string'
       description: 'Property name to extend with'
       required: false
+      control: true
     reverse:
       datatype: 'boolean'
       description: 'A string equal "true" if you want to reverse the order of extension algorithm'
@@ -30,12 +37,8 @@ exports.getComponent = ->
       required: true
 
   c.process (input, output) ->
-    bases = []
-    key = null
     reverse = false
-    mergedBase = {}
-
-    key = (input.buffer.find('key', (ip) -> ip.type is 'data').map (ip) -> ip.data)[0]
+    key = input.getData 'key'
     bases = input.buffer.find('base', (ip) -> ip.type is 'data').map (ip) -> ip.data
     data = input.getData 'in'
 
@@ -53,25 +56,19 @@ exports.getComponent = ->
       # objects take precedence.
       reverse = String(reverse) is 'true'
 
-    if data?
-      out = {}
-      for base in bases
-        # Only extend when there's no key specified...
-        if not key? or
-           # or when the specified attribute matches
-           data[key]? and
-           data[key] is base[key]
-          _.extend(out, base)
-      # Put on data
-      if reverse
-        c.outPorts.out.send _.extend {}, data, out
-        c.outPorts.out.disconnect()
-      else
-        sendee = _.extend out, data
-        c.outPorts.out.send sendee
-        c.outPorts.out.disconnect()
+    out = {}
+    for base in bases
+      # Only extend when there's no key specified...
+      # or when the specified attribute matches
+      if not key? or data[key]? and data[key] is base[key]
+        out = extend out, base # or  other way ?
+
+    # Put on data
+    if reverse
+      output.sendDone out: extend {}, data, out
+    else
+      output.sendDone out: extend(out, data)
 
     input.buffer.set 'base', []
-    input.buffer.set 'key', []
     input.buffer.set 'reverse', []
     input.buffer.set 'in', []
