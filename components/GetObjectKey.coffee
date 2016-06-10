@@ -1,119 +1,192 @@
 noflo = require 'noflo'
 
-class GetObjectKey extends noflo.Component
-  icon: 'indent'
-  constructor: ->
-    @sendGroup = true
-    @groups = []
-    @data = []
-    @key = []
-    @errored = false
+unless noflo.isBrowser()
+  chai = require 'chai' unless chai
+  GetObjectKey = require '../components/GetObjectKey.coffee'
+else
+  GetObjectKey = require 'noflo-objects/components/GetObjectKey.js'
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to get keys from'
-        required: true
-      key:
-        datatype: 'string'
-        description: 'Keys to extract from the object (one key per IP)'
-        required: true
-      sendgroup:
-        datatype: 'boolean'
-        description: 'true to send keys as groups around value IPs, false otherwise'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
-        description: 'Values extracts from the input object given the input keys (one value per IP, potentially grouped using the key names)'
-      object:
-        datatype: 'object'
-        description: 'Object forwarded from input if at least one property matches the input keys'
-      missed:
-        datatype: 'object'
-        description: 'Object forwarded from input if no property matches the input keys'
+expect = chai.expect unless expect
 
-    @inPorts.in.on 'connect', =>
-      @data = []
-    @inPorts.in.on 'begingroup', (group) =>
-      @groups.push group
-    @inPorts.in.on 'data', (data) =>
-      if @key.length
-        @getKey
-          data: data
-          groups: @groups
-        return
-      @data.push
-        data: data
-        groups: @groups.slice 0
-    @inPorts.in.on 'endgroup', =>
-      @groups.pop()
+describe 'GetObjectKey', ->
+  c = null
 
-    @inPorts.in.on 'disconnect', =>
-      unless @data.length
-        # Data already sent
-        @outPorts.out.disconnect()
-        @outPorts.object.disconnect()
-        return
+  beforeEach ->
+    c = GetObjectKey.getComponent()
 
-      # No key, data will be sent when we get it
-      return unless @key.length
+  describe 'inPorts', ->
+    it 'should include "in"', ->
+      expect(c.inPorts.in).to.be.an 'object'
 
-      # Otherwise send data we have an disconnect
-      @getKey data for data in @data
-      @outPorts.out.disconnect()
-      @outPorts.object.disconnect()
+    it 'should include "key"', ->
+      expect(c.inPorts.key).to.be.an 'object'
 
-    @inPorts.key.on 'data', (data) =>
-      @key.push data
-    @inPorts.key.on 'disconnect', =>
-      return unless @data.length
+    it 'should include "sendgroup"', ->
+      expect(c.inPorts.sendgroup).to.be.an 'object'
 
-      @getKey data for data in @data
-      @data = []
-      @outPorts.out.disconnect()
-      @outPorts.object.disconnect()
+  describe 'outPorts', ->
+    it 'should include "out"', ->
+      expect(c.outPorts.out).to.be.an 'object'
 
-    @inPorts.sendgroup.on 'data', (data) =>
-      @sendGroup = String(data) is 'true'
+    it 'should include "object"', ->
+      expect(c.outPorts.object).to.be.an 'object'
 
-  error: (data, error, key, groups) ->
-    @outPorts.missed.beginGroup group for group in groups
-    @outPorts.missed.beginGroup key if @sendGroup
+    it 'should include "missed"', ->
+      expect(c.outPorts.missed).to.be.an 'object'
 
-    @outPorts.missed.send data
-    @outPorts.missed.disconnect()
+  describe 'data flow', ->
+    inIn = null
+    keyIn = null
+    sendgroupIn = null
+    outOut = null
+    objectOut = null
+    missedOut = null
 
-    @outPorts.missed.endGroup() if @sendGroup
-    @outPorts.missed.endGroup() for group in groups
+    beforeEach ->
+      inIn = noflo.internalSocket.createSocket()
+      keyIn = noflo.internalSocket.createSocket()
+      sendgroupIn = noflo.internalSocket.createSocket()
+      objectOut = noflo.internalSocket.createSocket()
+      missedOut = noflo.internalSocket.createSocket()
+      outOut = noflo.internalSocket.createSocket()
 
-    @errored = true
+      c.inPorts.in.attach inIn
+      c.inPorts.key.attach keyIn
+      c.inPorts.sendgroup.attach sendgroupIn
+      c.outPorts.out.attach outOut
+      c.outPorts.object.attach objectOut
+      c.outPorts.missed.attach missedOut
 
-  getKey: ({data, groups}) ->
-    unless @key.length
-      @error data, new Error 'Key not defined'
-      return
-    unless typeof data is 'object'
-      @error data, new Error 'Data is not an object'
-      return
-    if data is null
-      @error data, new Error 'Data is NULL'
-      return
-    for key in @key
-      if data[key] is undefined
-        @error data, new Error("Object has no key #{key}"), key, groups
+    describe 'with input on all ports', ->
+      it 'should get the key', (done) ->
+        outOut.on 'data', (data) ->
+          chai.expect(data).to.eql 'canada'
+          done()
 
-      @outPorts.out.beginGroup group for group in groups
-      @outPorts.out.beginGroup key if @sendGroup
-      @outPorts.out.send data[key]
-      @outPorts.out.endGroup() if @sendGroup
-      @outPorts.out.endGroup() for group in groups
+        objectOut.on 'data', (data) ->
+          chai.expect(data).to.eql {test: true, eh: 'canada'}
 
-    if @errored
-      @errored = false
-      return
+        keyIn.send 'eh'
+        inIn.send {test: true, eh: 'canada'}
 
-    @outPorts.object.beginGroup group for group in groups
-    @outPorts.object.send data
-    @outPorts.object.endGroup() for group in groups
+    describe 'when it has data that will miss', ->
+      it 'should trigger missed and not send object out as well', (done) ->
+        triggeredOut = false
+        triggeredMissed = false
+        outOut.on 'data', (data) ->
+          triggeredOut = true
+          if triggeredMissed and triggeredOut
+            done()
 
-exports.getComponent = -> new GetObjectKey
+        objectOut.on 'data', (data) ->
+          throw new Error('sent out object when it missed!')
+
+        missedOut.on 'data', (data) ->
+          triggeredMissed = true
+
+        keyIn.send 'nope'
+        inIn.send {test: true, eh: 'canada'}
+
+    describe 'when using sendgroups', ->
+      it 'should trigger output', (done) ->
+        hasObject = false
+        hasBeginGroup = false
+        hasEndGroup = false
+        hasData = false
+
+        missedOut.on 'data', (data) ->
+          throw new Error('went into missed')
+
+        objectOut.on 'data', (data) ->
+          hasObject = true
+          chai.expect(data).to.eql {test: true, eh: 'canada'}
+          if hasObject and hasBeginGroup and hasData and hasEndGroup
+            done()
+
+        outOut.on 'begingroup', (data) ->
+          hasBeginGroup = true
+          chai.expect(data).to.eql 'eh'
+        outOut.on 'data', (data) ->
+          hasData = true
+          chai.expect(data).to.eql 'canada'
+        outOut.on 'endgroup', (data) ->
+          hasEndGroup = true
+          chai.expect(data).to.eql 'eh'
+
+        keyIn.send 'eh'
+        sendgroupIn.send true
+        inIn.send {test: true, eh: 'canada'}
+
+      it 'should not trigger object when it misses, but should trigger missed and out', (done) ->
+        hasMissed = false
+        hasBeginGroup = false
+        hasEndGroup = false
+        hasData = false
+
+        missedOut.on 'data', (data) ->
+          hasMissed = true
+          chai.expect(data).to.eql {test: true, eh: 'canada'}
+
+        objectOut.on 'data', (data) ->
+          throw new Error('sent out object when it missed!')
+
+        outOut.on 'begingroup', (data) ->
+          hasBeginGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+        outOut.on 'data', (data) ->
+          hasData = true
+          chai.expect(data).to.eql null
+        outOut.on 'endgroup', (data) ->
+          hasEndGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+          if hasMissed and hasBeginGroup and hasData and hasEndGroup
+            done()
+
+        keyIn.send 'nonexistant'
+        sendgroupIn.send true
+        inIn.send {test: true, eh: 'canada'}
+
+      it 'should send groups to missed', (done) ->
+        hasMissed = false
+        hasMissedBeginGroup = false
+        hasMissedEndGroup = false
+        hasBeginGroup = false
+        hasEndGroup = false
+        hasData = false
+
+        missedOut.on 'connect', (data) ->
+        missedOut.on 'disconnect', (data) ->
+        outOut.on 'connect', (data) ->
+        outOut.on 'disconnect', (data) ->
+
+        missedOut.on 'begingroup', (data) ->
+          hasMissedBeginGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+        missedOut.on 'endgroup', (data) ->
+          hasMissedEndGroup = true
+        missedOut.on 'data', (data) ->
+          hasMissed = true
+          chai.expect(data).to.eql {test: true, eh: 'canada'}
+
+        objectOut.on 'data', (data) ->
+          throw new Error('sent out object when it missed!')
+
+        outOut.on 'begingroup', (data) ->
+          hasBeginGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+        outOut.on 'data', (data) ->
+          hasData = true
+          chai.expect(data).to.eql null
+        outOut.on 'endgroup', (data) ->
+          hasEndGroup = true
+          chai.expect(data).to.eql 'nonexistant'
+          if hasMissed and hasBeginGroup and hasData and hasEndGroup and hasMissedBeginGroup and hasMissedEndGroup
+            done()
+
+        keyIn.send 'nonexistant'
+        sendgroupIn.send true
+        inIn.send {test: true, eh: 'canada'}
+
+      it.skip 'should be able to handle more than one key', (done) ->
+      it.skip 'should forward brackets', (done) ->
+      it.skip 'should forward nested brackets', (done) ->

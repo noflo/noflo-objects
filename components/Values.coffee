@@ -1,30 +1,27 @@
-noflo = require("noflo")
-_ = require("underscore")
+noflo = require 'noflo'
 
-class Values extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
 
-  description: "gets only the values of an object and forward them as an array"
+  c.description = 'gets only the values of an object and forward them as an array'
 
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'all'
-        description: 'Object to extract values from'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
-        description: 'Values extracted from the input object (one value per IP)'
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'all'
+      description: 'Object to extract values from'
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'all'
+      description: 'Values extracted from the input object (one value per IP)'
 
-    @inPorts.in.on "data", (data) =>
-      @outPorts.out.send value for value in _.values data
+  c.process (input, output) ->
+    data = input.getData 'in'
+    return unless data?
 
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
+    keys = Object.keys data
+    values = Array(keys.length)
+    for key, index in keys
+      values[index] = data[key]
 
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new Values
+    output.ports.out.data value for value in values
