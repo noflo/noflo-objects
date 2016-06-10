@@ -2,7 +2,6 @@ noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
-
   c.description = 'splits a single object into multiple IPs,
     wrapped with the key as the group'
 
@@ -20,5 +19,8 @@ exports.getComponent = ->
     data = input.getData 'in'
 
     for key, value of data
-      output.send out: value
+      output.ports.out.openBracket key
+      output.ports.out.data value
+      output.ports.out.closeBracket()
+    output.ports.out.disconnect()
     output.done()

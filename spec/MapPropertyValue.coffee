@@ -1,10 +1,11 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  MapPropertyValue = require '../components/MapPropertyValue.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  MapPropertyValue = require 'noflo-objects/components/MapPropertyValue.js'
+  baseDir = 'noflo-objects'
 
 describe 'MapPropertyValue component', ->
   c = null
@@ -12,14 +13,18 @@ describe 'MapPropertyValue component', ->
   map = null
   out = null
 
-  beforeEach ->
-    c = MapPropertyValue.getComponent()
-    ins = noflo.internalSocket.createSocket()
-    map = noflo.internalSocket.createSocket()
-    out = noflo.internalSocket.createSocket()
-    c.inPorts.in.attach ins
-    c.inPorts.map.attach map
-    c.outPorts.out.attach out
+  before (done) ->
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'objects/MapPropertyValue', (err, instance) ->
+      return done err if err
+      c = instance
+      ins = noflo.internalSocket.createSocket()
+      map = noflo.internalSocket.createSocket()
+      out = noflo.internalSocket.createSocket()
+      c.inPorts.in.attach ins
+      c.inPorts.map.attach map
+      c.outPorts.out.attach out
+      done()
 
   describe 'when instantiated', ->
     it 'should have input ports', ->

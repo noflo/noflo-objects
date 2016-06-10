@@ -9,7 +9,7 @@ else
 
 expect = chai.expect unless expect
 
-describe.only 'Join', ->
+describe 'Join', ->
   c = null
   inIn = null
   delimiter = null

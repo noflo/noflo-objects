@@ -52,12 +52,12 @@ exports.getComponent = ->
           map[mapParts[0]] = mapParts[1]
 
     if (input.has 'in', (ip) -> ip.type is 'data')
-      data = input.getData 'in'
+      data = (input.buffer.find 'in', (ip) -> ip.type is 'data')[0].data
       for object in c.flattenObject data
-        c.outPorts.out.send c.mapKeys object, maps
-      c.outPorts.out.disconnect()
+        output.ports.out.data c.mapKeys object, maps
+      output.ports.out.disconnect()
       output.done()
 
     if (input.has 'in', (ip) -> ip.type is 'openBracket')
       input.buffer.set 'map', []
-
+      input.buffer.set 'in', []

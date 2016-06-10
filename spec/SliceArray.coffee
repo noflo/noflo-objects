@@ -9,7 +9,7 @@ else
 
 expect = chai.expect unless expect
 
-describe.only 'SliceArray', ->
+describe 'SliceArray', ->
   c = null
   inIn = null
   begin = null

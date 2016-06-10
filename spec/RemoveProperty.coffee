@@ -1,28 +1,30 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  RemoveProperty = require '../components/RemoveProperty.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  RemoveProperty = require 'noflo-objects/components/RemoveProperty.js'
+  baseDir = 'noflo-objects'
 
 expect = chai.expect unless expect
 
 
 describe 'RemoveProperty', ->
-
   c = null
 
-  beforeEach ->
-    c = RemoveProperty.getComponent()
+  before (done) ->
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'objects/RemoveProperty', (err, instance) ->
+      return done err if err
+      c = instance
+      done()
 
   describe 'inPorts', ->
     it 'should include "in"', ->
       expect(c.inPorts.in).to.be.an 'object'
-
     it 'should include "property"', ->
       expect(c.inPorts.property).to.be.an 'object'
-
   describe 'outPorts', ->
     it 'should include "out"', ->
       expect(c.outPorts.out).to.be.an 'object'

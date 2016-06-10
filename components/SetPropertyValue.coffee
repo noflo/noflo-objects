@@ -6,7 +6,7 @@ exports.getComponent = ->
   c.inPorts = new noflo.InPorts
     property:
       datatype: 'string'
-      description: 'Property name to set value on'
+      description: 'Pro perty name to set value on'
       required: true
     value:
       datatype: 'all'
@@ -28,8 +28,11 @@ exports.getComponent = ->
   c.process (input, output) ->
     input.buffer.get().pop() if input.ip.type isnt 'data'
     return unless input.has 'property', 'value', 'in', (ip) -> ip.type is 'data'
-    data = input.getData 'in'
-    property = input.getData 'property'
-    value = input.getData 'value'
+    data = (input.buffer.find 'in', (ip) -> ip.data isnt undefined)[0].data
+    property = (input.buffer.find 'property', (ip) -> ip.data isnt undefined)[0].data
+    value = (input.buffer.find 'value', (ip) -> ip.data isnt undefined)[0].data
     data[property] = value
     output.sendDone out: data
+    input.buffer.set 'property', []
+    input.buffer.set 'value', []
+    input.buffer.set 'in', []

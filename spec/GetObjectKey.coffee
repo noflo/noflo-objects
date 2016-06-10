@@ -1,18 +1,23 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  GetObjectKey = require '../components/GetObjectKey.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  GetObjectKey = require 'noflo-objects/components/GetObjectKey.js'
+  baseDir = 'noflo-objects'
 
 expect = chai.expect unless expect
 
 describe 'GetObjectKey', ->
   c = null
 
-  beforeEach ->
-    c = GetObjectKey.getComponent()
+  beforeEach (done) ->
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'objects/GetObjectKey', (err, instance) ->
+      return done err if err
+      c = instance
+      done()
 
   describe 'inPorts', ->
     it 'should include "in"', ->
