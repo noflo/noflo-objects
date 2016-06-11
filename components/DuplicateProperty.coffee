@@ -12,7 +12,6 @@ exports.getComponent = ->
     separator:
       datatype: 'string'
       default: '/'
-      required: true
       control: true
       description: 'separator to use to join property'
     in:
@@ -44,12 +43,12 @@ exports.getComponent = ->
     if data
       for newprop, original of properties
         if typeof original is 'string'
-          object[newprop] = object[original]
+          data[newprop] = data[original]
           continue
 
         newValues = []
         for originalProp in original
-          newValues.push object[originalProp]
-        object[newprop] = newValues.join separator
+          newValues.push data[originalProp]
+        data[newprop] = newValues.join separator
 
-      output.data out: object
+      output.sendDone data

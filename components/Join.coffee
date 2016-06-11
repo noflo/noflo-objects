@@ -13,6 +13,8 @@ exports.getComponent = ->
     delimiter:
       datatype: 'string'
       description: 'Delimiter to join values'
+      control: true
+      default: ','
 
   c.outPorts = new noflo.OutPorts
     out:

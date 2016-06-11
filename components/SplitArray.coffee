@@ -3,7 +3,7 @@ noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
-  c.description = 'splits a single object into multiple IPs,
+  c.description = 'splits a single array into multiple IPs,
     wrapped with the key as the group'
 
   c.inPorts = new noflo.InPorts
@@ -18,7 +18,7 @@ exports.getComponent = ->
   c.process (input, output) ->
     data = input.getData 'in'
 
-    unless toString.call(data) is '[object Array]'
+    unless typeof data is 'object' and not Array.isArray data
       for key, item of data
         output.ports.out.beginGroup key
         output.ports.out.send item

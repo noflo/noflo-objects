@@ -19,9 +19,13 @@ exports.getComponent = ->
     recurse:
       datatype: 'boolean'
       description: '"true" to recurse on the object\'s values'
+      control: true
+      default: false
     keep:
       datatype: 'boolean'
       description: '"true" if matching properties must be kept, otherwise removed'
+      control: true
+      default: false
     # Legacy mode
     accept:
       datatype: 'all'
@@ -68,14 +72,8 @@ exports.getComponent = ->
       .map (ip) -> new RegExp ip.data, "g"
 
     data = input.getData 'in'
-    recurse = false
-    recurse = (input.buffer
-      .find 'recurse', (ip) -> ip.type is 'data' and ip.data?
-      .map (ip) -> ip.data)[0]
-
-    keep = (input.buffer
-      .find 'keep', (ip) -> ip.type is 'data' and ip.data?
-      .map (ip) -> ip.data)
+    recurse = input.getData 'recurse'
+    keep = input.getData 'keep'
 
     if keep? and typeof keep is 'object'
       keep = keep.pop()
@@ -103,8 +101,4 @@ exports.getComponent = ->
             match = true
 
       return unless match
-      output.ports.out.data newData
-
-      # clearing the buffer
-      input.buffer.set 'keep', []
-      input.buffer.set 'key', []
+      output.sendDone newData

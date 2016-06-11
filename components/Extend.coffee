@@ -25,11 +25,14 @@ exports.getComponent = ->
     key:
       datatype: 'string'
       description: 'Property name to extend with'
-      required: false
+      default: false
       control: true
     reverse:
       datatype: 'boolean'
       description: 'A string equal "true" if you want to reverse the order of extension algorithm'
+      default: false
+      control: true
+
   c.outPorts = new noflo.OutPorts
     out:
       datatype: 'object'
@@ -46,15 +49,11 @@ exports.getComponent = ->
       key = null
     return unless bases? and data?
 
-    if input.has 'reverse'
-      reverse = input.buffer.find('reverse', (ip) -> ip.type is 'data').map (ip) -> ip.data
-      reverse = reverse[0]
-
-      # Normally, the passed IP object is extended into base objects (i.e.
-      # attributes in IP object takes precendence). Pass `true` to reverse
-      # would make the passed IP object the base (i.e. attributes in base
-      # objects take precedence.
-      reverse = String(reverse) is 'true'
+    # Normally, the passed IP object is extended into base objects (i.e.
+    # attributes in IP object takes precendence). Pass `true` to reverse
+    # would make the passed IP object the base (i.e. attributes in base
+    # objects take precedence.
+    reverse = String(input.getData('reverse')) is 'true'
 
     out = {}
     for base in bases
@@ -67,8 +66,8 @@ exports.getComponent = ->
     if reverse
       output.sendDone out: extend {}, data, out
     else
-      output.sendDone out: extend(out, data)
+      output.ports.out.send extend(out, data)
+      output.done()
 
     input.buffer.set 'base', []
-    input.buffer.set 'reverse', []
     input.buffer.set 'in', []

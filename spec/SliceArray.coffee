@@ -62,7 +62,6 @@ describe 'SliceArray', ->
         throw new Error('should not go into out')
 
       errorOut.on 'data', (data) ->
-        console.log data
         done()
 
       begin.send ''

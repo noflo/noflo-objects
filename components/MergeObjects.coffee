@@ -2,7 +2,6 @@ noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
-
   c.description = 'merges all incoming objects into one'
 
   c.inPorts = new noflo.InPorts

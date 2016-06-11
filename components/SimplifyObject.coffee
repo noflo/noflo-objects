@@ -2,7 +2,7 @@ noflo = require 'noflo'
 
 exports.getComponent = ->
   c = new noflo.Component
-  c.description = 'Simplify an object'
+  c.description = 'Simplify an objectgi'
 
   c.inPorts = new noflo.InPorts
     in:

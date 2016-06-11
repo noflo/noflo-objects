@@ -7,7 +7,7 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe.only 'FilterPropertyValue component', ->
+describe 'FilterPropertyValue component', ->
   c = null
   ins = null
   out = null
