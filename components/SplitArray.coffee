@@ -1,27 +1,29 @@
+
 noflo = require 'noflo'
 
-class SplitArray extends noflo.Component
-  constructor: ->
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'array'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'all'
+exports.getComponent = ->
+  c = new noflo.Component
+  c.description = 'splits a single array into multiple IPs,
+    wrapped with the key as the group'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      unless toString.call(data) is '[object Array]'
-        for key, item of data
-          @outPorts.out.beginGroup key
-          @outPorts.out.send item
-          @outPorts.out.endGroup()
-        return
-      @outPorts.out.send item for item in data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', (data) =>
-      @outPorts.out.disconnect()
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Array to split from'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'all'
+      description: 'Values from the split array'
 
-exports.getComponent = -> new SplitArray
+  c.process (input, output) ->
+    data = input.getData 'in'
+
+    unless typeof data is 'object' and not Array.isArray data
+      for key, item of data
+        output.ports.out.beginGroup key
+        output.ports.out.send item
+        output.ports.out.endGroup()
+      output.done()
+      return
+    output.send out: item for item in data
+    output.done()

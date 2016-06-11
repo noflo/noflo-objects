@@ -1,118 +1,104 @@
-noflo = require "noflo"
-_ = require "underscore"
-{ deepCopy } = require "owl-deepcopy"
+noflo = require 'noflo'
+{ deepCopy } = require 'owl-deepcopy'
 
-class FilterProperty extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
+  c.icon = 'filter'
+  c.description = 'Filter out some properties by matching RegExps
+  against the keys of incoming objects'
 
-  icon: 'filter'
-
-  description: "Filter out some properties by matching RegExps
-  against the keys of incoming objects"
-
-  constructor: ->
-    @keys = []
-    @recurse = false
-    @keep = false
-
-    @legacy = false
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to filter properties from'
+      required: true
+    key:
+      datatype: 'string'
+      description: 'Keys to filter (one key per IP)'
+      required: true
+    recurse:
+      datatype: 'boolean'
+      description: '"true" to recurse on the object\'s values'
+      control: true
+      default: false
+    keep:
+      datatype: 'boolean'
+      description: '"true" if matching properties must be kept, otherwise removed'
+      control: true
+      default: false
     # Legacy mode
-    @accepts = []
-    @regexps = []
+    accept:
+      datatype: 'all'
+    regexp:
+      datatype: 'all'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to filter properties from'
-      key:
-        datatype: 'string'
-        description: 'Keys to filter (one key per IP)'
-      recurse:
-        datatype: 'boolean'
-        description: '"true" to recurse on the object\'s values'
-      keep:
-        datatype: 'boolean'
-        description: '"true" if matching properties must be kept, otherwise removed'
-      # Legacy mode
-      accept:
-        datatype: 'all'
-      regexp:
-        datatype: 'all'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-
-    @inPorts.keep.on "data", (keep) =>
-      @keep = String(keep) is "true"
-
-    @inPorts.recurse.on "data", (data) =>
-      @recurse = String(data) is "true"
-
-    @inPorts.key.on "connect", =>
-      @keys = []
-    @inPorts.key.on "data", (key) =>
-      @keys.push new RegExp key, "g"
-
-    # Legacy mode
-    @inPorts.accept.on "data", (data) =>
-      @legacy = true
-      @accepts.push data
-    @inPorts.regexp.on "data", (data) =>
-      @legacy = true
-      @regexps.push data
-
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup group
-
-    @inPorts.in.on "data", (data) =>
-      # Legacy mode
-      if @legacy
-        @filterData data
-      else
-        if _.isObject data
-          data = deepCopy data
-          @filter data
-          @outPorts.out.send data
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-  filter: (object) ->
-    return if _.isEmpty object
-
+  c.filter = (object, keys, recurse, keep, input) ->
     for key, value of object
       isMatched = false
 
-      for filter in @keys
+      # the keys are filters we want to match in the object
+      for filter in keys
         match = key.match filter
-        if not @keep and match or
-           @keep and not match
+
+        # if they match, we delete them
+        matchButDontKeep = not keep and match
+        keepButDontMatch = keep and not match
+        if matchButDontKeep or keepButDontMatch
           delete object[key]
           isMatched = true
           break
 
-      if not isMatched and _.isObject(value) and @recurse
-        @filter value
+      if not isMatched and recurse and typeof value is 'object'
+        c.filter value, keys, recurse, keep, input
 
-  # Legacy mode
-  filterData: (object) ->
-    newData = {}
-    match = false
-    for property, value of object
-      if @accepts.indexOf(property) isnt -1
-        newData[property] = value
-        match = true
-        continue
+  c.process (input, output) ->
+    # because we only want to use non-brackets
+    return input.buffer.get().pop() if input.ip.type isnt 'data'
+    return unless input.has 'in', 'key'
 
-      for expression in @regexps
-        regexp = new RegExp expression
-        if regexp.exec property
+    legacy = false
+    if input.has('accept') or input.has('regexp')
+      legacy = true
+      accepts = input.get('accept').data
+      regexp = input.get('regexp').data
+
+    # because we can have multiple data packets,
+    # we want to get them all, and use just the data
+    keys = input.buffer
+      .find 'key', (ip) -> ip.type is 'data' and ip.data?
+      .map (ip) -> new RegExp ip.data, "g"
+
+    data = input.getData 'in'
+    recurse = input.getData 'recurse'
+    keep = input.getData 'keep'
+
+    if keep? and typeof keep is 'object'
+      keep = keep.pop()
+
+    unless legacy
+      if typeof data is 'object'
+        data = deepCopy data
+        c.filter data, keys, recurse, keep, input
+        c.outPorts.out.send data
+        output.done()
+    # Legacy mode
+    else
+      newData = {}
+      match = false
+      for property, value of data
+        if accepts.indexOf(property) isnt -1
           newData[property] = value
           match = true
+          continue
 
-    return unless match
-    @outPorts.out.send newData
+        for expression in regexp
+          regex = new RegExp expression
+          if regex.exec property
+            newData[property] = value
+            match = true
 
-exports.getComponent = -> new FilterProperty
+      return unless match
+      output.sendDone newData

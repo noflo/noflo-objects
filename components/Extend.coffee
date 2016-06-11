@@ -1,80 +1,73 @@
-_ = require("underscore")
-noflo = require("noflo")
+noflo = require 'noflo'
 
-class Extend extends noflo.Component
+extend = (object, properties, other) ->
+  for key, val of properties
+    object[key] = val
+  if other?
+    for key, val of other
+      object[key] = val
+  object
 
-  description: "Extend an incoming object to some predefined
-  objects, optionally by a certain property"
+exports.getComponent = ->
+  c = new noflo.Component
+    description: 'Extend an incoming object to some predefined
+    objects, optionally by a certain property'
 
-  constructor: ->
-    @bases = []
-    @mergedBase = {}
-    @key = null
-    @reverse = false
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to extend'
+      required: true
+    base:
+      datatype: 'object'
+      description: 'Objects to extend with (one object per IP)'
+      required: true
+    key:
+      datatype: 'string'
+      description: 'Property name to extend with'
+      default: false
+      control: true
+    reverse:
+      datatype: 'boolean'
+      description: 'A string equal "true" if you want to reverse the order of extension algorithm'
+      default: false
+      control: true
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to extend'
-      base:
-        datatype: 'object'
-        description: 'Objects to extend with (one object per IP)'
-      key:
-        datatype: 'string'
-        description: 'Property name to extend with'
-      reverse:
-        datatype: 'boolean'
-        description: 'A string equal "true" if you want to reverse the order of extension algorithm'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'The object received on port "in" extended'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'The object received on port "in" extended'
+      required: true
 
-    @inPorts.base.on "connect", =>
-      @bases = []
+  c.process (input, output) ->
+    reverse = false
+    key = input.getData 'key'
+    bases = input.buffer.find('base', (ip) -> ip.type is 'data').map (ip) -> ip.data
+    data = input.getData 'in'
 
-    @inPorts.base.on "data", (base) =>
-      @bases.push base if base?
+    if key is undefined
+      key = null
+    return unless bases? and data?
 
-    @inPorts.key.on "connect", =>
-      @key = null
-    @inPorts.key.on "data", (@key) =>
+    # Normally, the passed IP object is extended into base objects (i.e.
+    # attributes in IP object takes precendence). Pass `true` to reverse
+    # would make the passed IP object the base (i.e. attributes in base
+    # objects take precedence.
+    reverse = String(input.getData('reverse')) is 'true'
 
-    @inPorts.reverse.on "connect", =>
-      @reverse = false
-    @inPorts.reverse.on "data", (reverse) =>
-      # Normally, the passed IP object is extended into base objects (i.e.
-      # attributes in IP object takes precendence). Pass `true` to reverse
-      # would make the passed IP object the base (i.e. attributes in base
-      # objects take precedence.
-      @reverse = String(reverse) is 'true'
+    out = {}
+    for base in bases
+      # Only extend when there's no key specified...
+      # or when the specified attribute matches
+      if not key? or data[key]? and data[key] is base[key]
+        out = extend out, base # or  other way ?
 
-    @inPorts.in.on "connect", (group) =>
+    # Put on data
+    if reverse
+      output.sendDone out: extend {}, data, out
+    else
+      output.ports.out.send extend(out, data)
+      output.done()
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
-
-    @inPorts.in.on "data", (incoming) =>
-      out = {}
-
-      for base in @bases
-        # Only extend when there's no key specified...
-        if not @key? or
-           # or when the specified attribute matches
-           incoming[@key]? and
-           incoming[@key] is base[@key]
-          _.extend(out, base)
-
-      # Put on incoming
-      if @reverse
-        @outPorts.out.send _.extend {}, incoming, out
-      else
-        @outPorts.out.send _.extend out, incoming
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new Extend
+    input.buffer.set 'base', []
+    input.buffer.set 'in', []
