@@ -16,6 +16,10 @@
     {
       "name": "Ryan Shaw",
       "email": "ryanshaw@unc.edu"
+    },
+    {
+      "name": "James",
+      "email": "aretecode@gmail.com"
     }
   ],
   "license": "MIT",
@@ -24,8 +28,7 @@
     "url": "https://github.com/noflo/noflo-objects.git"
   },
   "dependencies": {
-    "noflo": "0.x >= 0.5",
-    "underscore": "~1.8.3",
+    "noflo": "git+https://github.com/aretecode/noflo-built.git#experiment",
     "owl-deepcopy": "~0.0.4"
   },
   "devDependencies": {

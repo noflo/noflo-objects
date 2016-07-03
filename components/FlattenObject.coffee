@@ -1,49 +1,33 @@
 noflo = require 'noflo'
 
-class FlattenObject extends noflo.Component
-  constructor: ->
-    @map = {}
-    @inPorts = new noflo.InPorts
-      map:
-        datatype: 'all'
-      in:
-        datatype: 'object'
-        description: 'Object to flatten'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'array'
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts.map.on 'data', (data) =>
-      @prepareMap data
+  c.inPorts = new noflo.InPorts
+    map:
+      datatype: 'all'
+      description: 'map to use to flatten the object'
+      control: true
+    in:
+      datatype: 'object'
+      description: 'Object to flatten'
+      required: true
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      for object in @flattenObject data
-        @outPorts.out.send @mapKeys object
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'array'
 
-  prepareMap: (map) ->
-    if typeof map is 'object'
-      @map = map
-      return
-    mapParts = map.split '='
-    @map[mapParts[0]] = mapParts[1]
-
-  mapKeys: (object) ->
-    for key, map of @map
+  c.mapKeys = (object, maps) ->
+    for key, map of maps
       object[map] = object.flattenedKeys[key]
     delete object.flattenedKeys
     return object
 
-  flattenObject: (object) ->
+  c.flattenObject = (object) ->
     flattened = []
     for key, value of object
       if typeof value is 'object'
-        flattenedValue = @flattenObject value
+        flattenedValue = c.flattenObject value
         for val in flattenedValue
           val.flattenedKeys.push key
           flattened.push val
@@ -52,7 +36,25 @@ class FlattenObject extends noflo.Component
       flattened.push
         flattenedKeys: [key]
         value: value
+    flattened
 
-    return flattened
+  c.forwardBrackets = {}
+  c.process (input, output) ->
+    return unless input.hasStream 'in'
+    maps = {}
 
-exports.getComponent = -> new FlattenObject
+    if input.hasStream 'map'
+      map = input.getData 'map'
+      if map?
+        if typeof map is 'object'
+          maps = map
+        else
+          mapParts = map.split '='
+          maps[mapParts[0]] = mapParts[1]
+
+    data = (input.getStream('in').filter (ip) -> ip.type is 'data')[0].data
+    output.send new noflo.IP 'openBracket'
+    for object in c.flattenObject data
+      output.send c.mapKeys object, maps
+    output.send new noflo.IP 'closeBracket'
+    output.done()

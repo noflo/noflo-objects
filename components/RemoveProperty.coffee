@@ -1,46 +1,39 @@
 noflo = require 'noflo'
-_ = require 'underscore'
 
-class RemoveProperty extends noflo.Component
-  icon: 'ban'
-  constructor: ->
-    @properties = []
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to remove properties from'
-      property:
-        datatype: 'string'
-        description: 'Properties to remove (one per IP)'
-      reset:
-        datatype: 'bang'
-        description: 'Clear the list of properties to remove'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'Object forwarded from input'
+clone = (obj) ->
+  return obj if obj is null or typeof obj isnt 'object'
+  temp = new obj.constructor()
+  for key of obj
+    temp[key] = clone obj[key]
+  temp
 
-    @inPorts.property.on 'data', (data) =>
-      @properties.push data
-    @inPorts.reset.on 'data', =>
-      @properties = []
+exports.getComponent = ->
+  c = new noflo.Component
+  c.icon = 'ban'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      return unless @properties.length
-      @outPorts.out.send @removeProperties data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to remove properties from'
+    property:
+      datatype: 'string'
+      description: 'Properties to remove (one per IP)'
 
-  removeProperties: (object) ->
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object forwarded from input'
+
+  c.process (input, output) ->
+    propData = input.buffer.find 'property', (ip) -> ip.type is 'data' and ip.data?
+    return unless propData? and (input.has 'in', (ip) -> ip.type is 'data')
+    data = input.getData 'in'
+
     # Clone the object so that the original isn't changed
-    object = _.clone(object)
+    object = clone data
 
-    for property in @properties
-      delete object[property]
-    return object
+    for property in propData
+      delete object[property.data]
 
-exports.getComponent = -> new RemoveProperty
+    output.sendDone out: object
+    input.buffer.set 'property', []
