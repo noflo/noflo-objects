@@ -1,39 +1,44 @@
-_ = require("underscore")
-noflo = require("noflo")
+noflo = require 'noflo'
 
-class Join extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
+  c.description = 'Join all values of a passed packet together as a
+  string with a predefined delimiter'
 
-  description: "Join all values of a passed packet together as a
-  string with a predefined delimiter"
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Object to join values from'
+      required: true
+    delimiter:
+      datatype: 'string'
+      description: 'Delimiter to join values'
+      control: true
+      default: ','
 
-  constructor: ->
-    @delimiter = ","
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'string'
+      description: 'String conversion of all values joined with delimiter into one string'
+      required: true
+    error:
+      datatype: 'object'
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Object to join values from'
-      delimiter:
-        datatype: 'string'
-        description: 'Delimiter to join values'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'string'
-        description: 'String conversion of all values joined with delimiter into one string'
+  c.process (input, output) ->
+    input.buffer.get().pop() if input.ip.type isnt 'data'
+    return unless input.has 'in'
 
-    @inPorts.delimiter.on "data", (@delimiter) =>
+    delimiter = ','
+    if input.has 'delimiter'
+      delimiter = input.getData 'delimiter'
 
-    @inPorts.in.on "begingroup", (group) =>
-      @outPorts.out.beginGroup(group)
-
-    @inPorts.in.on "data", (object) =>
-      if _.isObject object
-        @outPorts.out.send _.values(object).join(@delimiter)
-
-    @inPorts.in.on "endgroup", (group) =>
-      @outPorts.out.endGroup()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.disconnect()
-
-exports.getComponent = -> new Join
+    data = input.getData 'in'
+    if data? and typeof data is 'object'
+      keys = Object.keys data
+      length = keys.length
+      values = Array(length)
+      for i in [0..length-1]
+        values[i] = data[keys[i]]
+      output.sendDone out: values.join(delimiter)
+    else
+      output.sendDone error: new Error(typeof(data) + ' is not a valid object to join')

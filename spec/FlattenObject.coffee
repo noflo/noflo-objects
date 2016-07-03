@@ -1,10 +1,11 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  FlattenObject = require '../components/FlattenObject.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  FlattenObject = require 'noflo-objects/components/FlattenObject.js'
+  baseDir = 'noflo-objects'
 
 describe 'FlattenObject component', ->
   c = null
@@ -12,19 +13,32 @@ describe 'FlattenObject component', ->
   map = null
   out = null
 
+  before (done) ->
+    loader = new noflo.ComponentLoader baseDir
+    loader.load 'objects/FlattenObject', (err, instance) ->
+      return done err if err
+      c = instance
+      ins = noflo.internalSocket.createSocket()
+      map = noflo.internalSocket.createSocket()
+      c.inPorts.in.attach ins
+      c.inPorts.map.attach map
+      done()
+
   beforeEach ->
-    c = FlattenObject.getComponent()
-    ins = noflo.internalSocket.createSocket()
-    map = noflo.internalSocket.createSocket()
     out = noflo.internalSocket.createSocket()
-    c.inPorts.in.attach ins
-    c.inPorts.map.attach map
     c.outPorts.out.attach out
+  afterEach ->
+    c.outPorts.out.detach out
 
   describe 'when instantiated', ->
     it 'should have input ports', ->
       chai.expect(c.inPorts.in).to.be.an 'object'
+    it 'should have an output port', ->
+      chai.expect(c.outPorts.out).to.be.an 'object'
 
+  describe 'when instantiated', ->
+    it 'should have input ports', ->
+      chai.expect(c.inPorts.in).to.be.an 'object'
     it 'should have an output port', ->
       chai.expect(c.outPorts.out).to.be.an 'object'
 
@@ -70,7 +84,6 @@ describe 'FlattenObject component', ->
           {value:"leaf5",index:"branch4"}
         ]
         done()
-
       map.send {0:"index"}
       map.disconnect()
       ins.send tree
@@ -122,7 +135,7 @@ describe 'FlattenObject component', ->
       output = []
 
       out.on "data", (data) ->
-          output.push data
+        output.push data
 
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [
@@ -143,7 +156,7 @@ describe 'FlattenObject component', ->
       output = []
 
       out.on "data", (data) ->
-          output.push data
+        output.push data
 
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [

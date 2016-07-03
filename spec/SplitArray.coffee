@@ -7,7 +7,7 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe 'SplitObject component', ->
+describe 'SplitArray component', ->
   c = null
   ins = null
   out = null
@@ -26,7 +26,7 @@ describe 'SplitObject component', ->
   afterEach ->
     c.outPorts.out.detach out
 
-  describe 'given an object', ->
+  describe 'given an object (even though it is SplitArray)...', ->
     it 'should return keys as groups and values as their own IPs', (done) ->
       expected = [
         '< x'
@@ -58,4 +58,21 @@ describe 'SplitObject component', ->
       ins.send
         x: 1
         y: 2
+      ins.disconnect()
+
+  describe 'given an array', ->
+    it 'should return values as their own IPs', (done) ->
+      expected = [
+        'DATA 1'
+        'DATA 2'
+      ]
+      received = []
+
+      out.on 'data', (data) ->
+        received.push "DATA #{data}"
+      out.on 'disconnect', ->
+        chai.expect(received).to.eql expected
+        done()
+
+      ins.send [1, 2]
       ins.disconnect()
