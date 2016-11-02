@@ -1,25 +1,38 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  FlattenObject = require '../components/FlattenObject.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  FlattenObject = require 'noflo-objects/components/FlattenObject.js'
+  baseDir = 'noflo-objects'
 
 describe 'FlattenObject component', ->
   c = null
   ins = null
   map = null
   out = null
+  loader = null
 
-  beforeEach ->
-    c = FlattenObject.getComponent()
-    ins = noflo.internalSocket.createSocket()
-    map = noflo.internalSocket.createSocket()
-    out = noflo.internalSocket.createSocket()
-    c.inPorts.in.attach ins
-    c.inPorts.map.attach map
-    c.outPorts.out.attach out
+  before ->
+    loader = new noflo.ComponentLoader baseDir
+
+  beforeEach (done) ->
+    @timeout 4000
+    loader.load 'objects/FlattenObject', (err, instance) ->
+      return done err if err
+      c = instance
+      ins = noflo.internalSocket.createSocket()
+      map = noflo.internalSocket.createSocket()
+      out = noflo.internalSocket.createSocket()
+      c.inPorts.in.attach ins
+      c.inPorts.map.attach map
+      c.outPorts.out.attach out
+      done()
+
+  afterEach ->
+    c.outPorts.out.detach out
+    out = null
 
   describe 'when instantiated', ->
     it 'should have input ports', ->

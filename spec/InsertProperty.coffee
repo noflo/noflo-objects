@@ -1,20 +1,28 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  InsertProperty = require '../components/InsertProperty.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  InsertProperty = require 'noflo-objects/components/InsertProperty.js'
+  baseDir = 'noflo-objects'
 
 expect = chai.expect unless expect
-
 
 describe 'InsertProperty', ->
 
   c = null
+  loader = null
 
-  beforeEach ->
-    c = InsertProperty.getComponent()
+  before ->
+    loader = new noflo.ComponentLoader baseDir
+
+  beforeEach (done) ->
+    @timeout 4000
+    loader.load 'objects/InsertProperty', (err, instance) ->
+      return done err if err
+      c = instance
+      done()
 
   describe 'inPorts', ->
 
