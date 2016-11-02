@@ -1,10 +1,11 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  SliceArray = require '../components/SliceArray.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  SliceArray = require 'noflo-objects/components/SliceArray.js'
+  baseDir = 'noflo-objects'
 
 expect = chai.expect unless expect
 
@@ -13,8 +14,17 @@ describe 'SliceArray', ->
 
   c = null
 
-  beforeEach ->
-    c = SliceArray.getComponent()
+  loader = null
+
+  before ->
+    loader = new noflo.ComponentLoader baseDir
+
+  beforeEach (done) ->
+    @timeout 4000
+    loader.load 'objects/SliceArray', (err, instance) ->
+      return done err if err
+      c = instance
+      done()
 
   describe 'inPorts', ->
 

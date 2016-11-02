@@ -1,22 +1,35 @@
 noflo = require 'noflo'
 
 unless noflo.isBrowser()
-  chai = require 'chai' unless chai
-  FilterPropertyValue = require '../components/FilterPropertyValue.coffee'
+  chai = require 'chai'
+  path = require 'path'
+  baseDir = path.resolve __dirname, '../'
 else
-  FilterPropertyValue = require 'noflo-objects/components/FilterPropertyValue.js'
+  baseDir = 'noflo-objects'
 
 describe 'FilterPropertyValue component', ->
   c = null
   ins = null
   out = null
+  loader = null
 
-  beforeEach ->
-    c = FilterPropertyValue.getComponent()
-    ins = noflo.internalSocket.createSocket()
-    out = noflo.internalSocket.createSocket()
-    c.inPorts.in.attach ins
-    c.outPorts.out.attach out
+  before ->
+    loader = new noflo.ComponentLoader baseDir
+
+  beforeEach (done) ->
+    @timeout 4000
+    loader.load 'objects/FilterPropertyValue', (err, instance) ->
+      return done err if err
+      c = instance
+      ins = noflo.internalSocket.createSocket()
+      c.inPorts.in.attach ins
+      out = noflo.internalSocket.createSocket()
+      c.outPorts.out.attach out
+      done()
+
+  afterEach ->
+    c.outPorts.out.detach out
+    out = null
 
   describe 'when instantiated', ->
     it 'should have input ports', ->
