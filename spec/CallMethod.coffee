@@ -58,8 +58,10 @@ describe 'CallMethod component', ->
         done()
 
       method.send 'inc'
-      args.send 1
-      args.send 5
+      args.post new noflo.IP 'openBracket'
+      args.post new noflo.IP 'data', 1
+      args.post new noflo.IP 'data', 5
+      args.post new noflo.IP 'closeBracket'
       ins.send
         a: 1
         b: 10

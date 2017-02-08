@@ -12,13 +12,9 @@ describe 'MapProperty component', ->
   ins = null
   map = null
   out = null
-  loader = null
 
-  before ->
+  before (done) ->
     loader = new noflo.ComponentLoader baseDir
-
-  beforeEach (done) ->
-    @timeout 4000
     loader.load 'objects/MapProperty', (err, instance) ->
       return done err if err
       c = instance
@@ -37,7 +33,6 @@ describe 'MapProperty component', ->
   describe 'when instantiated', ->
     it 'should have input ports', ->
       chai.expect(c.inPorts.in).to.be.an 'object'
-
     it 'should have an output port', ->
       chai.expect(c.outPorts.out).to.be.an 'object'
 

@@ -9,13 +9,13 @@ else
 
 expect = chai.expect unless expect
 
-describe 'InsertProperty', ->
+
+describe 'RemoveProperty', ->
   c = null
-  loader = null
 
   before (done) ->
     loader = new noflo.ComponentLoader baseDir
-    loader.load 'objects/InsertProperty', (err, instance) ->
+    loader.load 'objects/RemoveProperty', (err, instance) ->
       return done err if err
       c = instance
       done()
@@ -25,9 +25,7 @@ describe 'InsertProperty', ->
       expect(c.inPorts.in).to.be.an 'object'
     it 'should include "property"', ->
       expect(c.inPorts.property).to.be.an 'object'
-
   describe 'outPorts', ->
-
     it 'should include "out"', ->
       expect(c.outPorts.out).to.be.an 'object'
 
@@ -46,16 +44,17 @@ describe 'InsertProperty', ->
       c.outPorts.out.attach outOut
 
     describe 'with input on all ports', ->
-
-      it 'should insert the property', (done) ->
+      it 'should remove the property', (done) ->
         outOut.on 'data', (data) ->
           expect(data).to.deep.equal
-            test: true
-            key: 'value'
+            oh: 'canada'
           done()
 
-        inIn.send {test: true}
+        propertyIn.send 'test'
+        propertyIn.send 'key'
 
-        propertyIn.beginGroup 'key'
-        propertyIn.send 'value'
-        propertyIn.endGroup()
+        inIn.send
+          test: true
+          key: 'value'
+          oh: 'canada'
+

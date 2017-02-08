@@ -9,39 +9,72 @@ else
 
 expect = chai.expect unless expect
 
-
 describe 'SliceArray', ->
-
   c = null
+  inIn = null
+  begin = null
+  end = null
+  out = null
+  errorOut = null
 
-  loader = null
-
-  before ->
+  before (done) ->
     loader = new noflo.ComponentLoader baseDir
-
-  beforeEach (done) ->
-    @timeout 4000
     loader.load 'objects/SliceArray', (err, instance) ->
       return done err if err
       c = instance
       done()
 
-  describe 'inPorts', ->
+  beforeEach (done) ->
+    inIn = noflo.internalSocket.createSocket()
+    begin = noflo.internalSocket.createSocket()
+    end = noflo.internalSocket.createSocket()
+    out = noflo.internalSocket.createSocket()
+    errorOut = noflo.internalSocket.createSocket()
+    c.inPorts.in.attach inIn
+    c.inPorts.begin.attach begin
+    c.inPorts.end.attach end
+    c.outPorts.out.attach out
+    c.outPorts.error.attach errorOut
+    done()
 
-    it 'should include "in"', ->
-      expect(c.inPorts.in).to.be.an 'object'
+  describe 'ports', ->
+    describe 'inPorts', ->
+      it 'should include "in"', ->
+        expect(c.inPorts.in).to.be.an 'object'
+      it 'should include "begin"', ->
+        expect(c.inPorts.begin).to.be.an 'object'
+      it 'should include "end"', ->
+        expect(c.inPorts.end).to.be.an 'object'
+    describe 'outPorts', ->
+      it 'should include "out"', ->
+        expect(c.outPorts.out).to.be.an 'object'
+      it 'should include "error"', ->
+        expect(c.outPorts.out).to.be.an 'object'
 
-    it 'should include "begin"', ->
-      expect(c.inPorts.begin).to.be.an 'object'
+  describe 'slicing an array', ->
+    it 'should not work with a non array data sent to in', (done) ->
+      out.on 'data', (data) ->
+        throw new Error('should not go into out')
 
-    it 'should include "end"', ->
-      expect(c.inPorts.end).to.be.an 'object'
+      errorOut.on 'data', (data) ->
+        done()
 
+      begin.send ''
+      inIn.send null
 
-  describe 'outPorts', ->
+    it 'should work with an array using 1 as begin', (done) ->
+      out.on 'data', (data) ->
+        chai.expect(data).to.eql ['eh']
+        done()
 
-    it 'should include "out"', ->
-      expect(c.outPorts.out).to.be.an 'object'
+      begin.send 1
+      inIn.send ['canada', 'eh']
 
-    it 'should include "error"', ->
-      expect(c.outPorts.out).to.be.an 'object'
+    it 'should work with an array using 1 as begin and 3 as end', (done) ->
+      out.on 'data', (data) ->
+        chai.expect(data).to.eql ['eh', 'igloo']
+        done()
+
+      end.send 3
+      begin.send 1
+      inIn.send ['canada', 'eh', 'igloo', 'moose', 'syrup']

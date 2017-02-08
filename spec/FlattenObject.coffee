@@ -12,13 +12,9 @@ describe 'FlattenObject component', ->
   ins = null
   map = null
   out = null
-  loader = null
 
-  before ->
+  before (done) ->
     loader = new noflo.ComponentLoader baseDir
-
-  beforeEach (done) ->
-    @timeout 4000
     loader.load 'objects/FlattenObject', (err, instance) ->
       return done err if err
       c = instance
@@ -30,14 +26,22 @@ describe 'FlattenObject component', ->
       c.outPorts.out.attach out
       done()
 
+
+  beforeEach ->
+    out = noflo.internalSocket.createSocket()
+    c.outPorts.out.attach out
   afterEach ->
     c.outPorts.out.detach out
-    out = null
 
   describe 'when instantiated', ->
     it 'should have input ports', ->
       chai.expect(c.inPorts.in).to.be.an 'object'
+    it 'should have an output port', ->
+      chai.expect(c.outPorts.out).to.be.an 'object'
 
+  describe 'when instantiated', ->
+    it 'should have input ports', ->
+      chai.expect(c.inPorts.in).to.be.an 'object'
     it 'should have an output port', ->
       chai.expect(c.outPorts.out).to.be.an 'object'
 
@@ -83,7 +87,6 @@ describe 'FlattenObject component', ->
           {value:"leaf5",index:"branch4"}
         ]
         done()
-
       map.send {0:"index"}
       map.disconnect()
       ins.send tree
@@ -135,7 +138,7 @@ describe 'FlattenObject component', ->
       output = []
 
       out.on "data", (data) ->
-          output.push data
+        output.push data
 
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [
@@ -156,7 +159,7 @@ describe 'FlattenObject component', ->
       output = []
 
       out.on "data", (data) ->
-          output.push data
+        output.push data
 
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [
