@@ -6,7 +6,8 @@ exports.getComponent = ->
       start:
         datatype: 'string'
     outPorts:
-      datatype: 'object'
+      out:
+        datatype: 'object'
 
   c.icon = 'bug'
   c.description = 'Create an Error object'
@@ -23,4 +24,4 @@ exports.getComponent = ->
       err = new Error 'Error'
       err.context = data
 
-    output.send out: err
+    output.sendDone out: err
