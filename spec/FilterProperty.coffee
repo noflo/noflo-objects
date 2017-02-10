@@ -20,20 +20,22 @@ describe 'FilterProperty component', ->
     loader.load 'objects/FilterProperty', (err, instance) ->
       return done err if err
       c = instance
-      recurse = noflo.internalSocket.createSocket()
-      keep = noflo.internalSocket.createSocket()
-      key = noflo.internalSocket.createSocket()
-      ins = noflo.internalSocket.createSocket()
-      c.inPorts.recurse.attach recurse
-      c.inPorts.keep.attach keep
-      c.inPorts.key.attach key
-      c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
+    recurse = noflo.internalSocket.createSocket()
+    keep = noflo.internalSocket.createSocket()
+    key = noflo.internalSocket.createSocket()
+    ins = noflo.internalSocket.createSocket()
+    c.inPorts.key.attach key
+    c.inPorts.in.attach ins
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
+    c.inPorts.recurse.detach recurse
+    c.inPorts.keep.detach keep
     c.outPorts.out.detach out
+    done()
 
   describe 'with properties to filter', ->
     it 'should return the filtered objects', (done) ->
@@ -46,19 +48,21 @@ describe 'FilterProperty component', ->
         chai.expect(data).to.eql expected.shift()
         done() unless expected.length
 
-      key.send 'a'
-      key.send 'c.+'
-      key.disconnect()
+      key.post new noflo.IP 'openBracket'
+      key.post new noflo.IP 'data', 'a'
+      key.post new noflo.IP 'data', 'c.+'
+      key.post new noflo.IP 'closeBracket'
 
-      ins.send
+      ins.post new noflo.IP 'data',
         a: 1
         b: 2
-      ins.send
+      ins.post new noflo.IP 'data',
         cat: 3
         b: 4
 
   describe 'with keep set to true', ->
     it 'should return the filtered objects', (done) ->
+      c.inPorts.keep.attach keep
       expected = [
         {}
       ,
@@ -67,36 +71,37 @@ describe 'FilterProperty component', ->
       out.on 'data', (data) ->
         chai.expect(data).to.eql expected.shift()
         return if expected.length
-        keep.send false
+        keep.post new noflo.IP 'data', false
         done()
 
-      keep.send true
-      key.send 'a.+'
-      key.disconnect()
+      keep.post new noflo.IP 'data', true
+      key.post new noflo.IP 'data', 'a.+'
 
-      ins.send
+      ins.post new noflo.IP 'data',
         a: 1
         b: 2
-      ins.send
+      ins.post new noflo.IP 'data',
         cat: 3
         b: 4
 
   describe 'recursively filtering', ->
     it 'should return the filtered key/value pair', (done) ->
+      c.inPorts.recurse.attach recurse
       out.on 'data', (data) ->
         chai.expect(data).to.eql
           x:
             b: 2
             y: {}
-        recurse.send false
+        recurse.post new noflo.IP 'data', false
         done()
 
-      recurse.send true
-      key.send 'a'
-      key.send 'c'
-      key.disconnect()
+      recurse.post new noflo.IP 'data', true
+      key.post new noflo.IP 'openBracket'
+      key.post new noflo.IP 'data', 'a'
+      key.post new noflo.IP 'data', 'c'
+      key.post new noflo.IP 'closeBracket'
 
-      ins.send
+      ins.post new noflo.IP 'data',
         x:
           a: 1
           b: 2

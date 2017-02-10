@@ -54,10 +54,16 @@ exports.getComponent = ->
       if not isMatched and recurse and typeof value is 'object'
         c.filter value, keys, recurse, keep, input
 
+  c.keys = {}
   c.process (input, output) ->
-    # because we only want to use non-brackets
-    return input.buffer.get().pop() if input.ip.type isnt 'data'
-    return unless input.has 'in', 'key'
+    if input.hasStream 'key'
+      c.keys[input.scope] = input.getStream 'key'
+        .filter (ip) -> ip.type is 'data' and ip.data?
+        .map (ip) -> new RegExp ip.data, "g"
+      return output.done()
+    return unless input.hasData('in') and c.keys[input.scope]?.length > 0
+    return unless input.hasData 'recurse' if input.attached('recurse').length > 0
+    return unless input.hasData 'keep' if input.attached('keep').length > 0
 
     legacy = false
     if input.has('accept') or input.has('regexp')
@@ -67,14 +73,10 @@ exports.getComponent = ->
 
     # because we can have multiple data packets,
     # we want to get them all, and use just the data
-    keys = input.buffer
-      .find 'key', (ip) -> ip.type is 'data' and ip.data?
-      .map (ip) -> new RegExp ip.data, "g"
-
+    keys = c.keys[input.scope]
     data = input.getData 'in'
     recurse = input.getData 'recurse'
     keep = input.getData 'keep'
-
     if keep? and typeof keep is 'object'
       keep = keep.pop()
 
@@ -83,6 +85,8 @@ exports.getComponent = ->
         data = deepCopy data
         c.filter data, keys, recurse, keep, input
         output.sendDone data
+      else
+        output.done()
     # Legacy mode
     else
       newData = {}
@@ -99,6 +103,5 @@ exports.getComponent = ->
             newData[property] = value
             match = true
 
-      return unless match
+      return output.done() unless match
       output.sendDone newData
-      input.buffer.set 'key', []
