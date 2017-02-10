@@ -29,8 +29,8 @@ exports.getComponent = ->
 
   c.process (input, output) ->
     return unless input.hasData 'method', 'in'
-    # if input.attached('arguments').length > 0
-      # return unless input.hasData 'arguments'
+    if input.attached('arguments').length > 0
+      return unless input.hasData 'arguments'
     args = []
 
     # because we can have multiple data packets,
