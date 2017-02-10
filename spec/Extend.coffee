@@ -31,21 +31,22 @@ describe 'Extend component', ->
     loader.load 'objects/Extend', (err, instance) ->
       return done err if err
       c = instance
-      key = noflo.internalSocket.createSocket()
-      c.inPorts.key.attach key
-      reverse = noflo.internalSocket.createSocket()
-      c.inPorts.reverse.attach reverse
-      base = noflo.internalSocket.createSocket()
-      c.inPorts.base.attach base
-      ins = noflo.internalSocket.createSocket()
-      c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
+    key = noflo.internalSocket.createSocket()
+    reverse = noflo.internalSocket.createSocket()
+    base = noflo.internalSocket.createSocket()
+    c.inPorts.base.attach base
+    ins = noflo.internalSocket.createSocket()
+    c.inPorts.in.attach ins
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
+    c.inPorts.reverse.detach reverse
+    c.inPorts.key.detach key
     c.outPorts.out.detach out
-    base.disconnect()
+    done()
 
   describe 'with two bases and an object to extend', ->
     it 'should produce an object based on all three', (done) ->
@@ -57,10 +58,12 @@ describe 'Extend component', ->
           d: 6
         done()
 
-      base.send object1
-      base.send object2
+      base.post new noflo.IP 'openBracket'
+      base.post new noflo.IP 'data', object1
+      base.post new noflo.IP 'data', object2
+      base.post new noflo.IP 'closeBracket'
 
-      ins.send object3
+      ins.post new noflo.IP 'data', object3
 
   describe 'with two bases and an empty object to extend', ->
     it 'should produce an object based on the two', (done) ->
@@ -71,13 +74,17 @@ describe 'Extend component', ->
           c: 5
         done()
 
-      base.send object1
-      base.send object2
+      base.post new noflo.IP 'openBracket'
+      base.post new noflo.IP 'data', object1
+      base.post new noflo.IP 'data', object2
+      base.post new noflo.IP 'closeBracket'
 
-      ins.send {}
+      ins.post new noflo.IP 'data', {}
 
   describe 'with a "c" key for the extend', ->
     it 'should produce an object from the only matching base and the input', (done) ->
+      c.inPorts.key.attach key
+
       out.on 'data', (data) ->
         chai.expect(data).to.eql
           a: 3
@@ -85,40 +92,49 @@ describe 'Extend component', ->
           d: 6
         done()
 
-      key.send 'c'
+      key.post new noflo.IP 'data', 'c'
 
-      base.send object1
-      base.send object2
+      base.post new noflo.IP 'openBracket'
+      base.post new noflo.IP 'data', object1
+      base.post new noflo.IP 'data', object2
+      base.post new noflo.IP 'closeBracket'
 
-      ins.send object3
+      ins.post new noflo.IP 'data', object3
 
   describe 'with key that none of the objects match', ->
     it 'should produce an object only based on input data', (done) ->
+      c.inPorts.key.attach key
+
       out.on 'data', (data) ->
         chai.expect(data).to.eql
           c: 5
           d: 6
         done()
 
-      key.send 'norris'
+      key.post new noflo.IP 'data', 'norris'
 
-      base.send object1
-      base.send object2
+      base.post new noflo.IP 'openBracket'
+      base.post new noflo.IP 'data', object1
+      base.post new noflo.IP 'data', object2
+      base.post new noflo.IP 'closeBracket'
 
-      ins.send object3
+      ins.post new noflo.IP 'data', object3
 
-  describe 'with no base objects', ->
+  describe 'with no base objects (empty stream)', ->
     it 'should produce an object only based on input data', (done) ->
       out.on 'data', (data) ->
         chai.expect(data).to.eql
           c: 5
           d: 6
         done()
-      base.connect()
-      ins.send object3
+
+      base.post new noflo.IP 'openBracket'
+      base.post new noflo.IP 'closeBracket'
+      ins.post new noflo.IP 'data', object3
 
   describe 'with the reverse flag set', ->
     it 'should produce the expected object', (done) ->
+      c.inPorts.reverse.attach reverse
       out.on 'data', (data) ->
         chai.expect(data).to.eql
         a: 3
@@ -127,7 +143,11 @@ describe 'Extend component', ->
         d: 6
         done()
 
-      base.send object1
-      base.send object2
+      reverse.post new noflo.IP 'data', 'true'
 
-      ins.send object3
+      base.post new noflo.IP 'openBracket'
+      base.post new noflo.IP 'data', object1
+      base.post new noflo.IP 'data', object2
+      base.post new noflo.IP 'closeBracket'
+
+      ins.post new noflo.IP 'data', object3

@@ -40,13 +40,17 @@ exports.getComponent = ->
       required: true
 
   c.process (input, output) ->
-    return unless input.has 'in', (ip) -> ip.type is 'data'
+    return unless input.hasData 'in'
+    return unless input.has 'base'
+    return unless input.hasData 'key' if input.attached('key').length > 0
+    return unless input.hasData 'reverse' if input.attached('reverse').length > 0
 
     reverse = false
     key = input.getData 'key'
 
-    bases = input.buffer.find('base', (ip) -> ip.type is 'data').map (ip) -> ip.data
-    bases = input.getDataStream 'base'
+    bases = input.getStream('base')
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
     data = input.getData 'in'
 
     if key is undefined
@@ -67,6 +71,6 @@ exports.getComponent = ->
 
     # Put on data
     if reverse
-      output.sendDone out: extend {}, data, out
+      output.sendDone extend {}, data, out
     else
-      output.sendDone extend(out, data)
+      output.sendDone extend out, data
