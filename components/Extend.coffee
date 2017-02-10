@@ -42,6 +42,8 @@ exports.getComponent = ->
   c.process (input, output) ->
     return unless input.hasData 'in'
     return unless input.has 'base'
+    return unless input.hasData 'key' if input.attached('key').length > 0
+    return unless input.hasData 'reverse' if input.attached('reverse').length > 0
 
     reverse = false
     key = input.getData 'key'
