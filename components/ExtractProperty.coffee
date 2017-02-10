@@ -22,10 +22,10 @@ exports.getComponent = ->
       description: 'Values of the property extracted (each value sent as a separate IP)'
 
   c.process (input, output) ->
-    # because we only want to use non-brackets
-    return input.buffer.get().pop() if input.ip.type isnt 'data'
-    return unless input.has 'key', 'in'
-    keys = input.getData 'key'
+    return unless input.hasData 'key', 'in'
+    keys = input.getStream 'key'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
     data = input.getData 'in'
     value = data
 
