@@ -26,24 +26,27 @@ describe 'FlattenObject component', ->
       c.outPorts.out.attach out
       done()
 
-
-  beforeEach ->
+  beforeEach (done) ->
+    ins = noflo.internalSocket.createSocket()
+    map = noflo.internalSocket.createSocket()
     out = noflo.internalSocket.createSocket()
+    c.inPorts.in.attach ins
+    c.inPorts.map.attach map
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
+    c.inPorts.in.detach ins
+    c.inPorts.map.detach map
     c.outPorts.out.detach out
+    done()
 
   describe 'when instantiated', ->
-    it 'should have input ports', ->
+    it 'should have input ports', (done) ->
       chai.expect(c.inPorts.in).to.be.an 'object'
-    it 'should have an output port', ->
+      done()
+    it 'should have an output port', (done) ->
       chai.expect(c.outPorts.out).to.be.an 'object'
-
-  describe 'when instantiated', ->
-    it 'should have input ports', ->
-      chai.expect(c.inPorts.in).to.be.an 'object'
-    it 'should have an output port', ->
-      chai.expect(c.outPorts.out).to.be.an 'object'
+      done()
 
   describe 'flatten', ->
     tree =
@@ -54,6 +57,7 @@ describe 'FlattenObject component', ->
           branch4: "leaf5"
 
     it 'test no map', (done) ->
+      c.inPorts.map.sockets = []
       output = []
 
       out.on "data", (data) ->
@@ -69,8 +73,7 @@ describe 'FlattenObject component', ->
         ]
         done()
 
-      ins.send tree
-      ins.disconnect()
+      ins.post new noflo.IP 'data', tree
 
     it 'test map depth 0', (done) ->
       output = []
@@ -87,10 +90,8 @@ describe 'FlattenObject component', ->
           {value:"leaf5",index:"branch4"}
         ]
         done()
-      map.send {0:"index"}
-      map.disconnect()
-      ins.send tree
-      ins.disconnect()
+      map.post new noflo.IP 'data', {0:"index"}
+      ins.post new noflo.IP 'data', tree
 
     it 'test map depth 1', (done) ->
       output = []
@@ -108,10 +109,8 @@ describe 'FlattenObject component', ->
         ]
         done()
 
-      map.send {1:"branch"}
-      map.disconnect()
-      ins.send tree
-      ins.disconnect()
+      map.post new noflo.IP 'data', {1:"branch"}
+      ins.post new noflo.IP 'data', tree
 
     it 'test map depth 2', (done) ->
       output = []
@@ -129,10 +128,8 @@ describe 'FlattenObject component', ->
         ]
         done()
 
-      map.send {2:"root"}
-      map.disconnect()
-      ins.send tree
-      ins.disconnect()
+      map.post new noflo.IP 'data', {2:"root"}
+      ins.post new noflo.IP 'data', tree
 
     it 'test map depth 3', (done) ->
       output = []
@@ -150,10 +147,8 @@ describe 'FlattenObject component', ->
         ]
         done()
 
-      map.send {3:"nothere"}
-      map.disconnect()
-      ins.send tree
-      ins.disconnect()
+      map.post new noflo.IP 'data', {3:"nothere"}
+      ins.post new noflo.IP 'data', tree
 
     it 'test map all', (done) ->
       output = []
@@ -171,7 +166,5 @@ describe 'FlattenObject component', ->
         ]
         done()
 
-      map.send {0:"index",1:"branch",2:"root"}
-      map.disconnect()
-      ins.send tree
-      ins.disconnect()
+      map.post new noflo.IP 'data', {0:"index",1:"branch",2:"root"}
+      ins.post new noflo.IP 'data', tree
