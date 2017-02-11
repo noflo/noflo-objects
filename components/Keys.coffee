@@ -17,4 +17,5 @@ exports.getComponent = ->
   c.process (input, output) ->
     return unless input.has 'in'
     data = input.getData 'in'
-    output.ports.out.data key for key in Object.keys data
+    output.send out: new noflo.IP 'data', key for key in Object.keys data
+    output.done()
