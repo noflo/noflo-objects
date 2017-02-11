@@ -19,7 +19,7 @@ exports.getComponent = ->
       description: 'Object forwared from input'
 
   c.process (input, output) ->
-    return unless input.has 'in', 'pattern', (ip) -> ip.type is 'data'
+    return unless input.hasData 'in', 'pattern'
     data = input.getData 'in'
     patterns = input.getData 'pattern'
     newKey = null

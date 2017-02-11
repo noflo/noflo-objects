@@ -23,11 +23,13 @@ describe 'ReplaceKey component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given a regexp', ->
     it 'should change the keys accordingly', (done) ->
@@ -37,9 +39,9 @@ describe 'ReplaceKey component', ->
           bbc: 2
         done()
 
-      pattern.send
+      pattern.post new noflo.IP 'data',
         'a.+c': 'def'
 
-      ins.send
+      ins.post new noflo.IP 'data',
         abc: 1
         bbc: 2
