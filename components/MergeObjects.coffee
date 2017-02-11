@@ -13,7 +13,7 @@ exports.getComponent = ->
       datatype: 'object'
       description: 'A new object containing the merge of input objects'
 
-  c.merge = (origin, object) ->
+  merge = (origin, object) ->
     # Go through the incoming object
     for key, value of object
       oValue = origin[key]
@@ -27,7 +27,7 @@ exports.getComponent = ->
             origin[key].push.apply(origin[key], value)
           # Merge down if an object
           when "[object Object]"
-            origin[key] = c.merge(oValue, value)
+            origin[key] = merge(oValue, value)
           # Replace if simple value
           else
             origin[key] = value
@@ -38,9 +38,10 @@ exports.getComponent = ->
 
     origin
 
+  c.forwardBrackets = {}
   c.process (input, output) ->
-    inData = input.buffer.find 'in', (ip) -> ip.type is 'data' and ip.data?
-    inData = inData.map (ip) -> ip.data
-
-    return unless inData.length is 2
-    output.ports.out.send inData.reduce c.merge, {}
+    return unless input.hasStream 'in'
+    inData = input.getStream 'in'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
+    output.sendDone inData.reduce merge, {}

@@ -20,11 +20,13 @@ describe 'MergeObjects component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'when receiving two objects', ->
     it 'should produce a merged object on disconnect', (done) ->
@@ -38,16 +40,17 @@ describe 'MergeObjects component', ->
             r: 11
         done()
 
-      ins.send
+      ins.post new noflo.IP 'openBracket'
+      ins.post new noflo.IP 'data',
         x: 1
         y: [2, 3, 4]
         z:
           p: 5
           q: 6
-      ins.send
+      ins.post new noflo.IP 'data',
         x: 7
         y: [8, 9]
         z:
           p: 10
           r: 11
-      ins.disconnect()
+      ins.post new noflo.IP 'closeBracket'
