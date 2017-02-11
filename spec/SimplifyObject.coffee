@@ -21,11 +21,13 @@ describe 'SimplifyObject component', ->
       inIn = noflo.internalSocket.createSocket()
       c.inPorts.in.attach inIn
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an object with a $data key', ->
     it 'should give back the value', (done) ->
@@ -33,7 +35,7 @@ describe 'SimplifyObject component', ->
         chai.expect(data).to.equal 'value'
         done()
 
-      inIn.send {'$data': 'value'}
+      inIn.post new noflo.IP 'data', {'$data': 'value'}
 
   describe 'given an object with a normal key', ->
     it 'should give back the object as it was', (done) ->
@@ -41,7 +43,7 @@ describe 'SimplifyObject component', ->
         chai.expect(data).to.eql {test: 'value'}
         done()
 
-      inIn.send {test: 'value'}
+      inIn.post new noflo.IP 'data', {test: 'value'}
 
   describe 'given an array with 2 items', ->
     it 'should give back the array as it was', (done) ->
@@ -49,7 +51,7 @@ describe 'SimplifyObject component', ->
         chai.expect(data).to.eql ['value', 'canada']
         done()
 
-      inIn.send ['value', 'canada']
+      inIn.post new noflo.IP 'data', ['value', 'canada']
 
   describe 'given an array with 1 item', ->
     it 'should give back the value', (done) ->
@@ -57,4 +59,4 @@ describe 'SimplifyObject component', ->
         chai.expect(data).to.equal 'value'
         done()
 
-      inIn.send ['value']
+      inIn.post new noflo.IP 'data', ['value']
