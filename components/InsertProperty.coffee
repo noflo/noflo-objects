@@ -18,20 +18,21 @@ exports.getComponent = ->
     out:
       datatype: 'object'
       description: 'Object received as input with added properties'
-
+  c.forwardGroups = {}
   c.process (input, output) ->
-    openBracket = (input.buffer.find 'property', (ip) -> ip.type is 'openBracket' and ip.data?)[0]
-    propData = (input.buffer.find 'property', (ip) -> ip.type is 'data' and ip.data?)[0]
-    closeBracket = (input.buffer.find 'property', (ip) -> ip.type is 'closeBracket' and ip.data?)[0]
-    hasData = input.has 'in', (ip) -> ip.type is 'data'
+    return unless input.hasData 'in'
+    return unless input.hasStream 'property'
 
-    return unless openBracket? and propData? and closeBracket? and hasData
     data = input.getData 'in'
-    key = openBracket.data
+    stream = input.getStream 'property'
+    val = null
+    key = null
+    for ip in stream
+      key = ip.data if ip.type is 'openBracket'
+      val = ip.data if ip.type is 'data'
     outputData = {}
     if data instanceof Object
       outputData = data
 
-    outputData[key] = propData.data
-    input.buffer.set 'property', []
+    outputData[key] = val
     output.sendDone out: outputData

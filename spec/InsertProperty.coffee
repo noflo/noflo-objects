@@ -21,22 +21,24 @@ describe 'InsertProperty', ->
       done()
 
   describe 'inPorts', ->
-    it 'should include "in"', ->
+    it 'should include "in"', (done) ->
       expect(c.inPorts.in).to.be.an 'object'
-    it 'should include "property"', ->
+      done()
+    it 'should include "property"', (done) ->
       expect(c.inPorts.property).to.be.an 'object'
+      done()
 
   describe 'outPorts', ->
-
-    it 'should include "out"', ->
+    it 'should include "out"', (done) ->
       expect(c.outPorts.out).to.be.an 'object'
+      done()
 
   describe 'data flow', ->
     inIn = null
     propertyIn = null
     outOut = null
 
-    beforeEach ->
+    beforeEach (done) ->
       inIn = noflo.internalSocket.createSocket()
       propertyIn = noflo.internalSocket.createSocket()
       outOut = noflo.internalSocket.createSocket()
@@ -44,9 +46,9 @@ describe 'InsertProperty', ->
       c.inPorts.in.attach inIn
       c.inPorts.property.attach propertyIn
       c.outPorts.out.attach outOut
+      done()
 
     describe 'with input on all ports', ->
-
       it 'should insert the property', (done) ->
         outOut.on 'data', (data) ->
           expect(data).to.deep.equal
@@ -54,8 +56,8 @@ describe 'InsertProperty', ->
             key: 'value'
           done()
 
-        inIn.send {test: true}
+        inIn.post new noflo.IP 'data', {test: true}
 
-        propertyIn.beginGroup 'key'
-        propertyIn.send 'value'
-        propertyIn.endGroup()
+        propertyIn.post new noflo.IP 'openBracket', 'key'
+        propertyIn.post new noflo.IP 'data', 'value'
+        propertyIn.post new noflo.IP 'closeBracket', 'key'
