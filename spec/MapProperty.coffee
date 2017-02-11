@@ -18,17 +18,21 @@ describe 'MapProperty component', ->
     loader.load 'objects/MapProperty', (err, instance) ->
       return done err if err
       c = instance
-      ins = noflo.internalSocket.createSocket()
-      map = noflo.internalSocket.createSocket()
-      out = noflo.internalSocket.createSocket()
-      c.inPorts.in.attach ins
-      c.inPorts.map.attach map
-      c.outPorts.out.attach out
       done()
 
-  afterEach ->
+  beforeEach (done) ->
+    ins = noflo.internalSocket.createSocket()
+    map = noflo.internalSocket.createSocket()
+    out = noflo.internalSocket.createSocket()
+    c.inPorts.in.attach ins
+    c.inPorts.map.attach map
+    c.outPorts.out.attach out
+    done()
+
+  afterEach (done) ->
     c.outPorts.out.detach out
     out = null
+    done()
 
   describe 'when instantiated', ->
     it 'should have input ports', ->
@@ -40,6 +44,7 @@ describe 'MapProperty component', ->
     o = { a:1, b:2, c:3 }
 
     it 'test no map', (done) ->
+      c.inPorts.map.sockets = []
       output = []
 
       out.on "data", (data) ->
@@ -49,8 +54,7 @@ describe 'MapProperty component', ->
         chai.expect(output).to.deep.equal [{ a:1, b:2, c:3 }]
         done()
 
-      ins.send o
-      ins.disconnect()
+      ins.post new noflo.IP 'data', o
 
     it "test map to letter key", (done) ->
       output = []
@@ -59,10 +63,8 @@ describe 'MapProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [{ d:1, b:2, c:3 }]
         done()
-      map.send {a:"d"}
-      map.disconnect
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', {a:"d"}
+      ins.post new noflo.IP 'data', o
 
     it "test map to colliding key", (done) ->
       output = []
@@ -71,10 +73,8 @@ describe 'MapProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [{ b:[1,2], c:3 }]
         done()
-      map.send {a:"b"}
-      map.disconnect
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', {a:"b"}
+      ins.post new noflo.IP 'data', o
 
     it "test map to 0 key", (done) ->
       output = []
@@ -83,10 +83,8 @@ describe 'MapProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [{ 0:1, b:2, c:3 }]
         done()
-      map.send {a:0}
-      map.disconnect
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', {a:0}
+      ins.post new noflo.IP 'data', o
 
     it "test map to null key", (done) ->
       output = []
@@ -95,10 +93,8 @@ describe 'MapProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [{ null:1, b:2, c:3 }]
         done()
-      map.send {a:null}
-      map.disconnect
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', {a:null}
+      ins.post new noflo.IP 'data', o
 
     it "test map to undefined key", (done) ->
       output = []
@@ -107,10 +103,8 @@ describe 'MapProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [{ undefined:1, b:2, c:3 }]
         done()
-      map.send {a:undefined}
-      map.disconnect
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', {a:undefined}
+      ins.post new noflo.IP 'data', o
 
     it "test map to false key", (done) ->
       output = []
@@ -119,7 +113,5 @@ describe 'MapProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [{ false:1, b:2, c:3 }]
         done()
-      map.send {a:false}
-      map.disconnect
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', {a:false}
+      ins.post new noflo.IP 'data', o

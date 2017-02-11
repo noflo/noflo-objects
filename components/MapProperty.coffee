@@ -21,19 +21,20 @@ exports.getComponent = ->
       required: true
 
   c.process (input, output) ->
-    # because we only want to use non-brackets
-    return input.buffer.get().pop() if input.ip.type isnt 'data'
-    return unless input.has 'in'
+    return unless input.hasData 'in'
+    return unless input.hasData 'regexp' if input.attached('regexp').length > 0
+    return unless input.hasData 'map' if input.attached('map').length > 0
+
     data = input.getData 'in'
 
     regexp = {}
-    if input.has 'regexp'
+    if input.hasData 'regexp'
       regexp = input.getData 'regexp'
       regexPart = regexp.split '='
       regexps[regexPart[0]] = regexPart[1]
 
     map = {}
-    if input.has 'map'
+    if input.hasData 'map'
       map = input.getData 'map'
       if typeof map isnt 'object'
         mapParts = map.split '='
