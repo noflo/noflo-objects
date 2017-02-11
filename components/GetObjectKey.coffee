@@ -16,6 +16,8 @@ exports.getComponent = ->
     sendgroup:
       datatype: 'boolean'
       description: 'true to send keys as groups around value IPs, false otherwise'
+      control: true
+      default: false
   c.outPorts = new noflo.OutPorts
     out:
       datatype: 'all'
@@ -28,58 +30,33 @@ exports.getComponent = ->
       description: 'Object forwarded from input if no property matches the input keys'
 
   c.process (input, output) ->
-    return unless input.has 'key', 'in', (ip) -> ip.type is 'data'
+    return unless input.hasData 'in'
+    return unless input.hasStream 'key'
+    return unless input.hasData 'sendgroup' if input.attached('sendgroup').length > 0
 
-    keys = (input.buffer.find 'key', (ip) -> ip.type is 'data').map (ip) -> ip.data
-    openBrackets = input.buffer.find 'in', (ip) -> ip.type is 'openbracket'
-    dataBuf = (input.buffer.find 'in', (ip) -> ip.type is 'data')
-    data = dataBuf[0].data
+    keys = input.getStream 'key'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
+    data = input.getData 'in'
 
-    sendGroup = false
-    if input.has 'sendgroup'
-      sendgroupData = input.buffer.find 'sendgroup', (ip) -> ip.type is 'data'
-      sendGroup = String(sendgroupData[0].data) is 'true'
+    sendGroup = input.getData('sendgroup')
+    sendGroup = sendGroup is 'true' or sendGroup is true
 
     unless typeof data is 'object'
-      c.error data, new Error 'Data is not an object'
+      output.sendDone new Error 'Data is not an object'
       return
     if data is null
-      c.error data, new Error 'Data is NULL'
+      output.sendDone new Error 'Data is NULL'
       return
     for key in keys
       if data[key] is undefined
-        # we have to manually connect because mixing the old protocol
-        # and the new one. In the translation, it should consider the
-        # the openBracket a connect if it does not have data, but it
-        # actually counts the first openBracket as connect
-        output.ports.missed.connect()
-        output.ports.missed.openBracket key if sendGroup
-        output.ports.missed.data data
-        output.ports.missed.closeBracket() if sendGroup
-        output.ports.missed.disconnect()
-        errored = true
+        output.send missed: new noflo.IP 'openBracket', key if sendGroup
+        output.send missed: new noflo.IP 'data', data
+        output.send missed: new noflo.IP 'closeBracket', key if sendGroup
 
-      output.ports.out.connect()
-      output.ports.out.openBracket group for group in openBrackets
-      output.ports.out.openBracket key if sendGroup
-      output.ports.out.send data[key]
-      output.ports.out.closeBracket() if sendGroup
-      output.ports.out.closeBracket() for group in openBrackets
-      output.ports.out.disconnect()
+      output.send out: new noflo.IP 'openBracket', key if sendGroup
+      output.send out: new noflo.IP 'data', data[key]
+      output.send out: new noflo.IP 'closeBracket', key if sendGroup
 
-    # if it errored, don't send stuff out object just clear the buffer
-    if errored
-      input.buffer.set 'in', []
-      input.buffer.set 'key', []
-      input.buffer.set 'sendgroup', []
-      return
-
-    output.ports.object.connect()
-    output.ports.object.openBracket group for group in openBrackets
-    output.ports.object.send data
-    output.ports.object.closeBracket() for group in openBrackets
-    output.ports.object.disconnect()
-
-    input.buffer.set 'in', []
-    input.buffer.set 'key', []
-    input.buffer.set 'sendgroup', []
+    output.send object: new noflo.IP 'data', data
+    output.done()
