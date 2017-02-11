@@ -25,14 +25,12 @@ exports.getComponent = ->
       datatype: 'object'
 
   c.process (input, output) ->
-    input.buffer.get().pop() if input.ip.type isnt 'data'
-    return unless input.has 'in'
+    return unless input.hasData 'in'
+    return unless input.hasData 'delimiter' if input.attached('delimiter').length > 0
 
-    delimiter = ','
-    if input.has 'delimiter'
-      delimiter = input.getData 'delimiter'
-
+    delimiter = input.getData 'delimiter' or ','
     data = input.getData 'in'
+
     if data? and typeof data is 'object'
       keys = Object.keys data
       length = keys.length

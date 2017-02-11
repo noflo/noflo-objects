@@ -29,12 +29,12 @@ describe 'Join', ->
     out = noflo.internalSocket.createSocket()
     errorOut = noflo.internalSocket.createSocket()
     c.inPorts.in.attach inIn
-    c.inPorts.delimiter.attach delimiter
     c.outPorts.out.attach out
     c.outPorts.error.attach errorOut
     done()
 
   afterEach (done) ->
+    c.inPorts.delimiter.detach delimiter
     c.outPorts.out.detach out
     c.outPorts.error.detach errorOut
     done()
@@ -45,15 +45,16 @@ describe 'Join', ->
         chai.expect(data).to.eql 'canada,igloo'
         done()
 
-      inIn.send {eh: 'canada', moose: 'igloo'}
+      inIn.post new noflo.IP 'data', {eh: 'canada', moose: 'igloo'}
 
     it 'should work with an object with specified delimiter', (done) ->
+      c.inPorts.delimiter.attach delimiter
       out.on 'data', (data) ->
         chai.expect(data).to.eql 'canada/igloo'
         done()
 
-      delimiter.send '/'
-      inIn.send {eh: 'canada', moose: 'igloo'}
+      delimiter.post new noflo.IP 'data', '/'
+      inIn.post new noflo.IP 'data', {eh: 'canada', moose: 'igloo'}
 
     it 'should not work with a non object', (done) ->
       errorOut.on 'data', (data) ->
@@ -62,4 +63,4 @@ describe 'Join', ->
       out.on 'data', (data) ->
         throw new Error('should not trigger out')
 
-      inIn.send null
+      inIn.post new noflo.IP 'data', null
