@@ -21,11 +21,13 @@ describe 'Size component', ->
       inIn = noflo.internalSocket.createSocket()
       c.inPorts.in.attach inIn
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an object with 3 keys', ->
     it 'should give back number 3', (done) ->
@@ -33,7 +35,7 @@ describe 'Size component', ->
         chai.expect(data).to.eql 3
         done()
 
-      inIn.send {one: 1, two: 2, three: 3}
+      inIn.post new noflo.IP 'data', {one: 1, two: 2, three: 3}
 
   describe 'given an array with 2 values', ->
     it 'should give back number 2', (done) ->
@@ -41,4 +43,4 @@ describe 'Size component', ->
         chai.expect(data).to.eql 2
         done()
 
-      inIn.send [40, 2]
+      inIn.post new noflo.IP 'data', [40, 2]
