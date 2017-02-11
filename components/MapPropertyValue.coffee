@@ -20,20 +20,18 @@ exports.getComponent = ->
       datatype: 'object'
       required: true
 
-  # we check the `map` for `property`
-  # we check the `mapAny` for `value`
   c.process (input, output) ->
-    # because we only want to use non-brackets
-    return input.buffer.get().pop() if input.ip.type isnt 'data'
+    return unless input.hasData 'in'
+    return unless input.hasData 'regexp' if input.attached('regexp').length > 0
+    return unless input.hasData 'map' if input.attached('map').length > 0
 
-    return unless input.has 'in'
     data = input.getData 'in'
     mapAny = {}
     map = {}
     regexp = {}
     regexpAny = {}
 
-    mapIn = if input.has 'map' then input.getData 'map' else {}
+    mapIn = if input.hasData 'map' then input.getData 'map' else {}
     # if it is not an object, process it...
     if typeof mapIn isnt 'object'
       mapParts = mapIn.split '='
@@ -47,7 +45,7 @@ exports.getComponent = ->
     else
       mapAny = mapIn
 
-    regexIn = if input.has 'regexp' then input.getData 'regexp' else {}
+    regexIn = if input.hasData 'regexp' then input.getData 'regexp' else {}
     if typeof regexIn isnt 'object'
       regexParts = regexIn.split '='
       if regexParts.length is 3

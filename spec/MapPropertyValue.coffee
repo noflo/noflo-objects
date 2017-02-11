@@ -27,16 +27,19 @@ describe 'MapPropertyValue component', ->
       done()
 
   describe 'when instantiated', ->
-    it 'should have input ports', ->
+    it 'should have input ports', (done) ->
       chai.expect(c.inPorts.in).to.be.an 'object'
+      done()
 
-    it 'should have an output port', ->
+    it 'should have an output port', (done) ->
       chai.expect(c.outPorts.out).to.be.an 'object'
+      done()
 
   describe 'map properties', ->
     o = { a:1, b:2, c:3 }
 
     it 'should work with no map', (done) ->
+      c.inPorts.map.sockets = []
       output = []
 
       out.on "data", (data) ->
@@ -46,8 +49,7 @@ describe 'MapPropertyValue component', ->
         chai.expect(output).to.deep.equal [{ a:1, b:2, c:3 }]
         done()
 
-      ins.send o
-      ins.disconnect()
+      ins.post new noflo.IP 'data', o
 
     it "should map from to with object", (done) ->
       output = []
@@ -56,10 +58,8 @@ describe 'MapPropertyValue component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [ { a: 'canada', b: 2, c: 3 } ]
         done()
-      map.send {eh:'canada'}
-      map.disconnect
-      ins.send { a:'eh', b:2, c:3 }
-      ins.disconnect()
+      map.post new noflo.IP 'data', {eh:'canada'}
+      ins.post new noflo.IP 'data', { a:'eh', b:2, c:3 }
 
     it "should map from to with string", (done) ->
       output = []
@@ -68,7 +68,5 @@ describe 'MapPropertyValue component', ->
       out.once "disconnect", ->
         chai.expect(output).to.deep.equal [ { a: "0", b: 2, c: 3 } ]
         done()
-      map.send '1=0'
-      map.disconnect()
-      ins.send o
-      ins.disconnect()
+      map.post new noflo.IP 'data', '1=0'
+      ins.post new noflo.IP 'data', o
