@@ -15,9 +15,11 @@ exports.getComponent = ->
     in:
       datatype: 'object'
       description: 'Object to remove properties from'
+      required: true
     property:
       datatype: 'string'
       description: 'Properties to remove (one per IP)'
+      required: true
 
   c.outPorts = new noflo.OutPorts
     out:
@@ -25,15 +27,17 @@ exports.getComponent = ->
       description: 'Object forwarded from input'
 
   c.process (input, output) ->
-    propData = input.buffer.find 'property', (ip) -> ip.type is 'data' and ip.data?
-    return unless propData? and (input.has 'in', (ip) -> ip.type is 'data')
+    return unless input.hasData 'in'
+    return unless input.hasStream 'property'
     data = input.getData 'in'
+    propData = input.getStream 'property'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
 
     # Clone the object so that the original isn't changed
     object = clone data
 
     for property in propData
-      delete object[property.data]
+      delete object[property]
 
     output.sendDone out: object
-    input.buffer.set 'property', []

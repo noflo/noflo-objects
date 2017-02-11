@@ -21,20 +21,23 @@ describe 'RemoveProperty', ->
       done()
 
   describe 'inPorts', ->
-    it 'should include "in"', ->
+    it 'should include "in"', (done) ->
       expect(c.inPorts.in).to.be.an 'object'
-    it 'should include "property"', ->
+      done()
+    it 'should include "property"', (done) ->
       expect(c.inPorts.property).to.be.an 'object'
+      done()
   describe 'outPorts', ->
-    it 'should include "out"', ->
+    it 'should include "out"', (done) ->
       expect(c.outPorts.out).to.be.an 'object'
+      done()
 
   describe 'data flow', ->
     inIn = null
     propertyIn = null
     outOut = null
 
-    beforeEach ->
+    beforeEach (done) ->
       inIn = noflo.internalSocket.createSocket()
       propertyIn = noflo.internalSocket.createSocket()
       outOut = noflo.internalSocket.createSocket()
@@ -42,6 +45,7 @@ describe 'RemoveProperty', ->
       c.inPorts.in.attach inIn
       c.inPorts.property.attach propertyIn
       c.outPorts.out.attach outOut
+      done()
 
     describe 'with input on all ports', ->
       it 'should remove the property', (done) ->
@@ -50,10 +54,12 @@ describe 'RemoveProperty', ->
             oh: 'canada'
           done()
 
-        propertyIn.send 'test'
-        propertyIn.send 'key'
+        propertyIn.post new noflo.IP 'openBracket'
+        propertyIn.post new noflo.IP 'data', 'test'
+        propertyIn.post new noflo.IP 'data', 'key'
+        propertyIn.post new noflo.IP 'closeBracket'
 
-        inIn.send
+        inIn.post new noflo.IP 'data',
           test: true
           key: 'value'
           oh: 'canada'
