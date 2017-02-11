@@ -27,17 +27,19 @@ describe 'FilterPropertyValue component', ->
       c.outPorts.out.attach out
       done()
 
-  afterEach ->
+  afterEach (done) ->
     c.outPorts.out.detach out
     out = null
+    done()
 
-  describe 'when instantiated', ->
-    it 'should have input ports', ->
-      chai.expect(c.inPorts.in).to.be.an 'object'
-    it 'should have an output port', ->
-      chai.expect(c.outPorts.out).to.be.an 'object'
+  it 'should have input ports', (done) ->
+    chai.expect(c.inPorts.in).to.be.an 'object'
+    done()
+  it 'should have an output port', (done) ->
+    chai.expect(c.outPorts.out).to.be.an 'object'
+    done()
 
-  it.skip 'test default behavior', (done) ->
+  it 'test default behavior', (done) ->
     actual = [{a:1},{b:2},{c:3}]
     expect = [{a:1},{b:2},{c:3}]
 
@@ -47,15 +49,17 @@ describe 'FilterPropertyValue component', ->
       chai.expect(val).to.equal expected[prop] for prop, val of data
       done() if expect.length == 0
 
-    ins.send a for a in actual
-    ins.disconnect()
+    ins.post new noflo.IP 'openBracket'
+    ins.post new noflo.IP 'data', a for a in actual
+    ins.post new noflo.IP 'closeBracket'
 
   it 'test accept via map', (done) ->
     acc = noflo.internalSocket.createSocket()
     c.inPorts.accept.attach acc
 
-    acc.send { good: true }
-    acc.disconnect()
+    acc.post new noflo.IP 'openBracket'
+    acc.post new noflo.IP 'data', { good: true }
+    acc.post new noflo.IP 'closeBracket'
 
     out.on "data", (data) ->
       chai.expect(data.good).to.equal true
@@ -63,18 +67,21 @@ describe 'FilterPropertyValue component', ->
       chai.expect((k for k of data).length).to.equal 2
       done()
 
-    ins.send { good: false, foo: 1 } # reject
-    ins.send { baz: 2 }              # reject
-    ins.send { good: true, bar: 3 }  # accept
-    ins.disconnect()
+    ins.post new noflo.IP 'openBracket'
+    ins.post new noflo.IP 'data', { good: false, foo: 1 } # reject
+    ins.post new noflo.IP 'data', { baz: 2 }              # reject
+    ins.post new noflo.IP 'data', { good: true, bar: 3 }  # accept
+    ins.post new noflo.IP 'closeBracket'
 
   it 'test accept via pairs', (done) ->
     acc = noflo.internalSocket.createSocket()
     c.inPorts.accept.attach acc
 
-    acc.send "food=true"
-    acc.send "good=yes"
-    acc.send "hood=1"
+    acc.post new noflo.IP 'openBracket'
+    acc.post new noflo.IP 'data', "food=true"
+    acc.post new noflo.IP 'data', "good=yes"
+    acc.post new noflo.IP 'data', "hood=1"
+    acc.post new noflo.IP 'closeBracket'
 
     expect = [["good","yes"],["hood",1],["food",true]]
 
@@ -83,12 +90,13 @@ describe 'FilterPropertyValue component', ->
       chai.expect(data[k]).to.equal v
       done() if expect.length is 0
 
-    ins.send { good: "yes" }         # accept
-    ins.send { hood: 1 }             # accept
-    ins.send { good: false, foo: 1 } # reject
-    ins.send { baz: 2 }              # reject
-    ins.send { food: true, bar: 3 }  # accept
-    ins.disconnect()
+    ins.post new noflo.IP 'openBracket'
+    ins.post new noflo.IP 'data', { good: "yes" }         # accept
+    ins.post new noflo.IP 'data', { hood: 1 }             # accept
+    ins.post new noflo.IP 'data', { good: false, foo: 1 } # reject
+    ins.post new noflo.IP 'data', { baz: 2 }              # reject
+    ins.post new noflo.IP 'data', { food: true, bar: 3 }  # accept
+    ins.post new noflo.IP 'closeBracket'
 
   it 'test accept via regexp', (done) ->
     reg = noflo.internalSocket.createSocket()
@@ -96,8 +104,8 @@ describe 'FilterPropertyValue component', ->
     acc = noflo.internalSocket.createSocket()
     c.inPorts.accept.attach acc
 
-    #acc.send {}
-    reg.send "good=[tg]rue"
+    acc.post new noflo.IP 'data', {}
+    reg.post new noflo.IP 'data', "good=[tg]rue"
 
     expect = ["grue",true]
 
@@ -107,8 +115,9 @@ describe 'FilterPropertyValue component', ->
       chai.expect((k for k of data).length).to.equal 2
       done() if expect.length is 0
 
-    ins.send { good: "grue", bar: 3 } # accept
-    ins.send { good: false, foo: 1 }  # reject
-    ins.send { baz: 2 }               # reject
-    ins.send { good: true, bar: 3 }   # accept
-    ins.disconnect()
+    ins.post new noflo.IP 'openBracket'
+    ins.post new noflo.IP 'data', { good: "grue", bar: 3 } # accept
+    ins.post new noflo.IP 'data', { good: false, foo: 1 }  # reject
+    ins.post new noflo.IP 'data', { baz: 2 }               # reject
+    ins.post new noflo.IP 'data', { good: true, bar: 3 }   # accept
+    ins.post new noflo.IP 'closeBracket'

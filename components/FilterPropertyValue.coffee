@@ -28,9 +28,12 @@ exports.getComponent = ->
   c.forwardBrackets = {}
   c.process (input, output) ->
     return unless input.hasStream 'in'
+    return unless input.hasStream 'accept' if input.attached('accept').length > 0
+    return unless input.hasData 'regexp' if input.attached('regexp').length > 0
 
-    stream = input.getDataStream 'in'
-
+    stream = input.getStream 'in'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
     regexps = {}
     accepts = {}
     if input.has 'accept'
@@ -48,10 +51,13 @@ exports.getComponent = ->
         catch e
           if e instanceof ReferenceError
             accepts[mapParts[0]] = mapParts[1]
-          else throw e
+          else
+            return output.sendDone e
 
     if input.has 'regexp'
-      regexpData = input.getDataStream 'regexp'
+      regexpData = input.getStream 'regexp'
+        .filter (ip) -> ip.type is 'data'
+        .map (ip) -> ip.data
 
       if regexpData.length > 0
         mapParts = regexpData[0].split '='
