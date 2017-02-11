@@ -23,11 +23,13 @@ describe 'SetProperty component', ->
       inIn = noflo.internalSocket.createSocket()
       c.inPorts.in.attach inIn
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an empty object, property p should be set', ->
     it 'should set it to the object', (done) ->
@@ -36,5 +38,5 @@ describe 'SetProperty component', ->
           p: undefined
         done()
 
-      inIn.send {}
-      property.send 'p'
+      inIn.post new noflo.IP 'data', {}
+      property.post new noflo.IP 'data', 'p'

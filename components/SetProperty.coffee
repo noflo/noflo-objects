@@ -18,13 +18,10 @@ exports.getComponent = ->
       description: 'Object forwared from input'
 
   c.process (input, output) ->
-    # because we only want to use non-brackets
-    return input.buffer.get().pop() if input.ip.type isnt 'data'
-    return unless input.has 'in', 'property'
+    return unless input.hasData 'in', 'property'
 
     prop = input.getData 'property'
     data = input.getData 'in'
-    return unless prop? and data?
 
     properties = {}
     propParts = prop.split '='
