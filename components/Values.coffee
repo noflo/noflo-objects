@@ -21,5 +21,7 @@ exports.getComponent = ->
     for key, index in keys
       values[index] = data[key]
 
-    output.send out: value for value in values
+    output.send new noflo.IP 'openBracket'
+    output.send new noflo.IP 'data', value for value in values
+    output.send new noflo.IP 'closeBracket'
     output.done()
