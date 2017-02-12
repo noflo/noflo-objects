@@ -20,11 +20,13 @@ describe 'GetCurrentTimestamp component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given a bang', ->
     it 'should give back a date', (done) ->
@@ -32,4 +34,4 @@ describe 'GetCurrentTimestamp component', ->
         chai.expect(typeof data).to.eql 'number'
         done()
 
-      ins.send ''
+      ins.post new noflo.IP 'data', ''

@@ -39,8 +39,8 @@ describe 'DuplicateProperty component', ->
       out.once "disconnect", ->
         chai.expect(output).to.eql [ { a: 'eh', b: 2, c: 3, d: 'eh' } ]
         done()
-      separator.send ','
-      property.send 'a=d'
-      property.disconnect()
-      ins.send { a:'eh', b:2, c:3 }
-      ins.disconnect()
+      separator.post new noflo.IP 'data', ','
+      property.post new noflo.IP 'data', 'a=d'
+      property.post new noflo.IP 'closeBracket'
+      ins.post new noflo.IP 'data', { a:'eh', b:2, c:3 }
+      ins.post new noflo.IP 'closeBracket'

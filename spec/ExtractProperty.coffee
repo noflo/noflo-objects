@@ -23,11 +23,13 @@ describe 'ExtractProperty component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   getInputObject = ->
     p: false
@@ -39,13 +41,13 @@ describe 'ExtractProperty component', ->
         chai.expect(data).to.eql false
         done()
 
-      key.send 'p'
-      ins.send getInputObject()
+      key.post new noflo.IP 'data', 'p'
+      ins.post new noflo.IP 'data', getInputObject()
 
     it 'should not extract a non existant property from the object', (done) ->
       out.on 'data', (data) ->
         chai.expect(data).to.eql null
         done()
 
-      key.send 'z'
-      ins.send getInputObject()
+      key.post new noflo.IP 'data', 'z'
+      ins.post new noflo.IP 'data', getInputObject()
