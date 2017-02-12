@@ -16,13 +16,14 @@ exports.getComponent = ->
 
   c.process (input, output) ->
     data = input.getData 'in'
-
-    unless typeof data is 'object' and not Array.isArray data
+    if typeof data is 'object' and not Array.isArray data
       for key, item of data
         output.send new noflo.IP 'openBracket', key
-        output.send item
-        output.send new noflo.IP 'closeBracket'
+        output.send new noflo.IP 'data', item
+        output.send new noflo.IP 'closeBracket', key
       output.done()
       return
+    output.send new noflo.IP 'openBracket'
     output.send out: item for item in data
+    output.send new noflo.IP 'closeBracket'
     output.done()

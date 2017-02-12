@@ -14,17 +14,19 @@ describe 'SplitArray component', ->
   before (done) ->
     @timeout 4000
     loader = new noflo.ComponentLoader baseDir
-    loader.load 'objects/SplitObject', (err, instance) ->
+    loader.load 'objects/SplitArray', (err, instance) ->
       return done err if err
       c = instance
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an object (even though it is SplitArray)...', ->
     it 'should return keys as groups and values as their own IPs', (done) ->
@@ -39,26 +41,23 @@ describe 'SplitArray component', ->
       received = []
 
       closing = 0
-      out.on 'ip', (data) ->
-        if data.type is 'openBracket' and data.data?
-          received.push "< #{data.data}"
+      out.on 'ip', (ip) ->
+        if ip.type is 'openBracket'
+          received.push "< #{ip.data}"
 
-        if data.type is 'data' and data.data?
-          received.push "DATA #{data.data}"
+        if ip.type is 'data'
+          received.push "DATA #{ip.data}"
 
-        if data.type is 'closeBracket'
+        if ip.type is 'closeBracket'
           closing++
-
-          if closing isnt 3
-            received.push '>'
-          else
+          received.push '>'
+          if closing is 2
             chai.expect(received).to.eql expected
             done()
 
-      ins.send
+      ins.post new noflo.IP 'data',
         x: 1
         y: 2
-      ins.disconnect()
 
   describe 'given an array', ->
     it 'should return values as their own IPs', (done) ->
@@ -68,11 +67,11 @@ describe 'SplitArray component', ->
       ]
       received = []
 
-      out.on 'data', (data) ->
-        received.push "DATA #{data}"
-      out.on 'disconnect', ->
-        chai.expect(received).to.eql expected
-        done()
+      out.on 'ip', (ip) ->
+        if ip.type is 'data'
+          received.push "DATA #{ip.data}"
+        if ip.type is 'closeBracket'
+          chai.expect(received).to.eql expected
+          done()
 
-      ins.send [1, 2]
-      ins.disconnect()
+      ins.post new noflo.IP 'data', [1, 2]
