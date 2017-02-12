@@ -21,18 +21,21 @@ exports.getComponent = ->
       description: 'Result of the slice operation'
       required: true
     error:
-      datatype: 'string'
+      datatype: 'object'
 
   c.process (input, output) ->
-    # because we only want to use non-brackets
-    return input.buffer.get().pop() if input.ip.type isnt 'data'
-    return unless input.has 'in', 'begin'
+    return unless input.hasData 'in', 'begin'
+    return unless input.hasData 'end' if input.attached('end').length > 0
+
     data = input.getData 'in'
     begin = input.getData 'begin'
-    end = input.getData 'end'
-
     unless data?.slice
-      return output.sendDone error: "Data #{typeof data} cannot be sliced"
-    sliced = data.slice begin, end if end?
-    sliced = data.slice begin if end is null or end is undefined
+      return output.done new Error "Data #{typeof data} cannot be sliced"
+
+    if input.hasData 'end'
+      end = input.getData 'end'
+      sliced = data.slice begin, end
+    else
+      sliced = data.slice begin
+
     output.sendDone out: sliced

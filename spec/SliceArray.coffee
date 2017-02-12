@@ -32,49 +32,60 @@ describe 'SliceArray', ->
     errorOut = noflo.internalSocket.createSocket()
     c.inPorts.in.attach inIn
     c.inPorts.begin.attach begin
-    c.inPorts.end.attach end
     c.outPorts.out.attach out
     c.outPorts.error.attach errorOut
     done()
 
+  afterEach (done) ->
+    c.outPorts.out.detach out
+    c.outPorts.error.detach errorOut
+    done()
+
   describe 'ports', ->
     describe 'inPorts', ->
-      it 'should include "in"', ->
+      it 'should include "in"', (done) ->
         expect(c.inPorts.in).to.be.an 'object'
-      it 'should include "begin"', ->
+        done()
+      it 'should include "begin"', (done) ->
         expect(c.inPorts.begin).to.be.an 'object'
-      it 'should include "end"', ->
+        done()
+      it 'should include "end"', (done) ->
         expect(c.inPorts.end).to.be.an 'object'
-    describe 'outPorts', ->
-      it 'should include "out"', ->
+        done()
+    describe 'outPorts', (done) ->
+      it 'should include "out"', (done) ->
         expect(c.outPorts.out).to.be.an 'object'
-      it 'should include "error"', ->
+        done()
+      it 'should include "error"', (done) ->
         expect(c.outPorts.out).to.be.an 'object'
+        done()
 
   describe 'slicing an array', ->
     it 'should not work with a non array data sent to in', (done) ->
       out.on 'data', (data) ->
-        throw new Error('should not go into out')
+        done new Error 'should not go into out'
 
       errorOut.on 'data', (data) ->
+        chai.expect(data).to.be.an 'error'
         done()
 
-      begin.send ''
-      inIn.send null
+      begin.post new noflo.IP 'data', ''
+      inIn.post new noflo.IP 'data', null
 
     it 'should work with an array using 1 as begin', (done) ->
       out.on 'data', (data) ->
         chai.expect(data).to.eql ['eh']
         done()
 
-      begin.send 1
-      inIn.send ['canada', 'eh']
+      begin.post new noflo.IP 'data', 1
+      inIn.post new noflo.IP 'data', ['canada', 'eh']
 
     it 'should work with an array using 1 as begin and 3 as end', (done) ->
+      c.inPorts.end.attach end
       out.on 'data', (data) ->
         chai.expect(data).to.eql ['eh', 'igloo']
         done()
 
-      end.send 3
-      begin.send 1
-      inIn.send ['canada', 'eh', 'igloo', 'moose', 'syrup']
+      end.post new noflo.IP 'data', 3
+      begin.post new noflo.IP 'data', 1
+      inIn.post new noflo.IP 'data', ['canada', 'eh', 'igloo', 'moose', 'syrup']
