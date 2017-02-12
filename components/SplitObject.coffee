@@ -19,7 +19,7 @@ exports.getComponent = ->
 
     for key, value of data
       output.send new noflo.IP 'openBracket', key
-      output.send value
-      output.send new noflo.IP 'closeBracket'
+      output.send new noflo.IP 'data', value
+      output.send new noflo.IP 'closeBracket', key
 
     output.done()

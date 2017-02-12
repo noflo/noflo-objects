@@ -20,11 +20,13 @@ describe 'SplitObject component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an object', ->
     it 'should return keys as groups and values as their own IPs', (done) ->
@@ -49,13 +51,11 @@ describe 'SplitObject component', ->
         if data.type is 'closeBracket'
           closing++
 
-          if closing isnt 3
-            received.push '>'
-          else
+          received.push '>'
+          if closing is 2
             chai.expect(received).to.eql expected
             done()
 
-      ins.send
+      ins.post new noflo.IP 'data',
         x: 1
         y: 2
-      ins.disconnect()
