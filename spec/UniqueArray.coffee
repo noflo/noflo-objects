@@ -21,11 +21,13 @@ describe 'UniqueArray component', ->
       inIn = noflo.internalSocket.createSocket()
       c.inPorts.in.attach inIn
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an array with 3 items, with a duplicate', ->
     it 'should give an array with only 2', (done) ->
@@ -33,4 +35,4 @@ describe 'UniqueArray component', ->
         chai.expect(data).to.eql ['0', '1']
         done()
 
-      inIn.send [0, 1, 1]
+      inIn.post new noflo.IP 'data', [0, 1, 1]
