@@ -29,13 +29,17 @@ exports.getComponent = ->
   c.process (input, output) ->
     return unless input.hasData 'in'
     return unless input.hasStream 'property'
-    data = input.getData 'in'
+    ip = input.get 'in'
+    data = ip.data
     propData = input.getStream 'property'
       .filter (ip) -> ip.type is 'data'
       .map (ip) -> ip.data
 
     # Clone the object so that the original isn't changed
-    object = clone data
+    if ip.clonable
+      object = clone data
+    else
+      object = data
 
     for property in propData
       delete object[property]
