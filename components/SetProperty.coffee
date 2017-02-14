@@ -1,44 +1,33 @@
 noflo = require 'noflo'
 
-class SetProperty extends noflo.Component
-  constructor: ->
-    @properties = {}
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts = new noflo.InPorts
-      property:
-        datatype: 'all'
-      in:
-        datatype: 'object'
-        description: 'Object to set property on'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'Object forwared from input'
+  c.inPorts = new noflo.InPorts
+    property:
+      datatype: 'all'
+      description: 'All except for object'
+      required: true
+    in:
+      datatype: 'object'
+      description: 'Object to set property on'
+      required: true
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object forwared from input'
 
-    @inPorts.property.on 'data', (data) =>
-      @setProperty data
+  c.process (input, output) ->
+    return unless input.hasData 'in', 'property'
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      @addProperties data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+    prop = input.getData 'property'
+    data = input.getData 'in'
 
-  setProperty: (prop) ->
-    if typeof prop is 'object'
-      @prop = prop
-      return
-
+    properties = {}
     propParts = prop.split '='
-    @properties[propParts[0]] = propParts[1]
+    properties[propParts[0]] = propParts[1]
 
-  addProperties: (object) ->
-    for property, value of @properties
-      object[property] = value
+    for property, value of properties
+      data[property] = value
 
-    @outPorts.out.send object
-
-exports.getComponent = -> new SetProperty
+    output.sendDone data

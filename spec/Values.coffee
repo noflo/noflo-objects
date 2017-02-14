@@ -20,11 +20,13 @@ describe 'Values component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an object', ->
     it 'should return the values as an array', (done) ->
@@ -38,7 +40,7 @@ describe 'Values component', ->
         chai.expect(data).to.eql expected.shift()
         done() unless expected.length
 
-      ins.send
+      ins.post new noflo.IP 'data',
         a: 1
         b:
           c: 2

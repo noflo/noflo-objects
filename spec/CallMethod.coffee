@@ -19,18 +19,20 @@ describe 'CallMethod component', ->
     loader.load 'objects/CallMethod', (err, instance) ->
       return done err if err
       c = instance
-      method = noflo.internalSocket.createSocket()
-      args = noflo.internalSocket.createSocket()
-      ins = noflo.internalSocket.createSocket()
-      c.inPorts.method.attach method
-      c.inPorts.arguments.attach args
-      c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
+    method = noflo.internalSocket.createSocket()
+    args = noflo.internalSocket.createSocket()
+    ins = noflo.internalSocket.createSocket()
+    c.inPorts.method.attach method
+    c.inPorts.in.attach ins
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
+    c.inPorts.arguments.detach args
     c.outPorts.out.detach out
+    done()
 
   describe 'with an input object', ->
     it 'should return a value', (done) ->
@@ -38,13 +40,14 @@ describe 'CallMethod component', ->
         chai.expect(data).to.equal 3
         done()
 
-      method.send 'getA'
-      ins.send
+      method.post new noflo.IP 'data', 'getA'
+      ins.post new noflo.IP 'data',
         a: 3
         getA: -> @a
 
   describe 'with arguments for method', ->
     it 'should return the modified object', (done) ->
+      c.inPorts.arguments.attach args
       inc = (forA, forB) ->
         @a += forA
         @b += forB
@@ -57,10 +60,12 @@ describe 'CallMethod component', ->
           inc: inc
         done()
 
-      method.send 'inc'
-      args.send 1
-      args.send 5
-      ins.send
+      method.post new noflo.IP 'data', 'inc'
+      args.post new noflo.IP 'openBracket'
+      args.post new noflo.IP 'data', 1
+      args.post new noflo.IP 'data', 5
+      args.post new noflo.IP 'closeBracket'
+      ins.post new noflo.IP 'data',
         a: 1
         b: 10
         inc: inc

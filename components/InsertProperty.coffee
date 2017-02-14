@@ -1,38 +1,38 @@
-noflo = require('noflo')
-_ = require('underscore')
+noflo = require 'noflo'
 
 exports.getComponent = ->
-  key = null
-
   c = new noflo.Component
   c.description = 'Insert a property into incoming objects.'
 
-  c.inPorts.add 'in',
-    datatype: 'object'
-    description: 'Object to insert property into'
-  c.inPorts.add 'property',
-    datatype: 'all'
-    description: 'Property to insert (property sent as group, value sent as IP)'
-    required: true
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'all'
+      description: 'Object to insert property into'
+      required: true
+    property:
+      datatype: 'all'
+      description: 'Property to insert (property sent as group, value sent as IP)'
+      required: true
 
-  c.outPorts.add 'out',
-    datatype: 'object'
-    description: 'Object received as input with added properties'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'Object received as input with added properties'
+  c.forwardGroups = {}
+  c.process (input, output) ->
+    return unless input.hasData 'in'
+    return unless input.hasStream 'property'
 
-  # properties callbacks.
-  c.inPorts.property.on 'begingroup', (group) ->
-    key = group
+    data = input.getData 'in'
+    stream = input.getStream 'property'
+    val = null
+    key = null
+    for ip in stream
+      key = ip.data if ip.type is 'openBracket'
+      val = ip.data if ip.type is 'data'
+    outputData = {}
+    if data instanceof Object
+      outputData = data
 
-  # Use the WirePattern.
-  noflo.helpers.WirePattern c,
-    in: ['in']
-    params: ['property']
-    out: ['out']
-    forwardGroups: false
-  ,
-  (data, groups, out) ->
-    data = {} unless data instanceof Object
-    data[key] = c.params.property
-    out.send data
-
-  return c
+    outputData[key] = val
+    output.sendDone out: outputData

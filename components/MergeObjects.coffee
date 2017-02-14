@@ -1,40 +1,19 @@
-_ = require("underscore")
-noflo = require("noflo")
+noflo = require 'noflo'
 
-class MergeObjects extends noflo.Component
+exports.getComponent = ->
+  c = new noflo.Component
+  c.description = 'merges all incoming objects into one'
 
-  description: "merges all incoming objects into one"
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'object'
+      description: 'Objects to merge (one per IP)'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'object'
+      description: 'A new object containing the merge of input objects'
 
-  constructor: ->
-    @merge = _.bind @merge, this
-
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'object'
-        description: 'Objects to merge (one per IP)'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'object'
-        description: 'A new object containing the merge of input objects'
-
-    @inPorts.in.on "connect", () =>
-      @groups = []
-      @objects = []
-
-    @inPorts.in.on "begingroup", (group) =>
-      @groups.push(group)
-
-    @inPorts.in.on "data", (object) =>
-      @objects.push(object)
-
-    @inPorts.in.on "endgroup", (group) =>
-      @groups.pop()
-
-    @inPorts.in.on "disconnect", =>
-      @outPorts.out.send _.reduce @objects, @merge, {}
-      @outPorts.out.disconnect()
-
-  merge: (origin, object) ->
+  merge = (origin, object) ->
     # Go through the incoming object
     for key, value of object
       oValue = origin[key]
@@ -48,7 +27,7 @@ class MergeObjects extends noflo.Component
             origin[key].push.apply(origin[key], value)
           # Merge down if an object
           when "[object Object]"
-            origin[key] = @merge(oValue, value)
+            origin[key] = merge(oValue, value)
           # Replace if simple value
           else
             origin[key] = value
@@ -59,4 +38,10 @@ class MergeObjects extends noflo.Component
 
     origin
 
-exports.getComponent = -> new MergeObjects
+  c.forwardBrackets = {}
+  c.process (input, output) ->
+    return unless input.hasStream 'in'
+    inData = input.getStream 'in'
+      .filter (ip) -> ip.type is 'data'
+      .map (ip) -> ip.data
+    output.sendDone inData.reduce merge, {}

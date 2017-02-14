@@ -7,18 +7,19 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe 'Keys component', ->
+describe 'UniqueArray component', ->
   c = null
-  ins = null
+  property = null
+  inIn = null
   out = null
   before (done) ->
     @timeout 4000
     loader = new noflo.ComponentLoader baseDir
-    loader.load 'objects/Keys', (err, instance) ->
+    loader.load 'objects/UniqueArray', (err, instance) ->
       return done err if err
       c = instance
-      ins = noflo.internalSocket.createSocket()
-      c.inPorts.in.attach ins
+      inIn = noflo.internalSocket.createSocket()
+      c.inPorts.in.attach inIn
       done()
   beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
@@ -28,18 +29,10 @@ describe 'Keys component', ->
     c.outPorts.out.detach out
     done()
 
-  describe 'given an object', ->
-    it 'should return the keys as an array', (done) ->
-      expected = [
-        'a'
-        'b'
-      ]
+  describe 'given an array with 3 items, with a duplicate', ->
+    it 'should give an array with only 2', (done) ->
       out.on 'data', (data) ->
-        chai.expect(data).to.equal expected.shift()
-        done() unless expected.length
+        chai.expect(data).to.eql ['0', '1']
+        done()
 
-      ins.post new noflo.IP 'data',
-        a: 1
-        b:
-          c: 2
-          d: [3, 4]
+      inIn.post new noflo.IP 'data', [0, 1, 1]

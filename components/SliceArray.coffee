@@ -1,46 +1,41 @@
 noflo = require 'noflo'
 
-class SliceArray extends noflo.Component
-  constructor: ->
-    @begin = 0
-    @end = null
+exports.getComponent = ->
+  c = new noflo.Component
 
-    @inPorts = new noflo.InPorts
-      in:
-        datatype: 'array'
-        description: 'Array to slice'
-      begin:
-        datatype: 'number'
-        description: 'Beginning of the slicing'
-      end:
-        datatype: 'number'
-        description: 'End of the slicing'
-    @outPorts = new noflo.OutPorts
-      out:
-        datatype: 'array'
-        description: 'Result of the slice operation'
-      error:
-        datatype: 'string'
+  c.inPorts = new noflo.InPorts
+    in:
+      datatype: 'array'
+      description: 'Array to slice'
+      required: true
+    begin:
+      datatype: 'number'
+      description: 'Beginning of the slicing'
+      required: true
+    end:
+      datatype: 'number'
+      description: 'End of the slicing'
+  c.outPorts = new noflo.OutPorts
+    out:
+      datatype: 'array'
+      description: 'Result of the slice operation'
+      required: true
+    error:
+      datatype: 'object'
 
-    @inPorts.begin.on 'data', (data) =>
-      @begin = data
-    @inPorts.end.on 'data', (data) =>
-      @end = data
+  c.process (input, output) ->
+    return unless input.hasData 'in', 'begin'
+    return unless input.hasData 'end' if input.attached('end').length > 0
 
-    @inPorts.in.on 'begingroup', (group) =>
-      @outPorts.out.beginGroup group
-    @inPorts.in.on 'data', (data) =>
-      @sliceData data
-    @inPorts.in.on 'endgroup', =>
-      @outPorts.out.endGroup()
-    @inPorts.in.on 'disconnect', =>
-      @outPorts.out.disconnect()
+    data = input.getData 'in'
+    begin = input.getData 'begin'
+    unless data?.slice
+      return output.done new Error "Data #{typeof data} cannot be sliced"
 
-  sliceData: (data) ->
-    unless data.slice
-      return @outPorts.error.send "Data #{typeof data} cannot be sliced"
-    sliced = data.slice @begin, @end unless @end is null
-    sliced = data.slice @begin if @end is null
-    @outPorts.out.send sliced
+    if input.hasData 'end'
+      end = input.getData 'end'
+      sliced = data.slice begin, end
+    else
+      sliced = data.slice begin
 
-exports.getComponent = -> new SliceArray
+    output.sendDone out: sliced

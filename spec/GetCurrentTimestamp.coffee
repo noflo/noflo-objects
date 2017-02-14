@@ -7,14 +7,14 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe 'Keys component', ->
+describe 'GetCurrentTimestamp component', ->
   c = null
   ins = null
   out = null
   before (done) ->
     @timeout 4000
     loader = new noflo.ComponentLoader baseDir
-    loader.load 'objects/Keys', (err, instance) ->
+    loader.load 'objects/GetCurrentTimestamp', (err, instance) ->
       return done err if err
       c = instance
       ins = noflo.internalSocket.createSocket()
@@ -28,18 +28,10 @@ describe 'Keys component', ->
     c.outPorts.out.detach out
     done()
 
-  describe 'given an object', ->
-    it 'should return the keys as an array', (done) ->
-      expected = [
-        'a'
-        'b'
-      ]
+  describe 'given a bang', ->
+    it 'should give back a date', (done) ->
       out.on 'data', (data) ->
-        chai.expect(data).to.equal expected.shift()
-        done() unless expected.length
+        chai.expect(typeof data).to.eql 'number'
+        done()
 
-      ins.post new noflo.IP 'data',
-        a: 1
-        b:
-          c: 2
-          d: [3, 4]
+      ins.post new noflo.IP 'data', ''

@@ -7,14 +7,14 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe 'SplitObject component', ->
+describe 'SplitArray component', ->
   c = null
   ins = null
   out = null
   before (done) ->
     @timeout 4000
     loader = new noflo.ComponentLoader baseDir
-    loader.load 'objects/SplitObject', (err, instance) ->
+    loader.load 'objects/SplitArray', (err, instance) ->
       return done err if err
       c = instance
       ins = noflo.internalSocket.createSocket()
@@ -28,7 +28,7 @@ describe 'SplitObject component', ->
     c.outPorts.out.detach out
     done()
 
-  describe 'given an object', ->
+  describe 'given an object (even though it is SplitArray)...', ->
     it 'should return keys as groups and values as their own IPs', (done) ->
       expected = [
         '< x'
@@ -41,16 +41,15 @@ describe 'SplitObject component', ->
       received = []
 
       closing = 0
-      out.on 'ip', (data) ->
-        if data.type is 'openBracket' and data.data?
-          received.push "< #{data.data}"
+      out.on 'ip', (ip) ->
+        if ip.type is 'openBracket'
+          received.push "< #{ip.data}"
 
-        if data.type is 'data' and data.data?
-          received.push "DATA #{data.data}"
+        if ip.type is 'data'
+          received.push "DATA #{ip.data}"
 
-        if data.type is 'closeBracket'
+        if ip.type is 'closeBracket'
           closing++
-
           received.push '>'
           if closing is 2
             chai.expect(received).to.eql expected
@@ -59,3 +58,20 @@ describe 'SplitObject component', ->
       ins.post new noflo.IP 'data',
         x: 1
         y: 2
+
+  describe 'given an array', ->
+    it 'should return values as their own IPs', (done) ->
+      expected = [
+        'DATA 1'
+        'DATA 2'
+      ]
+      received = []
+
+      out.on 'ip', (ip) ->
+        if ip.type is 'data'
+          received.push "DATA #{ip.data}"
+        if ip.type is 'closeBracket'
+          chai.expect(received).to.eql expected
+          done()
+
+      ins.post new noflo.IP 'data', [1, 2]

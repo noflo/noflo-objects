@@ -1,7 +1,7 @@
 {
   "name": "noflo-objects",
   "description": "Object Utilities for NoFlo",
-  "version": "0.2.0",
+  "version": "0.3.0-beta1",
   "keywords": [
     "noflo",
     "objects",
@@ -16,6 +16,10 @@
     {
       "name": "Ryan Shaw",
       "email": "ryanshaw@unc.edu"
+    },
+    {
+      "name": "James",
+      "email": "aretecode@gmail.com"
     }
   ],
   "license": "MIT",
@@ -24,7 +28,7 @@
     "url": "https://github.com/noflo/noflo-objects.git"
   },
   "dependencies": {
-    "noflo": "0.x >= 0.5",
+    "noflo": "^0.8.0-beta2",
     "underscore": "~1.8.3",
     "owl-deepcopy": "~0.0.6"
   },

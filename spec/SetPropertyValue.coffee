@@ -33,11 +33,13 @@ describe 'SetPropertyValue component', ->
       ins = noflo.internalSocket.createSocket()
       c.inPorts.in.attach ins
       done()
-  beforeEach ->
+  beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
     c.outPorts.out.attach out
-  afterEach ->
+    done()
+  afterEach (done) ->
     c.outPorts.out.detach out
+    done()
 
   describe 'given an object, a property p and value 1', ->
     it 'should set it to the object', (done) ->
@@ -50,9 +52,9 @@ describe 'SetPropertyValue component', ->
           p: 1
         done()
 
-      property.send 'p'
-      value.send 1
-      ins.send getInputObject()
+      property.post new noflo.IP 'data', 'p'
+      value.post new noflo.IP 'data', 1
+      ins.post new noflo.IP 'data', getInputObject()
 
   describe 'given an object, a property p and value "test"', ->
     it 'should set it to the object', (done) ->
@@ -65,9 +67,9 @@ describe 'SetPropertyValue component', ->
           p: 'test'
         done()
 
-      property.send 'p'
-      value.send 'test'
-      ins.send getInputObject()
+      property.post new noflo.IP 'data', 'p'
+      value.post new noflo.IP 'data', 'test'
+      ins.post new noflo.IP 'data', getInputObject()
 
   describe 'given an object, a property p and value NULL', ->
     it 'should set it to the object', (done) ->
@@ -80,9 +82,9 @@ describe 'SetPropertyValue component', ->
           p: null
         done()
 
-      property.send 'p'
-      value.send null
-      ins.send getInputObject()
+      property.post new noflo.IP 'data', 'p'
+      value.post new noflo.IP 'data', null
+      ins.post new noflo.IP 'data', getInputObject()
 
   describe 'given an object, a property p and value 0', ->
     it 'should set it to the object', (done) ->
@@ -95,9 +97,9 @@ describe 'SetPropertyValue component', ->
           p: 0
         done()
 
-      property.send 'p'
-      value.send 0
-      ins.send getInputObject()
+      property.post new noflo.IP 'data', 'p'
+      value.post new noflo.IP 'data', 0
+      ins.post new noflo.IP 'data', getInputObject()
 
   describe 'given an object, a property p and value FALSE', ->
     it 'should set it to the object', (done) ->
@@ -110,6 +112,6 @@ describe 'SetPropertyValue component', ->
           p: false
         done()
 
-      property.send 'p'
-      value.send false
-      ins.send getInputObject()
+      property.post new noflo.IP 'data', 'p'
+      value.post new noflo.IP 'data', false
+      ins.post new noflo.IP 'data', getInputObject()

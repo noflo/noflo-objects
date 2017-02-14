@@ -7,21 +7,21 @@ unless noflo.isBrowser()
 else
   baseDir = 'noflo-objects'
 
-describe 'ReplaceKey component', ->
+describe 'SetProperty component', ->
   c = null
-  pattern = null
-  ins = null
+  property = null
+  inIn = null
   out = null
   before (done) ->
     @timeout 4000
     loader = new noflo.ComponentLoader baseDir
-    loader.load 'objects/ReplaceKey', (err, instance) ->
+    loader.load 'objects/SetProperty', (err, instance) ->
       return done err if err
       c = instance
-      pattern = noflo.internalSocket.createSocket()
-      c.inPorts.pattern.attach pattern
-      ins = noflo.internalSocket.createSocket()
-      c.inPorts.in.attach ins
+      property = noflo.internalSocket.createSocket()
+      c.inPorts.property.attach property
+      inIn = noflo.internalSocket.createSocket()
+      c.inPorts.in.attach inIn
       done()
   beforeEach (done) ->
     out = noflo.internalSocket.createSocket()
@@ -31,17 +31,12 @@ describe 'ReplaceKey component', ->
     c.outPorts.out.detach out
     done()
 
-  describe 'given a regexp', ->
-    it 'should change the keys accordingly', (done) ->
+  describe 'given an empty object, property p should be set', ->
+    it 'should set it to the object', (done) ->
       out.on 'data', (data) ->
         chai.expect(data).to.eql
-          def: 1
-          bbc: 2
+          p: undefined
         done()
 
-      pattern.post new noflo.IP 'data',
-        'a.+c': 'def'
-
-      ins.post new noflo.IP 'data',
-        abc: 1
-        bbc: 2
+      inIn.post new noflo.IP 'data', {}
+      property.post new noflo.IP 'data', 'p'
