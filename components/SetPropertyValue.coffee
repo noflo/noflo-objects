@@ -30,6 +30,6 @@ exports.getComponent = ->
 
     data = input.getData 'in'
     property = input.getData 'property'
-    value = input.get 'value'
-    data[property] = value.data
+    value = input.getData 'value'
+    data[property] = value
     output.sendDone out: data
