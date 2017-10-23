@@ -23,7 +23,7 @@ exports.getComponent = ->
       datatype: 'object'
 
   c.process (input, output) ->
-    return unless input.has 'property', 'separator', 'in', (ip) -> ip.type is 'data'
+    return unless input.hasData 'property', 'separator', 'in'
     [prop, sep, data] = input.getData 'property', 'separator', 'in'
 
     properties = {}
@@ -31,14 +31,14 @@ exports.getComponent = ->
 
     if prop
       if typeof prop is 'object'
+        output.done new Error 'Property name cannot be an object'
         return
 
       propParts = prop.split '='
       if propParts.length > 2
         properties[propParts.pop()] = propParts
-        return
-
-      properties[propParts[1]] = propParts[0]
+      else
+        properties[propParts[1]] = propParts[0]
 
     if data
       for newprop, original of properties
