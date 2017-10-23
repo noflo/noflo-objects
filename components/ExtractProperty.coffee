@@ -22,7 +22,8 @@ exports.getComponent = ->
       description: 'Values of the property extracted (each value sent as a separate IP)'
 
   c.process (input, output) ->
-    return unless input.hasData 'key', 'in'
+    return unless input.has 'in'
+    return unless input.hasStream 'key'
     keys = input.getStream 'key'
       .filter (ip) -> ip.type is 'data'
       .map (ip) -> ip.data
