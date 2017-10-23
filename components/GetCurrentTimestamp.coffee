@@ -15,5 +15,6 @@ exports.getComponent = ->
       datatype: 'int'
 
   c.process (input, output) ->
-    return unless input.ip.type is 'data'
+    return unless input.hasData 'in'
+    input.getData 'in'
     output.sendDone out: Date.now()
