@@ -45,43 +45,11 @@
     "grunt-mocha-phantomjs": "^4.0.0",
     "grunt-mocha-test": "^0.13.2",
     "grunt-noflo-browser": "^1.0.1",
-    "grunt-noflo-manifest": "^0.1.12",
     "json-loader": "^0.5.4",
     "mocha": "^4.0.0"
   },
   "noflo": {
-    "icon": "list",
-    "components": {
-      "CallMethod": "components/CallMethod.coffee",
-      "CreateDate": "components/CreateDate.coffee",
-      "CreateError": "components/CreateError.coffee",
-      "CreateObject": "components/CreateObject.coffee",
-      "DuplicateProperty": "components/DuplicateProperty.coffee",
-      "Extend": "components/Extend.coffee",
-      "ExtractProperty": "components/ExtractProperty.coffee",
-      "FilterProperty": "components/FilterProperty.coffee",
-      "FilterPropertyValue": "components/FilterPropertyValue.coffee",
-      "FlattenObject": "components/FlattenObject.coffee",
-      "GetCurrentTimestamp": "components/GetCurrentTimestamp.coffee",
-      "GetObjectKey": "components/GetObjectKey.coffee",
-      "InsertProperty": "components/InsertProperty.coffee",
-      "Join": "components/Join.coffee",
-      "Keys": "components/Keys.coffee",
-      "MapProperty": "components/MapProperty.coffee",
-      "MapPropertyValue": "components/MapPropertyValue.coffee",
-      "MergeObjects": "components/MergeObjects.coffee",
-      "RemoveProperty": "components/RemoveProperty.coffee",
-      "ReplaceKey": "components/ReplaceKey.coffee",
-      "SetProperty": "components/SetProperty.coffee",
-      "SetPropertyValue": "components/SetPropertyValue.coffee",
-      "SimplifyObject": "components/SimplifyObject.coffee",
-      "Size": "components/Size.coffee",
-      "SliceArray": "components/SliceArray.coffee",
-      "SplitArray": "components/SplitArray.coffee",
-      "SplitObject": "components/SplitObject.coffee",
-      "UniqueArray": "components/UniqueArray.coffee",
-      "Values": "components/Values.coffee"
-    }
+    "icon": "list"
   },
   "scripts": {
     "test": "grunt test"
