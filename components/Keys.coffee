@@ -15,7 +15,7 @@ exports.getComponent = ->
       description: 'Keys from the incoming object (one per IP)'
 
   c.process (input, output) ->
-    return unless input.has 'in'
+    return unless input.hasData 'in'
     data = input.getData 'in'
     output.send out: new noflo.IP 'data', key for key in Object.keys data
     output.done()
