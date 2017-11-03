@@ -86,8 +86,8 @@ describe 'FilterPropertyValue component', ->
     expect = [["good","yes"],["hood",1],["food",true]]
 
     out.on "data", (data) ->
-      [k,v] = expect.shift()
-      chai.expect(data[k]).to.equal v
+      exp = expect.shift()
+      chai.expect(data[exp[0]]).to.equal exp[1]
       done() if expect.length is 0
 
     ins.post new noflo.IP 'openBracket'
