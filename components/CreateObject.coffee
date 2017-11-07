@@ -16,4 +16,6 @@ exports.getComponent = ->
   c.forwardBrackets =
     start: ['out']
   c.process (input, output) ->
+    return unless input.hasData 'start'
+    input.getData 'start'
     output.sendDone out: {}
