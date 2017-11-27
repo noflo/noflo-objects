@@ -8,5 +8,7 @@ An object in this context isn't an object in the sense of OOP, but in
 the sense of a native JavaScript object, or basically a hash/dictionary.
 These components let you manipulate them as IPs in NoFlo.
 
-Feel free to contribute new components and graphs! I'll try to
-incorporate as soon as time allows.
+## Changes
+
+* 0.4.2 (git master)
+  - Added GetRandomMember component for choosing a random member from an array
