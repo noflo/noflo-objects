@@ -10,5 +10,5 @@ These components let you manipulate them as IPs in NoFlo.
 
 ## Changes
 
-* 0.4.2 (git master)
+* 0.5.0 (November 27 2017)
   - Added GetRandomMember component for choosing a random member from an array
