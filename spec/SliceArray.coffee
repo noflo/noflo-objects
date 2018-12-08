@@ -1,14 +1,3 @@
-noflo = require 'noflo'
-
-unless noflo.isBrowser()
-  chai = require 'chai'
-  path = require 'path'
-  baseDir = path.resolve __dirname, '../'
-else
-  baseDir = 'noflo-objects'
-
-expect = chai.expect unless expect
-
 describe 'SliceArray', ->
   c = null
   inIn = null
@@ -44,20 +33,20 @@ describe 'SliceArray', ->
   describe 'ports', ->
     describe 'inPorts', ->
       it 'should include "in"', (done) ->
-        expect(c.inPorts.in).to.be.an 'object'
+        chai.expect(c.inPorts.in).to.be.an 'object'
         done()
       it 'should include "begin"', (done) ->
-        expect(c.inPorts.begin).to.be.an 'object'
+        chai.expect(c.inPorts.begin).to.be.an 'object'
         done()
       it 'should include "end"', (done) ->
-        expect(c.inPorts.end).to.be.an 'object'
+        chai.expect(c.inPorts.end).to.be.an 'object'
         done()
     describe 'outPorts', (done) ->
       it 'should include "out"', (done) ->
-        expect(c.outPorts.out).to.be.an 'object'
+        chai.expect(c.outPorts.out).to.be.an 'object'
         done()
       it 'should include "error"', (done) ->
-        expect(c.outPorts.out).to.be.an 'object'
+        chai.expect(c.outPorts.out).to.be.an 'object'
         done()
 
   describe 'slicing an array', ->

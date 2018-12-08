@@ -1,14 +1,3 @@
-noflo = require 'noflo'
-
-unless noflo.isBrowser()
-  chai = require 'chai'
-  path = require 'path'
-  baseDir = path.resolve __dirname, '../'
-else
-  baseDir = 'noflo-objects'
-
-expect = chai.expect unless expect
-
 describe 'GetObjectKey', ->
   c = null
 
@@ -21,24 +10,24 @@ describe 'GetObjectKey', ->
 
   describe 'inPorts', ->
     it 'should include "in"', (done) ->
-      expect(c.inPorts.in).to.be.an 'object'
+      chai.expect(c.inPorts.in).to.be.an 'object'
       done()
     it 'should include "key"', (done) ->
-      expect(c.inPorts.key).to.be.an 'object'
+      chai.expect(c.inPorts.key).to.be.an 'object'
       done()
     it 'should include "sendgroup"', (done) ->
-      expect(c.inPorts.sendgroup).to.be.an 'object'
+      chai.expect(c.inPorts.sendgroup).to.be.an 'object'
       done()
 
   describe 'outPorts', ->
     it 'should include "out"', (done) ->
-      expect(c.outPorts.out).to.be.an 'object'
+      chai.expect(c.outPorts.out).to.be.an 'object'
       done()
     it 'should include "object"', (done) ->
-      expect(c.outPorts.object).to.be.an 'object'
+      chai.expect(c.outPorts.object).to.be.an 'object'
       done()
     it 'should include "missed"', (done) ->
-      expect(c.outPorts.missed).to.be.an 'object'
+      chai.expect(c.outPorts.missed).to.be.an 'object'
       done()
 
   describe 'data flow', ->

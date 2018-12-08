@@ -1,14 +1,3 @@
-noflo = require 'noflo'
-
-unless noflo.isBrowser()
-  chai = require 'chai'
-  path = require 'path'
-  baseDir = path.resolve __dirname, '../'
-else
-  baseDir = 'noflo-objects'
-
-expect = chai.expect unless expect
-
 describe 'Join', ->
   c = null
   inIn = null

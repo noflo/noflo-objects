@@ -1,15 +1,3 @@
-noflo = require 'noflo'
-
-unless noflo.isBrowser()
-  chai = require 'chai'
-  path = require 'path'
-  baseDir = path.resolve __dirname, '../'
-else
-  baseDir = 'noflo-objects'
-
-expect = chai.expect unless expect
-
-
 describe 'RemoveProperty', ->
   c = null
 
@@ -22,14 +10,14 @@ describe 'RemoveProperty', ->
 
   describe 'inPorts', ->
     it 'should include "in"', (done) ->
-      expect(c.inPorts.in).to.be.an 'object'
+      chai.expect(c.inPorts.in).to.be.an 'object'
       done()
     it 'should include "property"', (done) ->
-      expect(c.inPorts.property).to.be.an 'object'
+      chai.expect(c.inPorts.property).to.be.an 'object'
       done()
   describe 'outPorts', ->
     it 'should include "out"', (done) ->
-      expect(c.outPorts.out).to.be.an 'object'
+      chai.expect(c.outPorts.out).to.be.an 'object'
       done()
 
   describe 'data flow', ->
@@ -50,7 +38,7 @@ describe 'RemoveProperty', ->
     describe 'with input on all ports', ->
       it 'should remove the property', (done) ->
         outOut.on 'data', (data) ->
-          expect(data).to.deep.equal
+          chai.expect(data).to.deep.equal
             oh: 'canada'
           done()
 
