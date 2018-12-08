@@ -1,12 +1,3 @@
-noflo = require 'noflo'
-
-unless noflo.isBrowser()
-  chai = require 'chai'
-  path = require 'path'
-  baseDir = path.resolve __dirname, '../'
-else
-  baseDir = 'noflo-objects'
-
 describe 'SimplifyObject component', ->
   c = null
   property = null
