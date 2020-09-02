@@ -68,13 +68,13 @@ exports.getComponent = function () {
       });
 
       if (prop in newData) {
-        if (Array.isArray(newData[property])) {
-          newData[property].push(value);
+        if (Array.isArray(newData[prop])) {
+          newData[prop].push(value);
         } else {
-          newData[property] = [newData[property], value];
+          newData[prop] = [newData[prop], value];
         }
       } else {
-        newData[property] = value;
+        newData[prop] = value;
       }
     });
 

@@ -88,8 +88,8 @@ exports.getComponent = function () {
         }
       }
 
-      Object.keys(c.regexpAny).forEach((expression) => {
-        const replacement = c.regexpAny[expression];
+      Object.keys(regexpAny).forEach((expression) => {
+        const replacement = regexpAny[expression];
         regexp = new RegExp(expression);
         const matched = regexp.exec(value);
         if (!matched) { return; }
