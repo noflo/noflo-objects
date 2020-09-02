@@ -1,12 +1,10 @@
 .DS_Store
 *.swp
-*.js
 !index.js
 node_modules/
 dist/
 npm-debug.log
 components/*/
 spec/*.xml
-spec/*.js
 package-lock.json
 fbp.json
