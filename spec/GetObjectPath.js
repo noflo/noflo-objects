@@ -1,4 +1,4 @@
-describe.only('GetObjectPath', () => {
+describe('GetObjectPath', () => {
   let c = null;
   let inIn = null;
   let pathIn = null;
@@ -43,10 +43,53 @@ describe.only('GetObjectPath', () => {
         chai.expect(data).to.equal(42);
         done();
       });
+      errorOut.on('data', done);
       pathIn.post(new noflo.IP('data', '$.answer'));
       inIn.post(new noflo.IP('data', {
         question: undefined,
         answer: 42,
+      }));
+    });
+  });
+
+  describe('with a JSONPath matching a member of input array', () => {
+    it('should send the matched value out', (done) => {
+      outOut.on('data', (data) => {
+        chai.expect(data).to.equal(42);
+        done();
+      });
+      errorOut.on('data', done);
+      pathIn.post(new noflo.IP('data', '$..[2].answer'));
+      inIn.post(new noflo.IP('data', [
+        {
+          question: undefined,
+          answer: 40,
+        },
+        {
+          question: undefined,
+          answer: 41,
+        },
+        {
+          question: undefined,
+          answer: 42,
+        },
+      ]));
+    });
+  });
+
+  describe('with an invalid JSONPath syntax', () => {
+    it('should send an error out', (done) => {
+      outOut.on('data', () => {
+        done(new Error('Received unexpected data'));
+      });
+      errorOut.on('data', (data) => {
+        chai.expect(data).to.be.an('error');
+        done();
+      });
+      pathIn.post(new noflo.IP('data', '$.[2].answer'));
+      inIn.post(new noflo.IP('data', {
+        question: undefined,
+        answer: 40,
       }));
     });
   });
