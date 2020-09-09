@@ -10,6 +10,9 @@ These components let you manipulate them as IPs in NoFlo.
 
 ## Changes
 
+* 0.6.1 (git master)
+  - New component for getting object values via JSONPath expressions
+  - New component for comparing object values with a JSONPath expression
 * 0.6.0 (September 02 2020)
   - Converted from CoffeeScript to ES6
 * 0.5.0 (November 27 2017)
