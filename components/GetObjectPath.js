@@ -3,6 +3,7 @@ const jsonpath = require('jsonpath');
 
 exports.getComponent = function () {
   const c = new noflo.Component();
+  c.description = 'Query an object with a JSONPath expression';
   c.icon = 'indent';
   c.inPorts.add('in', {
     datatype: 'object',
