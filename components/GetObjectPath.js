@@ -15,6 +15,13 @@ exports.getComponent = function () {
     required: true,
     control: true,
   });
+  c.inPorts.add('multiple', {
+    datatype: 'boolean',
+    description: 'Whether to send all matching values as an array',
+    required: false,
+    control: true,
+    default: false,
+  });
   c.outPorts.add('out', {
     datatype: 'all',
     description: 'Result of the JSONPath query',
@@ -30,10 +37,18 @@ exports.getComponent = function () {
     if (!input.hasData('in', 'path')) {
       return;
     }
+    let multiple = false;
+    if (input.attached('multiple').length > 0) {
+      if (!input.hasData('multiple')) {
+        return;
+      }
+      multiple = input.getData('multiple');
+    }
     const [data, path] = input.getData('in', 'path');
     let result;
+    const method = multiple ? 'query' : 'value';
     try {
-      result = jsonpath.value(data, path);
+      result = jsonpath[method](data, path);
     } catch (e) {
       output.done(e);
       return;
