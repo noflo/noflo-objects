@@ -8,7 +8,7 @@ describe('FilterPropertyValue component', () => {
     loader = new noflo.ComponentLoader(baseDir);
   });
 
-  before(() => loader
+  beforeEach(() => loader
     .load('objects/FilterPropertyValue')
     .then((instance) => {
       c = instance;
