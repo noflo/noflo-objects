@@ -46,9 +46,12 @@ exports.getComponent = function () {
 
     // because we can have multiple data packets,
     // we want to get them all, and use just the data
-    const argsIn = input.getStream('arguments')
-      .filter((ip) => (ip.type === 'data') && (ip.data != null))
-      .map((ip) => ip.data);
+    let argsIn = [];
+    if (input.hasStream('arguments')) {
+      argsIn = input.getStream('arguments')
+        .filter((ip) => (ip.type === 'data') && (ip.data != null))
+        .map((ip) => ip.data);
+    }
 
     args = args.concat(argsIn);
     const data = input.getData('in');
