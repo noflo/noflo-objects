@@ -5,21 +5,20 @@ describe('DuplicateProperty component', () => {
   let separator = null;
   let out = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/DuplicateProperty', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      ins = noflo.internalSocket.createSocket();
-      property = noflo.internalSocket.createSocket();
-      separator = noflo.internalSocket.createSocket();
-      out = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      c.inPorts.property.attach(property);
-      c.inPorts.separator.attach(separator);
-      c.outPorts.out.attach(out);
-      return done();
-    });
+    return loader.load('objects/DuplicateProperty')
+      .then((instance) => {
+        c = instance;
+        ins = noflo.internalSocket.createSocket();
+        property = noflo.internalSocket.createSocket();
+        separator = noflo.internalSocket.createSocket();
+        out = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+        c.inPorts.property.attach(property);
+        c.inPorts.separator.attach(separator);
+        c.outPorts.out.attach(out);
+      });
   });
 
   return describe('duplicate property', () => it('should duplicate property ', (done) => {

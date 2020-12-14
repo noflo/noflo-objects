@@ -4,20 +4,19 @@ describe('FilterPropertyValue component', () => {
   let out = null;
   let loader = null;
 
-  before(() => loader = new noflo.ComponentLoader(baseDir));
+  before(() => {
+    loader = new noflo.ComponentLoader(baseDir);
+  });
 
-  beforeEach(function (done) {
-    this.timeout(4000);
-    return loader.load('objects/FilterPropertyValue', (err, instance) => {
-      if (err) { return done(err); }
+  before(() => loader
+    .load('objects/FilterPropertyValue')
+    .then((instance) => {
       c = instance;
       ins = noflo.internalSocket.createSocket();
       c.inPorts.in.attach(ins);
       out = noflo.internalSocket.createSocket();
       c.outPorts.out.attach(out);
-      return done();
-    });
-  });
+    }));
 
   afterEach((done) => {
     c.outPorts.out.detach(out);

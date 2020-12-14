@@ -8,13 +8,12 @@ describe('ComparePath', () => {
   let failOut = null;
   let errorOut = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/ComparePath', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/ComparePath')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   beforeEach((done) => {

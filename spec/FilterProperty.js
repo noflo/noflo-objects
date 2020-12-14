@@ -5,14 +5,12 @@ describe('FilterProperty component', () => {
   let key = null;
   let ins = null;
   let out = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/FilterProperty', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/FilterProperty')
+      .then((instance) => {
+        c = instance;
+      });
   });
   beforeEach((done) => {
     recurse = noflo.internalSocket.createSocket();

@@ -12,20 +12,18 @@ describe('SetPropertyValue component', () => {
   let value = null;
   let ins = null;
   let out = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/SetPropertyValue', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      property = noflo.internalSocket.createSocket();
-      c.inPorts.property.attach(property);
-      value = noflo.internalSocket.createSocket();
-      c.inPorts.value.attach(value);
-      ins = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      return done();
-    });
+    return loader.load('objects/SetPropertyValue')
+      .then((instance) => {
+        c = instance;
+        property = noflo.internalSocket.createSocket();
+        c.inPorts.property.attach(property);
+        value = noflo.internalSocket.createSocket();
+        c.inPorts.value.attach(value);
+        ins = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+      });
   });
   beforeEach((done) => {
     out = noflo.internalSocket.createSocket();

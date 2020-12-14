@@ -4,18 +4,16 @@ describe('GetRandomMember component', () => {
   let random = null;
   let out = null;
   let error = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/GetRandomMember', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      ins = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      random = noflo.internalSocket.createSocket();
-      c.inPorts.random.attach(random);
-      return c.start(done);
-    });
+    return loader.load('objects/GetRandomMember')
+      .then((instance) => {
+        c = instance;
+        ins = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+        random = noflo.internalSocket.createSocket();
+        c.inPorts.random.attach(random);
+      });
   });
   beforeEach(() => {
     out = noflo.internalSocket.createSocket();

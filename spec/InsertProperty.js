@@ -1,14 +1,12 @@
 describe('InsertProperty', () => {
   let c = null;
-  let loader = null;
 
-  before((done) => {
-    loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/InsertProperty', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+  before(() => {
+    const loader = new noflo.ComponentLoader(baseDir);
+    return loader.load('objects/InsertProperty')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   describe('inPorts', () => {

@@ -1,13 +1,12 @@
 describe('GetObjectKey', () => {
   let c = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/GetObjectKey', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/GetObjectKey')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   describe('inPorts', () => {

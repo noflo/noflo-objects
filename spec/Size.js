@@ -2,16 +2,14 @@ describe('Size component', () => {
   let c = null;
   let inIn = null;
   let out = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/Size', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      inIn = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(inIn);
-      return done();
-    });
+    return loader.load('objects/Size')
+      .then((instance) => {
+        c = instance;
+        inIn = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(inIn);
+      });
   });
   beforeEach((done) => {
     out = noflo.internalSocket.createSocket();

@@ -3,18 +3,16 @@ describe('ReplaceKey component', () => {
   let pattern = null;
   let ins = null;
   let out = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/ReplaceKey', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      pattern = noflo.internalSocket.createSocket();
-      c.inPorts.pattern.attach(pattern);
-      ins = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      return done();
-    });
+    return loader.load('objects/ReplaceKey')
+      .then((instance) => {
+        c = instance;
+        pattern = noflo.internalSocket.createSocket();
+        c.inPorts.pattern.attach(pattern);
+        ins = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+      });
   });
   beforeEach((done) => {
     out = noflo.internalSocket.createSocket();

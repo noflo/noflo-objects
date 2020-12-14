@@ -4,13 +4,12 @@ describe('MapProperty component', () => {
   let map = null;
   let out = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/MapProperty', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/MapProperty')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   beforeEach((done) => {

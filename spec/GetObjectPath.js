@@ -7,13 +7,12 @@ describe('GetObjectPath', () => {
   let objectOut = null;
   let errorOut = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/GetObjectPath', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/GetObjectPath')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   beforeEach((done) => {

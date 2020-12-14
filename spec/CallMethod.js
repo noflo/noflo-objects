@@ -4,14 +4,13 @@ describe('CallMethod component', () => {
   let args = null;
   let ins = null;
   let out = null;
-  before(function (done) {
+  before(function () {
     this.timeout(4000);
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/CallMethod', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/CallMethod')
+      .then((instance) => {
+        c = instance;
+      });
   });
   beforeEach((done) => {
     method = noflo.internalSocket.createSocket();

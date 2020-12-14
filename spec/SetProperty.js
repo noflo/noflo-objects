@@ -3,18 +3,16 @@ describe('SetProperty component', () => {
   let property = null;
   let inIn = null;
   let out = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/SetProperty', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      property = noflo.internalSocket.createSocket();
-      c.inPorts.property.attach(property);
-      inIn = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(inIn);
-      return done();
-    });
+    return loader.load('objects/SetProperty')
+      .then((instance) => {
+        c = instance;
+        property = noflo.internalSocket.createSocket();
+        c.inPorts.property.attach(property);
+        inIn = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(inIn);
+      });
   });
   beforeEach((done) => {
     out = noflo.internalSocket.createSocket();

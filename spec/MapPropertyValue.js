@@ -4,19 +4,18 @@ describe('MapPropertyValue component', () => {
   let map = null;
   let out = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/MapPropertyValue', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      ins = noflo.internalSocket.createSocket();
-      map = noflo.internalSocket.createSocket();
-      out = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      c.inPorts.map.attach(map);
-      c.outPorts.out.attach(out);
-      return done();
-    });
+    return loader.load('objects/MapPropertyValue')
+      .then((instance) => {
+        c = instance;
+        ins = noflo.internalSocket.createSocket();
+        map = noflo.internalSocket.createSocket();
+        out = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+        c.inPorts.map.attach(map);
+        c.outPorts.out.attach(out);
+      });
   });
 
   describe('when instantiated', () => {

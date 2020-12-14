@@ -4,19 +4,18 @@ describe('FlattenObject component', () => {
   let map = null;
   let out = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/FlattenObject', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      ins = noflo.internalSocket.createSocket();
-      map = noflo.internalSocket.createSocket();
-      out = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      c.inPorts.map.attach(map);
-      c.outPorts.out.attach(out);
-      return done();
-    });
+    return loader.load('objects/FlattenObject')
+      .then((instance) => {
+        c = instance;
+        ins = noflo.internalSocket.createSocket();
+        map = noflo.internalSocket.createSocket();
+        out = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+        c.inPorts.map.attach(map);
+        c.outPorts.out.attach(out);
+      });
   });
 
   beforeEach((done) => {

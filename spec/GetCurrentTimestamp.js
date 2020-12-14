@@ -2,16 +2,14 @@ describe('GetCurrentTimestamp component', () => {
   let c = null;
   let ins = null;
   let out = null;
-  before(function (done) {
-    this.timeout(4000);
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/GetCurrentTimestamp', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      ins = noflo.internalSocket.createSocket();
-      c.inPorts.in.attach(ins);
-      return done();
-    });
+    return loader.load('objects/GetCurrentTimestamp')
+      .then((instance) => {
+        c = instance;
+        ins = noflo.internalSocket.createSocket();
+        c.inPorts.in.attach(ins);
+      });
   });
   beforeEach((done) => {
     out = noflo.internalSocket.createSocket();

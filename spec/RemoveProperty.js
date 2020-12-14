@@ -1,13 +1,12 @@
 describe('RemoveProperty', () => {
   let c = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/RemoveProperty', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/RemoveProperty')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   describe('inPorts', () => {

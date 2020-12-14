@@ -6,13 +6,12 @@ describe('SliceArray', () => {
   let out = null;
   let errorOut = null;
 
-  before((done) => {
+  before(() => {
     const loader = new noflo.ComponentLoader(baseDir);
-    return loader.load('objects/SliceArray', (err, instance) => {
-      if (err) { return done(err); }
-      c = instance;
-      return done();
-    });
+    return loader.load('objects/SliceArray')
+      .then((instance) => {
+        c = instance;
+      });
   });
 
   beforeEach((done) => {
