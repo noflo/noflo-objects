@@ -1,0 +1,18 @@
+topic: objects/GetObjectPath
+cases:
+  - name: querying a value
+    assertion: should return the matched value
+    inputs:
+      path: "$.store.book[0].title"
+      in:
+        store:
+          book:
+            - title: Moby Dick
+    expect:
+      out:
+        equals: Moby Dick
+      object:
+        equals:
+          store:
+            book:
+              - title: Moby Dick

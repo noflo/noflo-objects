@@ -1,0 +1,9 @@
+topic: objects/CreateObject
+cases:
+  - name: creating an empty object
+    assertion: should send an empty object
+    inputs:
+      start: true
+    expect:
+      out:
+        equals: {}

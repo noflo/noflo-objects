@@ -1,0 +1,14 @@
+topic: objects/DuplicateProperty
+cases:
+  - name: duplicating a property
+    assertion: should duplicate the property under the new name
+    inputs:
+      property: "original=copy"
+      separator: "/"
+      in:
+        original: value
+    expect:
+      out:
+        equals:
+          original: value
+          copy: value

@@ -1,0 +1,11 @@
+topic: objects/SliceArray
+cases:
+  - name: slicing
+    assertion: should slice the array
+    inputs:
+      begin: 1
+      end: 3
+      in: [1, 2, 3, 4]
+    expect:
+      out:
+        equals: [2, 3]

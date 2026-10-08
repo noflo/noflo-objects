@@ -1,0 +1,11 @@
+topic: objects/Keys
+cases:
+  - name: getting keys
+    assertion: should send the last key
+    inputs:
+      in:
+        a: 1
+        b: 2
+    expect:
+      out:
+        equals: b

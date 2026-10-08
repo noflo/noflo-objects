@@ -1,0 +1,13 @@
+topic: objects/MapProperty
+cases:
+  - name: mapping a property name
+    assertion: should rename the property
+    inputs:
+      map:
+        old: new
+      in:
+        old: value
+    expect:
+      out:
+        equals:
+          new: value

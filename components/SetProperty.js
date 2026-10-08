@@ -1,43 +1,45 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-exports.getComponent = function () {
-  const c = new noflo.Component();
-
-  c.inPorts = new noflo.InPorts({
-    property: {
-      datatype: 'all',
-      description: 'All except for object',
-      required: true,
+/**
+ * Sets a property on the incoming object from a `key=value` pair.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Set a property on an object",
+    inPorts: {
+      property: {
+        datatype: "string",
+        description: "Property to set, in 'key=value' form",
+        control: true,
+        required: true,
+      },
+      in: {
+        datatype: "object",
+        description: "Object to set property on",
+        required: true,
+      },
     },
-    in: {
-      datatype: 'object',
-      description: 'Object to set property on',
-      required: true,
+    outPorts: {
+      out: {
+        datatype: "object",
+        description: "Object forwarded from input",
+      },
     },
   });
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'object',
-      description: 'Object forwared from input',
-    },
+
+  c.process((input, output) => {
+    if (!input.hasData("in", "property")) {
+      return;
+    }
+    const prop = input.getData("property");
+    const data = input.getData("in");
+
+    const propParts = prop.split("=");
+    data[propParts[0]] = propParts[1];
+
+    output.sendDone({ out: data });
   });
 
-  return c.process((input, output) => {
-    if (!input.hasData('in', 'property')) { return; }
-
-    const prop = input.getData('property');
-    const data = input.getData('in');
-
-    const properties = {};
-    const propParts = prop.split('=');
-    // eslint-disable-next-line prefer-destructuring
-    properties[propParts[0]] = propParts[1];
-
-    Object.keys(properties).forEach((property) => {
-      const value = properties[property];
-      data[property] = value;
-    });
-
-    output.sendDone(data);
-  });
-};
+  return c;
+}

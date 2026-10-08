@@ -1,0 +1,9 @@
+topic: objects/CreateError
+cases:
+  - name: creating from a string
+    assertion: should create an Error with the message
+    inputs:
+      start: something went wrong
+    expect:
+      out:
+        type: object

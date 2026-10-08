@@ -1,112 +1,106 @@
-/* eslint eqeqeq: 0 */
-const noflo = require('noflo');
-const jsonpath = require('jsonpath');
+import { Component } from "@noflo/noflo";
+import jsonpath from "jsonpath";
 
-exports.getComponent = function () {
-  const c = new noflo.Component();
-  c.description = 'Compare an object value extracted with a JSONPath expression';
-  c.icon = 'check';
-  c.inPorts.add('in', {
-    datatype: 'object',
-    description: 'Object to query',
-    required: true,
+/**
+ * Compares an object value extracted with a JSONPath expression.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Compare an object value extracted with a JSONPath expression",
+    icon: "check",
+    inPorts: {
+      in: {
+        datatype: "object",
+        description: "Object to query",
+        required: true,
+      },
+      path: {
+        datatype: "string",
+        description: "JSONPath expression",
+        control: true,
+        required: true,
+      },
+      comparison: {
+        datatype: "all",
+        description: "Value to compare against",
+        control: true,
+        required: true,
+      },
+      operator: {
+        datatype: "string",
+        description: "Comparison operator",
+        control: true,
+        default: "==",
+      },
+    },
+    outPorts: {
+      pass: {
+        datatype: "object",
+        description: "Object that passed the comparison",
+      },
+      fail: {
+        datatype: "object",
+        description: "Object that failed the comparison",
+      },
+      error: {
+        datatype: "object",
+      },
+    },
   });
-  c.inPorts.add('path', {
-    datatype: 'string',
-    description: 'JSONPath expression',
-    required: true,
-    control: true,
-  });
-  c.inPorts.add('comparison', {
-    datatype: 'number',
-    description: 'Value to compare against',
-    required: true,
-    control: true,
-  });
-  c.inPorts.add('operator', {
-    datatype: 'string',
-    description: 'Comparison operator',
-    control: true,
-    default: '==',
-    values: [
-      '==',
-      '!=',
-      '>',
-      '<',
-      '>=',
-      '<=',
-    ],
-  });
-  c.outPorts.add('pass', {
-    datatype: 'object',
-    description: 'Object that passed the comparison',
-  });
-  c.outPorts.add('fail', {
-    datatype: 'object',
-    description: 'Object that failed the comparison',
-  });
-  c.outPorts.add('error', {
-    datatype: 'object',
-  });
-  return c.process((input, output) => {
-    if (!input.hasData('in', 'path', 'comparison')) {
+
+  c.process((input, output) => {
+    if (!input.hasData("in", "path", "comparison")) {
       return;
     }
-    let operator = '==';
-    if (input.attached('operator').length > 0) {
-      if (!input.hasData('operator')) {
-        return;
-      }
-      operator = input.getData('operator');
+    // Wait for an attached operator connection to deliver before firing
+    if (input.attached("operator").length > 0 && !input.hasData("operator")) {
+      return;
     }
-    const [data, path, comparison] = input.getData('in', 'path', 'comparison');
+    const operator = input.hasData("operator")
+      ? input.getData("operator")
+      : "==";
+    const [data, path, comparison] = input.getData("in", "path", "comparison");
     let result;
     try {
       result = jsonpath.value(data, path);
-    } catch (e) {
-      output.done(e);
+    } catch (err) {
+      output.done(err instanceof Error ? err : new Error(String(err)));
       return;
     }
 
     let passed = false;
     switch (operator) {
-      case '==': {
+      case "==":
+        // biome-ignore lint/suspicious/noDoubleEquals: loose equality is the component contract
         passed = result == comparison;
         break;
-      }
-      case '!=': {
+      case "!=":
+        // biome-ignore lint/suspicious/noDoubleEquals: loose equality is the component contract
         passed = result != comparison;
         break;
-      }
-      case '>': {
+      case ">":
         passed = result > comparison;
         break;
-      }
-      case '<': {
+      case "<":
         passed = result < comparison;
         break;
-      }
-      case '>=': {
+      case ">=":
         passed = result >= comparison;
         break;
-      }
-      case '<=': {
+      case "<=":
         passed = result <= comparison;
         break;
-      }
-      default: {
+      default:
         output.done(new Error(`Unknown operator ${operator}`));
         return;
-      }
     }
     if (passed) {
-      output.sendDone({
-        pass: data,
-      });
+      output.sendDone({ pass: data });
       return;
     }
-    output.sendDone({
-      fail: data,
-    });
+    output.sendDone({ fail: data });
   });
-};
+
+  return c;
+}

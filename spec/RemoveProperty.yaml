@@ -1,0 +1,13 @@
+topic: objects/RemoveProperty
+cases:
+  - name: removing a property
+    assertion: should remove the property from a copy
+    inputs:
+      property: remove-me
+      in:
+        keep: me
+        remove-me: yes
+    expect:
+      out:
+        equals:
+          keep: me

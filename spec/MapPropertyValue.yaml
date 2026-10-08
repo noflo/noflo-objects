@@ -1,0 +1,13 @@
+topic: objects/MapPropertyValue
+cases:
+  - name: mapping a property value
+    assertion: should replace the value per the map
+    inputs:
+      map:
+        pending: done
+      in:
+        status: pending
+    expect:
+      out:
+        equals:
+          status: done

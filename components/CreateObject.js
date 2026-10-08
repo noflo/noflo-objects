@@ -1,25 +1,36 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-exports.getComponent = function () {
-  const c = new noflo.Component({ description: 'Create an empty object' });
-
-  c.inPorts = new noflo.InPorts({
-    start: {
-      datatype: 'bang',
-      description: 'Signal to create a new object',
+/**
+ * Creates an empty object on a bang.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Create an empty object",
+    inPorts: {
+      start: {
+        datatype: "bang",
+        description: "Signal to create a new object",
+        required: true,
+      },
+    },
+    outPorts: {
+      out: {
+        datatype: "object",
+        description: "A new empty object",
+      },
     },
   });
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'object',
-      description: 'A new empty object',
-    },
-  });
 
-  c.forwardBrackets = { start: ['out'] };
-  return c.process((input, output) => {
-    if (!input.hasData('start')) { return; }
-    input.getData('start');
+  c.forwardBrackets = { start: ["out"] };
+
+  c.process((input, output) => {
+    if (!input.hasData("start")) {
+      return;
+    }
+    input.getData("start");
     output.sendDone({ out: {} });
   });
-};
+
+  return c;
+}

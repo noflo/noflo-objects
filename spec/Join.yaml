@@ -1,0 +1,11 @@
+topic: objects/Join
+cases:
+  - name: joining values
+    assertion: should join the values with the delimiter
+    inputs:
+      in:
+        a: 1
+        b: 2
+    expect:
+      out:
+        equals: "1,2"

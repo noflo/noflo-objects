@@ -1,47 +1,67 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-exports.getComponent = function () {
-  const c = new noflo.Component();
-  c.description = 'given a regexp matching any key of an incoming object as a data IP, replace the key with the provided string';
-
-  c.inPorts = new noflo.InPorts({
-    in: {
-      datatype: 'object',
-      description: 'Object to replace a key from',
+/**
+ * Replaces keys of the incoming object matching a regexp pattern with
+ * the provided replacement string.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description:
+      "given a regexp matching any key of an incoming object as a data IP, replace the key with the provided string",
+    inPorts: {
+      in: {
+        datatype: "object",
+        description: "Object to replace a key from",
+        required: true,
+      },
+      pattern: {
+        datatype: "object",
+        description: "Map of regexp pattern to replacement string",
+        control: true,
+        required: true,
+      },
     },
-    pattern: {
-      datatype: 'all',
-      description: 'pattern to use to replace key',
-      control: true,
+    outPorts: {
+      out: {
+        datatype: "object",
+        description: "Object forwarded from input",
+      },
+      error: {
+        datatype: "object",
+        description: "Invalid regular expression errors",
+      },
     },
   });
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'object',
-      description: 'Object forwared from input',
-    },
-  });
 
-  return c.process((input, output) => {
-    if (!input.hasData('in', 'pattern')) { return; }
-    const data = input.getData('in');
-    const patterns = input.getData('pattern');
-    let newKey = null;
+  c.process((input, output) => {
+    if (!input.hasData("in", "pattern")) {
+      return;
+    }
+    const data = input.getData("in");
+    const patterns = input.getData("pattern");
 
-    Object.keys(data).forEach((key) => {
+    for (const key of Object.keys(data)) {
       const value = data[key];
-      Object.keys(patterns).forEach((pattern) => {
+      for (const pattern of Object.keys(patterns)) {
         const replace = patterns[pattern];
-        const regexp = new RegExp(pattern);
-
+        let regexp;
+        try {
+          regexp = new RegExp(pattern);
+        } catch (err) {
+          output.done(err instanceof Error ? err : new Error(String(err)));
+          return;
+        }
         if (key.match(regexp) != null) {
-          newKey = key.replace(regexp, replace);
+          const newKey = key.replace(regexp, replace);
           data[newKey] = value;
           delete data[key];
         }
-      });
-    });
+      }
+    }
 
     output.sendDone({ out: data });
   });
-};
+
+  return c;
+}

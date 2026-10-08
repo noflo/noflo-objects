@@ -1,0 +1,19 @@
+topic: objects/SimplifyObject
+cases:
+  - name: simplifying single-member arrays
+    assertion: should collapse the array
+    inputs:
+      in:
+        list: ["only"]
+    expect:
+      out:
+        equals:
+          list: only
+  - name: unwrapping $data
+    assertion: should unwrap the wrapper
+    inputs:
+      in:
+        "$data": real
+    expect:
+      out:
+        equals: real

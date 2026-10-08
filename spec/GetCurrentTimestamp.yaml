@@ -1,0 +1,9 @@
+topic: objects/GetCurrentTimestamp
+cases:
+  - name: sending a timestamp
+    assertion: should send a number
+    inputs:
+      in: true
+    expect:
+      out:
+        type: number

@@ -1,57 +1,67 @@
-const noflo = require('noflo');
-const jsonpath = require('jsonpath');
+import { Component } from "@noflo/noflo";
+import jsonpath from "jsonpath";
 
-exports.getComponent = function () {
-  const c = new noflo.Component();
-  c.description = 'Query an object with a JSONPath expression';
-  c.icon = 'indent';
-  c.inPorts.add('in', {
-    datatype: 'object',
-    description: 'Object to query',
-    required: true,
+/**
+ * Queries an object with a JSONPath expression, sending either the
+ * first matching value or all matches as an array.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Query an object with a JSONPath expression",
+    icon: "indent",
+    inPorts: {
+      in: {
+        datatype: "object",
+        description: "Object to query",
+        required: true,
+      },
+      path: {
+        datatype: "string",
+        description: "JSONPath expression",
+        control: true,
+        required: true,
+      },
+      multiple: {
+        datatype: "boolean",
+        description: "Whether to send all matching values as an array",
+        control: true,
+        default: false,
+      },
+    },
+    outPorts: {
+      out: {
+        datatype: "all",
+        description: "Result of the JSONPath query",
+      },
+      object: {
+        datatype: "all",
+        description: "The original input object",
+      },
+      error: {
+        datatype: "object",
+      },
+    },
   });
-  c.inPorts.add('path', {
-    datatype: 'string',
-    description: 'JSONPath expression',
-    required: true,
-    control: true,
-  });
-  c.inPorts.add('multiple', {
-    datatype: 'boolean',
-    description: 'Whether to send all matching values as an array',
-    required: false,
-    control: true,
-    default: false,
-  });
-  c.outPorts.add('out', {
-    datatype: 'all',
-    description: 'Result of the JSONPath query',
-  });
-  c.outPorts.add('object', {
-    datatype: 'all',
-    description: 'The original input object',
-  });
-  c.outPorts.add('error', {
-    datatype: 'object',
-  });
-  return c.process((input, output) => {
-    if (!input.hasData('in', 'path')) {
+
+  c.process((input, output) => {
+    if (!input.hasData("in", "path")) {
       return;
     }
-    let multiple = false;
-    if (input.attached('multiple').length > 0) {
-      if (!input.hasData('multiple')) {
-        return;
-      }
-      multiple = input.getData('multiple');
+    // Wait for an attached multiple connection to deliver before firing
+    if (input.attached("multiple").length > 0 && !input.hasData("multiple")) {
+      return;
     }
-    const [data, path] = input.getData('in', 'path');
+    const multiple = input.hasData("multiple")
+      ? input.getData("multiple")
+      : false;
+    const [data, path] = input.getData("in", "path");
+    const method = multiple ? "query" : "value";
     let result;
-    const method = multiple ? 'query' : 'value';
     try {
       result = jsonpath[method](data, path);
-    } catch (e) {
-      output.done(e);
+    } catch (err) {
+      output.done(err instanceof Error ? err : new Error(String(err)));
       return;
     }
     output.sendDone({
@@ -59,4 +69,6 @@ exports.getComponent = function () {
       object: data,
     });
   });
-};
+
+  return c;
+}

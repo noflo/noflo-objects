@@ -1,117 +1,145 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-exports.getComponent = function () {
-  const c = new noflo.Component({
-    icon: 'filter',
-    description: 'Filter out some values',
-  });
+/**
+ * getStream's declared return type is a loose union; cast it for every
+ * stream read until the core types are tightened.
+ * @param {{ getStream(port: string): unknown }} input
+ * @param {string} port
+ * @returns {import("@noflo/noflo").IP[]}
+ */
+const readStream = (input, port) =>
+  /** @type {import("@noflo/noflo").IP[]} */ (input.getStream(port));
 
-  c.inPorts = new noflo.InPorts({
-    accept: {
-      datatype: 'all',
-      description: 'property value to accept, can be more than one per object',
+/**
+ * Filters properties of incoming objects by accepted values and/or
+ * regexp patterns. Objects with no matched properties go to `missed`.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Filter out some values",
+    icon: "filter",
+    inPorts: {
+      accept: {
+        datatype: "all",
+        description:
+          "Property value to accept, can be more than one per object",
+      },
+      regexp: {
+        datatype: "string",
+        description: "Regexp properties to accept, in 'property=pattern' form",
+      },
+      in: {
+        datatype: "object",
+        description: "Object to filter properties from",
+        required: true,
+      },
     },
-    regexp: {
-      datatype: 'string',
-      description: 'regex properties to accept',
-    },
-    in: {
-      datatype: 'object',
-      description: 'Object to filter properties from',
-      required: true,
-    },
-  });
-
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'object',
-      description: 'Object including the filtered properties',
-    },
-    missed: {
-      datatype: 'object',
-      description: 'Object received as input if no key have been matched',
+    outPorts: {
+      out: {
+        datatype: "object",
+        description: "Object including the filtered properties",
+      },
+      missed: {
+        datatype: "object",
+        description: "Object received as input if no key have been matched",
+      },
     },
   });
 
   c.forwardBrackets = {};
-  return c.process((input, output) => {
-    let mapParts;
-    if (!input.hasStream('in')) { return; }
-    if (input.attached('accept').length > 0) { if (!input.hasStream('accept')) { return; } }
-    if (input.attached('regexp').length > 0) { if (!input.hasData('regexp')) { return; } }
 
-    const stream = input.getStream('in')
-      .filter((ip) => ip.type === 'data')
+  c.process((input, output) => {
+    if (!input.hasStream("in")) {
+      return;
+    }
+    if (input.attached("accept").length > 0 && !input.hasStream("accept")) {
+      return;
+    }
+    if (input.attached("regexp").length > 0 && !input.hasData("regexp")) {
+      return;
+    }
+
+    const stream = readStream(input, "in")
+      .filter((ip) => ip.type === "data")
       .map((ip) => ip.data);
-    const regexps = {};
-    let accepts = {};
-    if (input.has('accept')) {
-      const acceptData = input.getStream('accept')
-        .filter((ip) => ip.type === 'data')
-        .map((ip) => ip.data);
 
-      for (let index = 0; index < acceptData.length; index += 1) {
-        const accept = acceptData[index];
-        if (typeof accept === 'object') {
+    /** @type {Record<string, unknown>} */
+    let accepts = {};
+    if (input.has("accept")) {
+      const acceptData = readStream(input, "accept")
+        .filter((ip) => ip.type === "data")
+        .map((ip) => ip.data);
+      for (const accept of acceptData) {
+        if (typeof accept === "object") {
           accepts = accept;
           break;
         }
-        mapParts = accept.split('=');
+        const mapParts = String(accept).split("=");
         try {
-          // eslint-disable-next-line no-eval
-          accepts[mapParts[0]] = eval(mapParts[1]);
-        } catch (e) {
-          if (e instanceof ReferenceError) {
-            // eslint-disable-next-line prefer-destructuring
+          accepts[mapParts[0]] = Function(`return ${mapParts[1]}`)();
+        } catch (err) {
+          if (err instanceof ReferenceError) {
             accepts[mapParts[0]] = mapParts[1];
           } else {
-            output.sendDone(e);
+            output.done(err instanceof Error ? err : new Error(String(err)));
             return;
           }
         }
       }
     }
 
-    if (input.has('regexp')) {
-      const regexpData = input.getStream('regexp')
-        .filter((ip) => ip.type === 'data')
+    /** @type {Record<string, string>} */
+    const regexps = {};
+    if (input.has("regexp")) {
+      const regexpData = readStream(input, "regexp")
+        .filter((ip) => ip.type === "data")
         .map((ip) => ip.data);
-
       if (regexpData.length > 0) {
-        mapParts = regexpData[0].split('=');
-        // eslint-disable-next-line prefer-destructuring
+        const mapParts = String(regexpData[0]).split("=");
         regexps[mapParts[0]] = mapParts[1];
       }
     }
 
-    stream.forEach((data) => {
-      if (((Object.keys(accepts)).length > 0) || ((Object.keys(regexps)).length > 0)) {
-        const newData = {};
-        let match = false;
-        Object.keys(data).forEach((property) => {
-          const value = data[property];
-          if (accepts[property]) {
-            if (accepts[property] !== value) { return; }
-            match = true;
+    const sendAll = async () => {
+      for (const data of stream) {
+        if (
+          Object.keys(accepts).length > 0 ||
+          Object.keys(regexps).length > 0
+        ) {
+          /** @type {Record<string, unknown>} */
+          const newData = {};
+          let match = false;
+          for (const property of Object.keys(data)) {
+            const value = data[property];
+            if (accepts[property]) {
+              if (accepts[property] !== value) {
+                continue;
+              }
+              match = true;
+            }
+            if (regexps[property]) {
+              const regexp = new RegExp(regexps[property]);
+              if (!regexp.exec(value)) {
+                continue;
+              }
+              match = true;
+            }
+            newData[property] = value;
           }
-          if (regexps[property]) {
-            const regexp = new RegExp(regexps[property]);
-            if (!regexp.exec(value)) { return; }
-            match = true;
+          if (!match) {
+            await output.send({ missed: data });
+          } else {
+            await output.send({ out: newData });
           }
-          newData[property] = value;
-        });
-
-        if (!match) {
-          output.send({ missed: data });
         } else {
-          output.send({ out: newData });
+          await output.send({ out: data });
         }
-      } else {
-        output.send({ out: data });
       }
-    });
-
-    output.done();
+      output.done();
+    };
+    sendAll().catch((err) => output.done(err));
   });
-};
+
+  return c;
+}

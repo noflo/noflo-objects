@@ -1,10 +1,2 @@
-.DS_Store
-*.swp
-!index.js
-node_modules/
-dist/
-npm-debug.log
-components/*/
-spec/*.xml
-package-lock.json
-fbp.json
+/node_modules/
+/fbp.json

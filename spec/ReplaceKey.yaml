@@ -1,0 +1,13 @@
+topic: objects/ReplaceKey
+cases:
+  - name: replacing a key
+    assertion: should replace keys matching the pattern
+    inputs:
+      pattern:
+        "^old": new
+      in:
+        oldKey: value
+    expect:
+      out:
+        equals:
+          newKey: value

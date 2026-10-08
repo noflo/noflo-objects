@@ -1,83 +1,105 @@
-const noflo = require('noflo');
+import { Component, IP } from "@noflo/noflo";
 
-function mapKeys(object, maps) {
-  const o = object;
-  Object.keys(maps).forEach((key) => {
-    const map = maps[key];
-    o[map] = object.flattenedKeys[key];
-  });
-  delete o.flattenedKeys;
-  return o;
-}
-
-function flattenObject(object) {
-  const flattened = [];
-  Object.keys(object).forEach((key) => {
-    const value = object[key];
-    if (typeof value === 'object') {
-      const flattenedValue = flattenObject(value);
-      flattenedValue.forEach((val) => {
-        val.flattenedKeys.push(key);
-        flattened.push(val);
-      });
-      return;
-    }
-
-    flattened.push({
-      flattenedKeys: [key],
-      value,
-    });
-  });
-  return flattened;
-}
-
-exports.getComponent = function () {
-  const c = new noflo.Component();
-
-  c.inPorts = new noflo.InPorts({
-    map: {
-      datatype: 'all',
-      description: 'map to use to flatten the object',
-      control: true,
+/**
+ * Flattens a nested object into an array of entries, optionally renaming
+ * the flattened key positions via a `map` (index-based, e.g.
+ * `{"0": "name"}`).
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Flatten a nested object into a flat array",
+    inPorts: {
+      map: {
+        datatype: "all",
+        description: "Map to use to rename flattened key positions",
+        control: true,
+      },
+      in: {
+        datatype: "object",
+        description: "Object to flatten",
+        required: true,
+      },
     },
-    in: {
-      datatype: 'object',
-      description: 'Object to flatten',
-      required: true,
-    },
-  });
-
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'array',
+    outPorts: {
+      out: {
+        datatype: "array",
+      },
     },
   });
 
   c.forwardBrackets = {};
-  return c.process((input, output) => {
-    if (!input.hasData('in')) { return; }
-    if (input.attached('map').length > 0) { if (!input.hasData('map')) { return; } }
-    let maps = {};
 
-    if (input.hasData('map')) {
-      const map = input.getData('map');
+  /**
+   * @param {{ flattenedKeys: string[], value: unknown }} entry
+   * @param {Record<string, string>} maps
+   * @returns {Record<string, unknown>}
+   */
+  const mapKeys = (entry, maps) => {
+    const o = /** @type {any} */ (entry);
+    for (const key of Object.keys(maps)) {
+      o[maps[key]] = entry.flattenedKeys[Number(key)];
+    }
+    delete o.flattenedKeys;
+    return o;
+  };
+
+  /**
+   * @param {Record<string, any>} object
+   * @returns {Array<{ flattenedKeys: string[], value: unknown }>}
+   */
+  const flattenObject = (object) => {
+    const flattened = [];
+    for (const key of Object.keys(object)) {
+      const value = object[key];
+      if (typeof value === "object") {
+        for (const entry of flattenObject(value)) {
+          entry.flattenedKeys.push(key);
+          flattened.push(entry);
+        }
+        continue;
+      }
+      flattened.push({
+        flattenedKeys: [key],
+        value,
+      });
+    }
+    return flattened;
+  };
+
+  c.process((input, output) => {
+    if (!input.hasData("in")) {
+      return;
+    }
+    // Wait for an attached map connection to deliver before firing
+    if (input.attached("map").length > 0 && !input.hasData("map")) {
+      return;
+    }
+    /** @type {Record<string, string>} */
+    let maps = {};
+    if (input.hasData("map")) {
+      const map = input.getData("map");
       if (map != null) {
-        if (typeof map === 'object') {
+        if (typeof map === "object") {
           maps = map;
         } else {
-          const mapParts = map.split('=');
-          // eslint-disable-next-line prefer-destructuring
+          const mapParts = String(map).split("=");
           maps[mapParts[0]] = mapParts[1];
         }
       }
     }
 
-    const data = input.getData('in');
-    output.send(new noflo.IP('openBracket'));
-    flattenObject(data).forEach((object) => {
-      output.send(mapKeys(object, maps));
-    });
-    output.send(new noflo.IP('closeBracket'));
-    output.done();
+    const data = input.getData("in");
+    const sendAll = async () => {
+      await output.send(new IP("openBracket"));
+      for (const entry of flattenObject(data)) {
+        await output.send({ out: mapKeys(entry, maps) });
+      }
+      await output.send(new IP("closeBracket"));
+      output.done();
+    };
+    sendAll().catch((err) => output.done(err));
   });
-};
+
+  return c;
+}

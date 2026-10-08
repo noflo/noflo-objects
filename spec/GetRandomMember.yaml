@@ -1,0 +1,20 @@
+topic: objects/GetRandomMember
+cases:
+  - name: picking with a fixed random
+    assertion: should pick the first member
+    inputs:
+      random: 0
+      in: ["a", "b", "c"]
+    expect:
+      out:
+        equals: a
+  - name: rejecting an out-of-range random
+    assertion: should send an error
+    timeout: 3000
+    inputs:
+      random: 2
+      in: ["a"]
+    expect:
+      error:
+        path: $.message
+        contains: between 0 and 1

@@ -1,35 +1,43 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-exports.getComponent = function () {
-  const c = new noflo.Component({
+/**
+ * Creates an Error object from a string or context payload.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Create an Error object",
+    icon: "bug",
     inPorts: {
       start: {
-        datatype: 'string',
+        datatype: "all",
+        description: "Error message string, or a context payload object",
       },
     },
     outPorts: {
       out: {
-        datatype: 'object',
+        datatype: "object",
+        description: "The created Error",
       },
     },
   });
 
-  c.icon = 'bug';
-  c.description = 'Create an Error object';
+  c.forwardBrackets = { start: ["out"] };
 
-  c.forwardBrackets = { start: ['out'] };
-
-  return c.process((input, output) => {
+  c.process((input, output) => {
+    if (!input.hasData("start")) {
+      return;
+    }
+    const data = input.getData("start");
     let err;
-    const data = input.getData('start');
-
-    if (typeof data === 'string') {
+    if (typeof data === "string") {
       err = new Error(data);
     } else {
-      err = new Error('Error');
+      err = /** @type {Error & { context?: unknown }} */ (new Error("Error"));
       err.context = data;
     }
-
     output.sendDone({ out: err });
   });
-};
+
+  return c;
+}

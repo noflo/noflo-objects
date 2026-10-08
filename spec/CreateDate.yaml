@@ -1,0 +1,16 @@
+topic: objects/CreateDate
+cases:
+  - name: creating from string
+    assertion: should create the date
+    inputs:
+      in: "2020-01-01T00:00:00.000Z"
+    expect:
+      out:
+        type: object
+  - name: creating from now
+    assertion: should create the current date
+    inputs:
+      in: now
+    expect:
+      out:
+        type: object

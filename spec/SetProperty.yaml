@@ -1,0 +1,13 @@
+topic: objects/SetProperty
+cases:
+  - name: setting from key=value
+    assertion: should set the property
+    inputs:
+      property: "greeting=hello"
+      in:
+        other: keep
+    expect:
+      out:
+        equals:
+          other: keep
+          greeting: hello

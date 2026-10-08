@@ -1,54 +1,61 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-let simplify;
-
-function simplifyObject(data) {
-  const keys = Object.keys(data);
-  if ((keys.length === 1) && (keys[0] === '$data')) {
-    return simplify(data.$data);
-  }
-
-  const simplified = {};
-  Object.keys(data).forEach((key) => {
-    const value = data[key];
-    simplified[key] = simplify(value);
+/**
+ * Simplifies XML-parsed-style objects: single-member arrays collapse to
+ * their member, `$data` wrappers unwrap.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Simplify an object",
+    inPorts: {
+      in: {
+        datatype: "all",
+        description: "Object to simplify",
+        required: true,
+      },
+    },
+    outPorts: {
+      out: {
+        datatype: "all",
+        description: "Simplified object",
+      },
+    },
   });
-  return simplified;
-}
 
-simplify = function (data) {
-  if (Array.isArray(data)) {
-    if (data.length === 1) {
-      return data[0];
+  /**
+   * @param {any} data
+   * @returns {any}
+   */
+  const simplify = (data) => {
+    if (Array.isArray(data)) {
+      if (data.length === 1) {
+        return data[0];
+      }
+      return data;
     }
-    return data;
-  }
-  if (typeof data !== 'object') {
-    return data;
-  }
+    if (typeof data !== "object" || data === null) {
+      return data;
+    }
+    const keys = Object.keys(data);
+    if (keys.length === 1 && keys[0] === "$data") {
+      return simplify(data.$data);
+    }
+    /** @type {Record<string, any>} */
+    const simplified = {};
+    for (const key of keys) {
+      simplified[key] = simplify(data[key]);
+    }
+    return simplified;
+  };
 
-  return simplifyObject(data);
-};
-
-exports.getComponent = function () {
-  const c = new noflo.Component();
-  c.description = 'Simplify an objectgi';
-
-  c.inPorts = new noflo.InPorts({
-    in: {
-      datatype: 'all',
-      description: 'Object to simplify',
-    },
-  });
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'all',
-      description: 'Simplified object',
-    },
-  });
-
-  return c.process((input, output) => {
-    const data = input.getData('in');
+  c.process((input, output) => {
+    if (!input.hasData("in")) {
+      return;
+    }
+    const data = input.getData("in");
     output.sendDone({ out: simplify(data) });
   });
-};
+
+  return c;
+}

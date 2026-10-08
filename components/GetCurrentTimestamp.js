@@ -1,26 +1,34 @@
-const noflo = require('noflo');
+import { Component } from "@noflo/noflo";
 
-exports.getComponent = function () {
-  const c = new noflo.Component();
-  c.icon = 'clock-o';
-  c.description = 'Send out the current timestamp';
-
-  c.inPorts = new noflo.InPorts({
-    in: {
-      datatype: 'bang',
-      description: 'Causes the current timestamp to be sent out',
+/**
+ * Sends the current timestamp as an integer.
+ * @returns {import("@noflo/noflo").Component} The configured component
+ */
+export function getComponent() {
+  const c = new Component({
+    description: "Send out the current timestamp",
+    icon: "clock-o",
+    inPorts: {
+      in: {
+        datatype: "bang",
+        description: "Causes the current timestamp to be sent out",
+        required: true,
+      },
+    },
+    outPorts: {
+      out: {
+        datatype: "int",
+      },
     },
   });
 
-  c.outPorts = new noflo.OutPorts({
-    out: {
-      datatype: 'int',
-    },
-  });
-
-  return c.process((input, output) => {
-    if (!input.hasData('in')) { return; }
-    input.getData('in');
+  c.process((input, output) => {
+    if (!input.hasData("in")) {
+      return;
+    }
+    input.getData("in");
     output.sendDone({ out: Date.now() });
   });
-};
+
+  return c;
+}

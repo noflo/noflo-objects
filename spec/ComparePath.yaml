@@ -1,0 +1,26 @@
+topic: objects/ComparePath
+cases:
+  - name: passing comparison
+    assertion: should send to pass
+    inputs:
+      path: "$.count"
+      comparison: 3
+      operator: "=="
+      in:
+        count: 3
+    expect:
+      pass:
+        equals:
+          count: 3
+  - name: failing comparison
+    assertion: should send to fail
+    inputs:
+      path: "$.count"
+      comparison: 3
+      operator: "<"
+      in:
+        count: 5
+    expect:
+      fail:
+        equals:
+          count: 5

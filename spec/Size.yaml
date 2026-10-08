@@ -1,0 +1,12 @@
+topic: objects/Size
+cases:
+  - name: measuring an object
+    assertion: should count the keys
+    inputs:
+      in:
+        a: 1
+        b: 2
+        c: 3
+    expect:
+      out:
+        equals: 3
