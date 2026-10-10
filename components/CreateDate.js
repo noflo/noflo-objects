@@ -18,7 +18,7 @@ export function getComponent() {
     },
     outPorts: {
       out: {
-        datatype: "object",
+        datatype: "date",
         description: "A new Date object",
       },
     },

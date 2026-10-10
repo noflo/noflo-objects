@@ -6,11 +6,11 @@ cases:
       in: "2020-01-01T00:00:00.000Z"
     expect:
       out:
-        type: object
+        type: date
   - name: creating from now
     assertion: should create the current date
     inputs:
       in: now
     expect:
       out:
-        type: object
+        type: date

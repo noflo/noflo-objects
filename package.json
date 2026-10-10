@@ -28,13 +28,13 @@
     "url": "https://github.com/noflo/noflo-objects.git"
   },
   "dependencies": {
-    "@noflo/noflo": "^2.0.0-alpha.2",
+    "@noflo/noflo": "^2.0.0-alpha.3",
     "jsonpath": "^1.0.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
-    "@noflo/fbp-spec-runner": "^2.0.0-alpha.2",
-    "@noflo/loader-node": "^2.0.0-alpha.2",
+    "@noflo/fbp-spec-runner": "^2.0.0-alpha.3",
+    "@noflo/loader-node": "^2.0.0-alpha.3",
     "@types/jsonpath": "^0.2.4",
     "@types/node": "^24.0.0",
     "typescript": "^5.0.0"
